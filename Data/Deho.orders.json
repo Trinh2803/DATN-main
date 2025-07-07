@@ -1,0 +1,1261 @@
+[{
+  "_id": {
+    "$oid": "67e32ce52157440b136ea727"
+  },
+  "customerName": "Nguyễn Văn A",
+  "customerEmail": "nguyenvana@gmail.com",
+  "customerPhone": "0909123456",
+  "customerAddress": {
+    "address": "123 Đường ABC",
+    "district": "Quận 1",
+    "city": "TP. HCM"
+  },
+  "customerNote": "Giao hàng sau 18h.",
+  "items": [
+    {
+      "productId": "1234567890abcdef",
+      "productName": "Giường Ngủ MOHO KOSTER Màu Nâu 1m6",
+      "quantity": 1,
+      "price": 6490000
+    }
+  ],
+  "total": 6490000,
+  "status": "Đã hủy",
+  "adminNote": "Đã xác minh SĐT.",
+  "createdAt": "2025-03-26T14:30:00",
+  "updatedAt": {
+    "$date": "2025-04-05T06:41:33.886Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "680115ec983b9cef3c144993"
+  },
+  "customerName": "cccc",
+  "customerEmail": "nvt6920051000@gmail.com",
+  "customerPhone": "0398437961",
+  "customerAddress": "ef",
+  "customerNote": "ckm",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb1334375dedb510f7a0bf"
+      },
+      "quantity": 1,
+      "price": 1199000,
+      "_id": {
+        "$oid": "680115ec983b9cef3c144994"
+      }
+    }
+  ],
+  "total": 1199000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-17T14:53:32.376Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-17T14:53:32.376Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6801186f983b9cef3c1449a2"
+  },
+  "customerName": "sfs",
+  "customerEmail": "nvt6920051000@gmail.com",
+  "customerPhone": "0398437961",
+  "customerAddress": "efsdfs",
+  "customerNote": "",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0ac5f07de8526cae3518"
+      },
+      "quantity": 1,
+      "price": 790000,
+      "_id": {
+        "$oid": "6801186f983b9cef3c1449a3"
+      }
+    }
+  ],
+  "total": 790000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-17T15:04:15.544Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-17T15:04:15.544Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "680118c4983b9cef3c1449af"
+  },
+  "customerName": "HỘP HOĐẸA HỒNG NHẠT P 2022",
+  "customerEmail": "nvt6920051000@gmail.com",
+  "customerPhone": "0398437961",
+  "customerAddress": "efsdfs",
+  "customerNote": "ckm",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0ac5f07de8526cae3518"
+      },
+      "quantity": 1,
+      "price": 790000,
+      "_id": {
+        "$oid": "680118c4983b9cef3c1449b0"
+      }
+    }
+  ],
+  "total": 790000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-17T15:05:40.026Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-17T15:05:40.026Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68011a24983b9cef3c1449c3"
+  },
+  "customerName": "HỘP HOĐẸA HỒNG NHẠT P 2022",
+  "customerEmail": "nvt6920051000@gmail.com",
+  "customerPhone": "0398437961",
+  "customerAddress": "efsdfs",
+  "customerNote": "ckm",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0ac5f07de8526cae3518"
+      },
+      "quantity": 2,
+      "price": 790000,
+      "_id": {
+        "$oid": "68011a24983b9cef3c1449c4"
+      }
+    }
+  ],
+  "total": 1580000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-17T15:11:32.606Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-17T15:11:32.606Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6801b0f4166f6cd3e4bfe2d0"
+  },
+  "customerName": "Nguyễn Thành",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "12312356789",
+  "customerAddress": "55 Tân Thới Nhát 21, quận 12",
+  "customerNote": "coin card",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0424f07de8526cae34c3"
+      },
+      "quantity": 4,
+      "price": 6499000,
+      "_id": {
+        "$oid": "6801b0f4166f6cd3e4bfe2d1"
+      }
+    }
+  ],
+  "total": 25996000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-18T01:55:00.742Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-18T01:55:00.742Z"
+  },
+  "__v": 0
+},
+{
+  "_id": "60b74f5c7fa4f4308a7755f4",
+  "customerName": "Nguyễn Văn A",
+  "customerEmail": "nguyenvana@example.com",
+  "customerPhone": "0912345678",
+  "customerAddress": "123 Đường ABC, TP.HCM",
+  "customerNote": "Giao hàng nhanh",
+  "items": [
+    {
+      "productId": "67fb0351f07de8526cae34bb",
+      "quantity": 3,
+      "price": 6990000
+    }
+  ],
+  "total": 20970000,
+  "status": "Chờ xác nhận",
+  "adminNote": "Cần giao hàng vào cuối tuần",
+  "createdAt": "2025-04-20T09:00:00Z",
+  "updatedAt": "2025-04-20T09:00:00Z"
+},
+{
+  "_id": "60b74f5c7fa4f4308a7755f5",
+  "customerName": "Nguyễn Văn A",
+  "customerEmail": "nguyenvana@example.com",
+  "customerPhone": "0912345678",
+  "customerAddress": "123 Đường ABC, TP.HCM",
+  "customerNote": "Giao hàng nhanh",
+  "items": [
+    {
+      "productId": "67fb0351f07de8526cae34bb",
+      "quantity": 3,
+      "price": 6990000
+    }
+  ],
+  "total": 20970000,
+  "status": "Chờ xác nhận",
+  "adminNote": "Cần giao hàng vào cuối tuần",
+  "createdAt": "2025-04-20T09:00:00Z",
+  "updatedAt": "2025-04-20T09:00:00Z"
+},
+{
+  "_id": "60b74f5c7fa4f4308a7755f1",
+  "customerName": "Nguyễn Thị C",
+  "customerEmail": "nguyenthic@example.com",
+  "customerPhone": "0912345679",
+  "customerAddress": "789 Đường DEF, TP.HCM",
+  "customerNote": "Giao hàng trong ngày",
+  "items": [
+    {
+      "productId": "67fb0351f07de8526cae34bb",
+      "quantity": 5,
+      "price": 6990000
+    }
+  ],
+  "total": 34950000,
+  "status": "Đang chuẩn bị",
+  "adminNote": "Giao hàng trong ngày",
+  "createdAt": "2025-04-21T10:00:00Z",
+  "updatedAt": "2025-04-21T10:00:00Z"
+},
+{
+  "_id": {
+    "$oid": "68052f29e32248a3df00a3fa"
+  },
+  "customerName": "Nguyễn Thành",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "``",
+  "customerAddress": "55 Tân Thới Nhát 21, quận 12",
+  "customerNote": "`",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 4,
+      "price": 6999000,
+      "_id": {
+        "$oid": "68052f29e32248a3df00a3fb"
+      }
+    }
+  ],
+  "total": 27996000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T17:30:17.293Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T17:30:17.293Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68052fb0e32248a3df00a406"
+  },
+  "customerName": "Nguyễn Thành",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "`",
+  "customerAddress": "55 Tân Thới Nhát 21, quận 12",
+  "customerNote": "`",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 1,
+      "price": 6999000,
+      "_id": {
+        "$oid": "68052fb0e32248a3df00a407"
+      }
+    }
+  ],
+  "total": 6999000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T17:32:32.214Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T17:32:32.214Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6805304e34c51d22402ad9f1"
+  },
+  "customerName": "Nguyễn Thành",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "55 Tân Thới Nhát 21, quận 12",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 2,
+      "price": 6999000,
+      "_id": {
+        "$oid": "6805304e34c51d22402ad9f2"
+      }
+    }
+  ],
+  "total": 13998000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T17:35:10.417Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T17:35:10.417Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "680530b7226c48b227737863"
+  },
+  "customerName": "Nguyễn Thành",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "`",
+  "customerAddress": "55 Tân Thới Nhát 21, quận 12",
+  "customerNote": "`",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 3,
+      "price": 6999000,
+      "_id": {
+        "$oid": "680530b7226c48b227737864"
+      }
+    },
+    {
+      "productId": {
+        "$oid": "67fb0424f07de8526cae34c3"
+      },
+      "quantity": 2,
+      "price": 6499000,
+      "_id": {
+        "$oid": "680530b7226c48b227737865"
+      }
+    }
+  ],
+  "total": 33995000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T17:36:55.123Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T17:36:55.123Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "680533bf24c524d72bac34f4"
+  },
+  "customerName": "Nguyễn Thành1",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "55 Tân Thới Nhát 21, quận 12",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 1,
+      "price": 6999000,
+      "_id": {
+        "$oid": "680533bf24c524d72bac34f5"
+      }
+    }
+  ],
+  "total": 6999000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T17:49:51.043Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T17:49:51.043Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68053450bc5f329ce7abde41"
+  },
+  "customerName": "Nguyễn Thành",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "55 Tân Thới Nhát 21, quận 12",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 3,
+      "price": 6999000,
+      "_id": {
+        "$oid": "68053450bc5f329ce7abde42"
+      }
+    }
+  ],
+  "total": 20997000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T17:52:16.736Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T17:52:16.736Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "680534f2291a73f5a94ab87b"
+  },
+  "customerName": "1",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "1",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 1,
+      "price": 6999000,
+      "_id": {
+        "$oid": "680534f2291a73f5a94ab87c"
+      }
+    }
+  ],
+  "total": 6999000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T17:54:58.115Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T17:54:58.115Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68053593601d712fd8b86587"
+  },
+  "customerName": "Nguyễn Thành",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "55 Tân Thới Nhát 21, quận 12",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 1,
+      "price": 6999000,
+      "_id": {
+        "$oid": "68053593601d712fd8b86588"
+      }
+    }
+  ],
+  "total": 6999000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T17:57:39.975Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T17:57:39.975Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68053594601d712fd8b8658b"
+  },
+  "customerName": "Nguyễn Thành",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "55 Tân Thới Nhát 21, quận 12",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 1,
+      "price": 6999000,
+      "_id": {
+        "$oid": "68053594601d712fd8b8658c"
+      }
+    }
+  ],
+  "total": 6999000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T17:57:40.052Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T17:57:40.052Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6805362f684f52cd2cf15103"
+  },
+  "customerName": "1",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "1",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 2,
+      "price": 6999000,
+      "_id": {
+        "$oid": "6805362f684f52cd2cf15104"
+      }
+    }
+  ],
+  "total": 13998000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T18:00:15.358Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T18:00:15.358Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68053686b7b77044f089ce1e"
+  },
+  "customerName": "1",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "1",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 1,
+      "price": 6999000,
+      "_id": {
+        "$oid": "68053686b7b77044f089ce1f"
+      }
+    }
+  ],
+  "total": 6999000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T18:01:42.072Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T18:01:42.072Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6805371adf3bc6faf5ffb732"
+  },
+  "customerName": "Nguyễn Thành",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "55 Tân Thới Nhát 21, quận 12",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 3,
+      "price": 6999000,
+      "_id": {
+        "$oid": "6805371adf3bc6faf5ffb733"
+      }
+    }
+  ],
+  "total": 20997000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T18:04:10.105Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T18:04:10.105Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "680538dc276206426af9997b"
+  },
+  "customerName": "Nguyễn Thành",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "55 Tân Thới Nhát 21, quận 12",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 2,
+      "price": 6999000,
+      "_id": {
+        "$oid": "680538dc276206426af9997c"
+      }
+    }
+  ],
+  "total": 13998000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T18:11:40.597Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T18:11:40.597Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68053ab77ea2070d477b4bc1"
+  },
+  "customerName": "Nguyễn Thành",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "55 Tân Thới Nhát 21, quận 12",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 3,
+      "price": 6999000,
+      "_id": {
+        "$oid": "68053ab87ea2070d477b4bc2"
+      }
+    }
+  ],
+  "total": 20997000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T18:19:36.020Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T18:19:36.020Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68053b97cd94f673ecec5f38"
+  },
+  "customerName": "1",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "1",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 1,
+      "price": 6999000,
+      "_id": {
+        "$oid": "68053b97cd94f673ecec5f39"
+      }
+    },
+    {
+      "productId": {
+        "$oid": "67fb0424f07de8526cae34c3"
+      },
+      "quantity": 2,
+      "price": 6499000,
+      "_id": {
+        "$oid": "68053b97cd94f673ecec5f3a"
+      }
+    }
+  ],
+  "total": 19997000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T18:23:19.630Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T18:23:19.630Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68053bbccd94f673ecec5f49"
+  },
+  "customerName": "Nguyễn Thành",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "55 Tân Thới Nhát 21, quận 12",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 1,
+      "price": 6999000,
+      "_id": {
+        "$oid": "68053bbccd94f673ecec5f4a"
+      }
+    }
+  ],
+  "total": 6999000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T18:23:56.738Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T18:23:56.738Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68053bcfcd94f673ecec5f55"
+  },
+  "customerName": "1",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "1",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 2,
+      "price": 6999000,
+      "_id": {
+        "$oid": "68053bcfcd94f673ecec5f56"
+      }
+    }
+  ],
+  "total": 13998000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T18:24:15.996Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T18:24:15.996Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68053ded318fcb39e1131490"
+  },
+  "customerName": "Nguyễn Thành",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "55 Tân Thới Nhát 21, quận 12",
+  "customerNote": "sa",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 1,
+      "price": 6999000,
+      "_id": {
+        "$oid": "68053ded318fcb39e1131491"
+      }
+    }
+  ],
+  "total": 6999000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T18:33:17.158Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T18:33:17.158Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68053df7318fcb39e1131495"
+  },
+  "customerName": "Nguyễn Thành",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "55 Tân Thới Nhát 21, quận 12",
+  "customerNote": "sa",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 1,
+      "price": 6999000,
+      "_id": {
+        "$oid": "68053df7318fcb39e1131496"
+      }
+    }
+  ],
+  "total": 6999000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T18:33:27.073Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T18:33:27.073Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68053e3455af8a6ffd7b6e87"
+  },
+  "customerName": "Nguyễn Thành",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "55 Tân Thới Nhát 21, quận 12",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 1,
+      "price": 6999000,
+      "_id": {
+        "$oid": "68053e3455af8a6ffd7b6e88"
+      }
+    }
+  ],
+  "total": 6999000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T18:34:28.289Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T18:34:28.289Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68053f59ffd39ed3bc555310"
+  },
+  "customerName": "Nguyễn Thành",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "55 Tân Thới Nhát 21, quận 12",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 1,
+      "price": 6999000,
+      "_id": {
+        "$oid": "68053f59ffd39ed3bc555311"
+      }
+    }
+  ],
+  "total": 6999000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T18:39:21.567Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T18:39:21.567Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68054012512f4298e66b2c5e"
+  },
+  "customerName": "1",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "1",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 1,
+      "price": 6999000,
+      "_id": {
+        "$oid": "68054012512f4298e66b2c5f"
+      }
+    }
+  ],
+  "total": 6999000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T18:42:26.993Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T18:42:26.993Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68054016512f4298e66b2c61"
+  },
+  "customerName": "1",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "1",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 1,
+      "price": 6999000,
+      "_id": {
+        "$oid": "68054016512f4298e66b2c62"
+      }
+    }
+  ],
+  "total": 6999000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T18:42:30.388Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T18:42:30.388Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6805403c4336e7fa946c8818"
+  },
+  "customerName": "1",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "1",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 1,
+      "price": 6999000,
+      "_id": {
+        "$oid": "6805403c4336e7fa946c8819"
+      }
+    }
+  ],
+  "total": 6999000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T18:43:08.275Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T18:43:08.275Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6805403f4336e7fa946c881c"
+  },
+  "customerName": "1",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "1",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 1,
+      "price": 6999000,
+      "_id": {
+        "$oid": "6805403f4336e7fa946c881d"
+      }
+    }
+  ],
+  "total": 6999000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T18:43:11.600Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T18:43:11.600Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6805403f4336e7fa946c881f"
+  },
+  "customerName": "1",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "1",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 1,
+      "price": 6999000,
+      "_id": {
+        "$oid": "6805403f4336e7fa946c8820"
+      }
+    }
+  ],
+  "total": 6999000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T18:43:11.614Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T18:43:11.614Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6805403f4336e7fa946c8822"
+  },
+  "customerName": "1",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "1",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 1,
+      "price": 6999000,
+      "_id": {
+        "$oid": "6805403f4336e7fa946c8823"
+      }
+    }
+  ],
+  "total": 6999000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T18:43:11.674Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T18:43:11.674Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6805404a4336e7fa946c8828"
+  },
+  "customerName": "1",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "1",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 2,
+      "price": 6999000,
+      "_id": {
+        "$oid": "6805404a4336e7fa946c8829"
+      }
+    }
+  ],
+  "total": 13998000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T18:43:22.776Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T18:43:22.776Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6805407e9a24e9c77f938163"
+  },
+  "customerName": "1",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "1",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 2,
+      "price": 6999000,
+      "_id": {
+        "$oid": "6805407e9a24e9c77f938164"
+      }
+    }
+  ],
+  "total": 13998000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T18:44:14.348Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T18:44:14.348Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6805408d9a24e9c77f93816e"
+  },
+  "customerName": "1",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "1",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0351f07de8526cae34bb"
+      },
+      "quantity": 2,
+      "price": 6999000,
+      "_id": {
+        "$oid": "6805408d9a24e9c77f93816f"
+      }
+    }
+  ],
+  "total": 13998000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T18:44:29.672Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T18:44:29.672Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "680540a49a24e9c77f938179"
+  },
+  "customerName": "1",
+  "customerEmail": "sucvat@gmail.com",
+  "customerPhone": "1",
+  "customerAddress": "1",
+  "customerNote": "1",
+  "items": [
+    {
+      "productId": {
+        "$oid": "67fb0424f07de8526cae34c3"
+      },
+      "quantity": 3,
+      "price": 6499000,
+      "_id": {
+        "$oid": "680540a49a24e9c77f93817a"
+      }
+    }
+  ],
+  "total": 19497000,
+  "status": "Chờ xác nhận",
+  "adminNote": "",
+  "createdAt": {
+    "$date": "2025-04-20T18:44:52.409Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-20T18:44:52.409Z"
+  },
+  "__v": 0
+}]

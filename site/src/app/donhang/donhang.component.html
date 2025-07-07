@@ -1,0 +1,64 @@
+<div class="container">
+  <div class="left-section">
+    <div class="page-title">
+      <h1>Nội Thất Deho</h1>
+      <div class="breadcrumb">
+        <a href="/">Trang chủ</a>
+        <span>›</span>
+        <a href="/giohang">Giỏ hàng</a>
+        <span>›</span>
+        <span>Xác nhận đơn hàng</span>
+      </div>
+    </div>
+
+    <h2 class="section-title">Thông tin đơn hàng</h2>
+    <div class="order-info" *ngIf="order; else noOrder">
+      <p><strong>Họ và tên:</strong> {{ order.shippingInfo.fullName || 'N/A' }}</p>
+      <p><strong>Số điện thoại:</strong> {{ order.shippingInfo.phone || 'N/A' }}</p>
+      <p><strong>Địa chỉ:</strong> {{ order.shippingInfo.address || 'N/A' }}</p>
+      <p><strong>Ghi chú:</strong> {{ order.shippingInfo.note || order.orderNote || 'Không có' }}</p>
+      <p><strong>Phương thức vận chuyển:</strong> {{ order.shippingInfo.shippingMethod === 'free' ? 'Miễn phí vận chuyển' : (order.shippingInfo.shippingMethod || 'Khác') }}</p>
+      <p><strong>Phương thức thanh toán:</strong> {{ order.shippingInfo.paymentMethod === 'cod' ? 'Thanh toán khi nhận hàng' : (order.shippingInfo.paymentMethod || 'Khác') }}</p>
+      <p><strong>Ngày đặt hàng:</strong> {{ order.orderDate | date:'dd/MM/yyyy HH:mm' }}</p>
+    </div>
+
+    <div class="btn-row">
+      <a href="/" class="btn btn-primary">Tiếp tục mua hàng</a>
+    </div>
+  </div>
+
+  <div class="right-section">
+    <div class="cart-items">
+      <div class="cart-item" *ngFor="let item of order?.cartItems; let i = index">
+        <div class="cart-item-image">
+          <span class="item-number">{{ i + 1 }}</span>
+          <img [src]="'http://localhost:3000' + item.product.thumbnail" [alt]="item.product.name" />
+        </div>
+        <div class="cart-item-details">
+          <h3 class="cart-item-title">{{ item.product.name }}</h3>
+          <p class="cart-item-desc">Số lượng: {{ item.quantity }}</p>
+        </div>
+        <div class="cart-item-price">{{ (item.product.salePrice || item.product.price) * item.quantity | number:'1.0-0' }}₫</div>
+      </div>
+    </div>
+
+    <div class="cart-summary">
+      <div class="summary-row">
+        <span>Tạm tính</span>
+        <span>{{ order?.totalPrice | number:'1.0-0' }}₫</span>
+      </div>
+      <div class="summary-row">
+        <span>Phí vận chuyển</span>
+        <span>Miễn phí</span>
+      </div>
+      <div class="summary-row total">
+        <span>Tổng cộng</span>
+        <span>VND {{ order?.totalPrice | number:'1.0-0' }}₫</span>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noOrder>
+    <p>Không tìm thấy thông tin đơn hàng.</p>
+  </ng-template>
+</div>

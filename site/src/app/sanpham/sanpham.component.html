@@ -1,0 +1,126 @@
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+/>
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+  rel="stylesheet"
+/>
+
+<div class="top-menu">
+  <div class="container">
+    <ul>
+      <li><a href="/">Trang chủ</a></li>
+      <li><a href="/san-pham">Sản Phẩm</a></li>
+    </ul>
+  </div>
+</div>
+
+<div class="hero-banner">
+  <div class="hero-content">
+    <img src="./images/banner.jpg" alt="DALUMD Collection" />
+  </div>
+</div>
+
+<main>
+  <div class="container">
+    <!-- Thông báo lỗi -->
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Thanh tìm kiếm -->
+    <div class="search-bar">
+      <div class="search-container">
+        <i style="cursor: pointer;" class="fas fa-search search-icon" (click)="onSearchChange()"></i>
+        <input
+          type="text"
+          placeholder="Tìm kiếm sản phẩm"
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearchChange()"
+        />
+      </div>
+    </div>
+
+    <!-- Bộ lọc -->
+    <div class="filter-section">
+      <div class="filter-btn">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          fill="currentColor"
+          viewBox="0 0 16 16"
+        >
+          <path
+            d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"
+          />
+        </svg>
+        BỘ LỌC
+      </div>
+
+      <div class="filter-dropdowns">
+        <!-- Dropdown danh mục -->
+        <div class="dropdown">
+          <select
+            [(ngModel)]="selectedCategory"
+            (ngModelChange)="onCategoryChange($event)"
+            class="dropdown-btn"
+          >
+            <option *ngFor="let category of categories" [value]="category._id">
+              {{ category.name }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Dropdown giá -->
+        <div class="dropdown">
+          <select
+            [(ngModel)]="sortOrder"
+            (ngModelChange)="onSortChange($event)"
+            class="dropdown-btn"
+          >
+            <option value="">Mặc định</option>
+            <option value="asc">Giá: Thấp đến Cao</option>
+            <option value="desc">Giá: Cao đến Thấp</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Danh sách sản phẩm -->
+    <section class="products-section">
+      <div class="container">
+        <app-listcard [data]="displayedProducts"></app-listcard>
+      </div>
+    </section>
+
+    <!-- Phân trang -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button
+        [disabled]="currentPage === 1"
+        (click)="previousPage()"
+        class="pagination-btn"
+      >
+        Trước
+      </button>
+      <button
+        *ngFor="let page of getPageNumbers()"
+        (click)="goToPage(page)"
+        [class.active]="page === currentPage"
+        class="pagination-btn"
+      >
+        {{ page }}
+      </button>
+      <button
+        [disabled]="currentPage === totalPages"
+        (click)="nextPage()"
+        class="pagination-btn"
+      >
+        Sau
+      </button>
+    </div>
+  </div>
+</main>

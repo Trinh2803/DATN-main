@@ -1,0 +1,81 @@
+<section class="banner">
+  <div class="banner-container">
+    <div class="banner-slide" *ngFor="let slide of slides; let i = index" [ngClass]="{ active: i === currentSlide }">
+      <div class="banner-image">
+        <img [src]="slide.image" alt="Banner {{ i + 1 }}">
+      </div>
+      <div class="banner-content">
+        <h2>{{ slide.subtitle }}</h2>
+        <h1>{{ slide.title }}</h1>
+        <div class="banner-buttons">
+          <a class="link-button" [href]="slide.linkButtonUrl">{{ slide.linkButtonText }}</a>
+          <a class="reward-button" [href]="slide.rewardButtonUrl">{{ slide.rewardButtonText }}</a>
+        </div>
+        <a class="details-link" [href]="slide.detailsUrl">{{ slide.detailsText }}</a>
+      </div>
+    </div>
+  </div>
+  <div class="banner-navigation">
+    <button class="prev-button" (click)="prevSlide()" [disabled]="slides.length <= 1">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <button class="next-button" (click)="nextSlide()" [disabled]="slides.length <= 1">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+</section>
+
+<!-- New Category Gallery Section -->
+<section class="category-gallery">
+  <div class="gallery-grid">
+    <div class="gallery-item large">
+      <img src="https://product.hstatic.net/200000065946/product/pro_xam_noi_that_moho_sofa_2_734c2cf3b5674220a6305219e51aec73_large.jpg" alt="Sofa" loading="lazy">
+      <span class="category-label">SOFA</span>
+    </div>
+    <div class="gallery-item small">
+      <img src="https://product.hstatic.net/200000065946/product/pro_combo_ban_an_4_ghe_noi_that_moho_combo___1__a278207568a84c75aaaeb001710d1972_large.jpg" alt="Table" loading="lazy">
+      <span class="category-label">BÀN ĂN</span>
+    </div>
+    <div class="gallery-item small">
+      <img src="https://product.hstatic.net/200000065946/product/pro_nau_noi_that_moho_combo_phong_ngu_dalumd_4_mon_1_347053d304bc4750a8491e34315e1f45_master.jpg" alt="Bed" loading="lazy">
+      <span class="category-label">GIƯỜNG</span>
+    </div>
+    <div class="gallery-item small">
+      <img src="https://product.hstatic.net/200000065946/product/pro_nau_noi_that_moho_ghe_sofa_go_fyn_1_17e0228ac2144b95ba105333ef3bc994_master.jpg" alt="Armchair" loading="lazy">
+      <span class="category-label">ARMCHAIR</span>
+    </div>
+    <div class="gallery-item small">
+      <img src="https://product.hstatic.net/200000065946/product/pro_mau_tu_nhien_noi_that_moho_ghe_an_vline_1_e4a9936f38fe4b67aebf70c35f804e25_master.jpg" alt="Chair" loading="lazy">
+      <span class="category-label">GHẾ ĂN</span>
+    </div>
+  </div>
+</section>
+
+<div class="container">
+  <app-listcard *ngIf="newProducts.length > 0" [data]="newProducts" [title]="'Sản phẩm mới'"></app-listcard>
+  <app-listcard *ngIf="saleProducts.length > 0" [data]="saleProducts" [title]="'Sản phẩm sale'"></app-listcard>
+  <app-listcard *ngIf="hotProducts.length > 0" [data]="hotProducts" [title]="'Sản phẩm hot'"></app-listcard>
+</div>
+
+<!-- News Section -->
+<section class="news-section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Tin tức</h2>
+      <a href="/news" class="view-more">Xem thêm</a>
+    </div>
+    <div class="news-grid">
+      <div class="news-card" *ngFor="let news of newsItems">
+        <div class="news-image">
+          <img [src]="news.image" [alt]="news.title" loading="lazy">
+        </div>
+        <div class="news-info">
+          <h3 class="news-title">{{ news.title }}</h3>
+          <p class="news-date">{{ news.date }}</p>
+          <p class="news-description">{{ news.description }}</p>
+          <a [href]="news.link" class="read-more">Đọc thêm</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

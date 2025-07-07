@@ -1,0 +1,1022 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+
+:root {
+  --primary-bg: #0e0e0e;
+  --card-bg: #0A1A2F; /* Đổi từ #1e1e1e sang #0A1A2F để phù hợp với ảnh */
+  --sidebar-bg: #ffffff;
+  --text-primary: #ffffff;
+  --text-secondary: #a4a4a4;
+  --text-dark: #2d2d2d;
+  --accent-color: #316df3;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --card-radius: 12px;
+  --icon-color: #737474;
+  --success-color: #3FEC77;
+  --progress-color: #3F4BB8;
+  --chart-line: #787DFF;
+}
+h3 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #000000; /* Đổi màu chữ thành đen để phù hợp với nền */
+}
+.all {
+margin: 40px;
+}
+
+#app {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dashboard-container {
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.05));
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+  max-width: 1600px;
+  min-height: 800px;
+  display: flex;
+  position: relative;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  position: fixed;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  background-color: var(--sidebar-bg);
+  color: var(--text-dark);
+  width: 230px;
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #eee;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 24px;
+  margin-bottom: 30px;
+  padding-left: 10px;
+}
+
+.logo svg {
+  margin-right: 8px;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 30px;
+}
+
+.menu-item,
+.integration-item,
+.team-item,
+.settings-link {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  text-decoration: none;
+  color: var(--text-dark);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.menu-item svg,
+.integration-item svg,
+.team-item svg,
+.settings-link svg {
+  margin-right: 10px;
+  color: var(--icon-color);
+}
+
+.menu-item.active {
+  background-color: rgba(0, 0, 0, 0.05);
+  font-weight: 600;
+}
+
+.menu-item.active svg {
+  color: var(--text-dark);
+}
+
+.menu-item:hover,
+.integration-item:hover,
+.team-item:hover,
+.settings-link:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.sidebar-divider {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 15px 0 10px 10px;
+}
+
+.integrations,
+.teams {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 20px;
+}
+
+.team-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--icon-color);
+  margin-right: 10px;
+  margin-left: 5px;
+}
+
+.team-item.active .team-dot {
+  background-color: var(--text-dark);
+}
+
+.add-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+}
+
+/* Main Content Styles */
+.main-content {
+  background-color: pink;
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.header h1 {
+  color: black;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.create-btn {
+  background-color: #000;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.create-btn:hover {
+  background-color: #222;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--icon-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.2s;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.icon-btn:hover {
+  color: var(--text-primary);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Dashboard Content */
+.dashboard-content {
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto auto;
+  gap: 20px;
+}
+
+/* Card Styles */
+.card {
+  background-color: var(--card-bg);
+  border-radius: var(--card-radius);
+  padding: 20px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.card-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff; /* Đảm bảo màu chữ trắng để dễ đọc trên nền mới */
+}
+
+.card-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Overall Info Card */
+.overall-info {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.info-numbers {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+.info-number h2 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 5px;
+  color: #ffffff; /* Đảm bảo màu chữ trắng */
+}
+
+.info-number p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.info-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.stat-box {
+  background-color: #1A2A40; /* Đổi từ #252525 sang màu sáng hơn để tương phản với nền */
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  width: 30%;
+}
+
+.stat-box h4 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #ffffff; /* Đảm bảo màu chữ trắng */
+}
+
+.stat-box p {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* Weekly Progress Card */
+.weekly-progress {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.progress-filters {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.filter-btn {
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.filter-btn.active {
+  color: var(--text-primary);
+}
+
+.filter-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.filter-dot.sport {
+  background-color: var(--chart-line);
+}
+
+.filter-dot.study {
+  background-color: var(--accent-color);
+}
+
+.chart-container {
+  height: 150px;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.chart-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(120, 125, 255, 0.2) 0%, transparent 100%);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.chart-placeholder::before {
+  content: "";
+  position: absolute;
+  top: 30%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--chart-line);
+  box-shadow: 0 0 10px 1px rgba(120, 125, 255, 0.6);
+}
+
+.chart-placeholder::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right,
+    transparent 0%,
+    transparent 10%,
+    transparent 20%,
+    transparent 30%,
+    transparent 40%,
+    transparent 50%,
+    transparent 60%,
+    transparent 70%,
+    transparent 80%,
+    rgba(120, 125, 255, 0.8) 90%,
+    rgba(120, 125, 255, 0.8) 100%
+  );
+  mask-image: linear-gradient(to right,
+    transparent 0%,
+    transparent 10%,
+    rgba(0, 0, 0, 0.2) 20%,
+    rgba(0, 0, 0, 0.5) 30%,
+    rgba(0, 0, 0, 0.7) 40%,
+    rgba(0, 0, 0, 0.3) 50%,
+    rgba(0, 0, 0, 0.5) 60%,
+    rgba(0, 0, 0, 0.7) 70%,
+    rgba(0, 0, 0, 0.9) 80%,
+    rgba(0, 0, 0, 1) 90%,
+    rgba(0, 0, 0, 1) 100%
+  );
+  mask-mode: alpha;
+  -webkit-mask-image: linear-gradient(to right,
+    transparent 0%,
+    transparent 10%,
+    rgba(0, 0, 0, 0.2) 20%,
+    rgba(0, 0, 0, 0.5) 30%,
+    rgba(0, 0, 0, 0.7) 40%,
+    rgba(0, 0, 0, 0.3) 50%,
+    rgba(0, 0, 0, 0.5) 60%,
+    rgba(0, 0, 0, 0.7) 70%,
+    rgba(0, 0, 0, 0.9) 80%,
+    rgba(0, 0, 0, 1) 90%,
+    rgba(0, 0, 0, 1) 100%
+  );
+  -webkit-mask-mode: alpha;
+}
+
+.chart-labels {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.chart-labels .label {
+  width: 14.28%;
+  text-align: center;
+}
+
+.chart-labels .label.active {
+  color: white;
+  font-weight: 600;
+  position: relative;
+}
+
+.chart-labels .label.active::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  left: 50%;
+  top: -25px;
+  transform: translateX(-50%);
+  background-color: var(--chart-line);
+  box-shadow: 0 0 10px 1px rgba(120, 125, 255, 0.8);
+}
+
+/* Month Progress Card */
+.month-progress {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.progress-percentage {
+  font-size: 13px;
+  color: var(--success-color);
+  margin-bottom: 20px;
+}
+
+.progress-chart {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.donut-chart {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: conic-gradient(var(--success-color) 0% 120%, transparent 120% 100%);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.donut-chart::before {
+  content: "";
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: var(--card-bg);
+}
+
+.donut-chart-value {
+  position: relative;
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffffff; /* Đảm bảo màu chữ trắng */
+}
+
+.progress-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.legend-dot.sport {
+  background-color: var(--chart-line);
+}
+
+.legend-dot.study {
+  background-color: var(--accent-color);
+}
+
+.legend-dot.project {
+  background-color: var(--success-color);
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  transition: color 0.2s;
+}
+
+.action-btn:hover {
+  color: var(--text-primary);
+}
+
+.action-btn.download {
+  margin-left: auto;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+.action-btn.download:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Tasks Section */
+.tasks-section {
+  grid-column: span 2;
+  grid-row: 2;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #000000; /* Đổi màu chữ thành đen để phù hợp với nền */
+}
+
+.pin-note-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.toggle-switch {
+  width: 40px;
+  height: 20px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+}
+
+.toggle-knob {
+  width: 16px;
+  height: 16px;
+  background-color: white;
+  border-radius: 50%;
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  transition: left 0.2s;
+}
+
+.tasks-container {
+  display: flex;
+  gap: 15px;
+}
+
+.task-card {
+  flex: 1;
+  background-color: var(--card-bg);
+  border-radius: var(--card-radius);
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.task-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.task-icon.gift {
+  background-color: #FFA26B;
+}
+
+.task-icon.medical {
+  background-color: #7166F9;
+}
+
+.task-content {
+  flex: 1;
+}
+
+.task-content h4 {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 5px;
+  color: #ffffff; /* Đảm bảo màu chữ trắng */
+}
+
+.task-date {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.task-menu {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.add-task {
+  flex: 1;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: var(--card-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+}
+
+.add-task-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* Projects Section */
+.projects-section {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.sort-options {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: var(--text-secondary);
+  gap: 10px;
+}
+
+.sort-select {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 500;
+  padding-right: 15px;
+  appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23a4a4a4' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right center;
+}
+
+.view-buttons {
+  display: flex;
+  gap: 5px;
+  margin-left: auto;
+}
+
+.view-btn {
+  background: none;
+  border: none;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.view-btn.active {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.projects-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.project-card {
+  background-color: var(--card-bg);
+  border-radius: var(--card-radius);
+  padding: 15px;
+  position: relative;
+}
+
+.project-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 10px;
+  font-size: 12px;
+}
+
+.project-status .status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.project-status.in-progress {
+  color: var(--progress-color);
+}
+
+.project-status.in-progress .status-dot {
+  background-color: var(--progress-color);
+}
+
+.project-status.completed {
+  color: var(--success-color);
+}
+
+.project-status.completed .status-dot {
+  background-color: var(--success-color);
+}
+
+.project-card h4 {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 5px;
+  color: #ffffff; /* Đảm bảo màu chữ trắng */
+}
+
+.project-card p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.progress-circle {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+}
+
+/* Media Queries */
+@media (max-width: 1000px) {
+  .dashboard-content {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .overall-info {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .weekly-progress {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .month-progress {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .tasks-section {
+    grid-column: span 2;
+    grid-row: 3;
+  }
+
+  .projects-section {
+    grid-column: span 2;
+    grid-row: 4;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    padding: 20px;
+  }
+
+  .dashboard-content {
+    grid-template-columns: 1fr;
+  }
+
+  .overall-info,
+  .weekly-progress,
+  .month-progress,
+  .tasks-section,
+  .projects-section {
+    grid-column: 1;
+  }
+
+  .overall-info {
+    grid-row: 1;
+  }
+
+  .weekly-progress {
+    grid-row: 2;
+  }
+
+  .month-progress {
+    grid-row: 3;
+  }
+
+  .tasks-section {
+    grid-row: 4;
+  }
+
+  .projects-section {
+    grid-row: 5;
+  }
+
+  .tasks-container {
+    flex-direction: column;
+  }
+}
+
+/* Dashboard Content */
+.dashboard-content {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  width: 100%; /* Bao phủ toàn bộ chiều rộng */
+  max-width: none; /* Bỏ giới hạn chiều rộng */
+}
+
+/* Tiêu đề */
+.card-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #2d2d2d;
+  margin-bottom: 16px;
+}
+
+/* Card thông tin cá nhân */
+.user-info-card {
+  display: flex;
+  align-items: center;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  width: 100%; /* Bao phủ toàn bộ chiều rộng */
+  gap: 24px; /* Khoảng cách đều giữa các phần tử */
+}
+
+/* Ảnh đại diện và icon cây bút */
+.avatar-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.user-avatar {
+  width: 120px; /* Tăng kích thước để nổi bật */
+  height: 120px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.edit-avatar-btn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.edit-avatar-btn:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.edit-avatar-btn svg {
+  color: #ffffff;
+}
+
+/* Thông tin người dùng */
+.user-info {
+  flex: 1; /* Chiếm toàn bộ không gian còn lại */
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* Khoảng cách đều giữa các dòng */
+  color: #4b4b4b;
+}
+
+.user-name {
+  font-size: 20px;
+  font-weight: 600;
+  color: #2d2d2d;
+  margin: 0;
+}
+
+.user-info p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.user-info strong {
+  color: #2d2d2d;
+  margin-right: 8px;
+}
+
+/* Nút chỉnh sửa */
+.action-btn.edit {
+  background-color: #0d9488; /* Màu teal giống giao diện trước */
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.action-btn.edit:hover {
+  background-color: #0f766e;
+}
+
+/* Đảm bảo nền main-content trắng */
+.main-content {
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch; /* Đảm bảo nội dung bên trong mở rộng hết chiều rộng */
+}

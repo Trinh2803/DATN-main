@@ -1,0 +1,121 @@
+<div class="breadcrumb">
+  <div class="container">
+    <ul>
+      <li><a href="/">Trang chủ</a></li>
+      <li>Giỏ hàng ({{ cartItemCount }})</li>
+    </ul>
+  </div>
+</div>
+
+<main>
+  <div class="container">
+    <h1 class="page-title">Giỏ hàng của bạn</h1>
+
+    <div class="cart-container">
+      <div class="cart-products">
+        <div class="cart-info">
+          <p>Có <span>{{ cartItemCount }} sản phẩm</span> trong giỏ hàng</p>
+        </div>
+
+        <div class="cart-item" *ngFor="let item of cartItems">
+          <div class="cart-item-image">
+            <img  [src]="'http://localhost:3000' + item.product.thumbnail" [alt]="item.product.name" />
+          </div>
+          <div class="cart-item-details">
+            <h3 class="product-title">{{ item.product.name }}</h3>
+            <div class="product-price">
+              <span class="current-price">{{ (item.product.salePrice || item.product.price) | number:'1.0-0' }}đ</span>
+              <span class="original-price" *ngIf="item.product.salePrice">({{ item.product.price | number:'1.0-0' }}đ)</span>
+            </div>
+            <div class="quantity-control">
+              <button class="decrease" (click)="updateQuantity(item.product._id, item.quantity - 1)">-</button>
+              <input type="text" [value]="item.quantity" readonly />
+              <button class="increase" (click)="updateQuantity(item.product._id, item.quantity + 1)">+</button>
+            </div>
+          </div>
+          <div class="cart-item-total">
+            <span>{{ (item.product.salePrice || item.product.price) * item.quantity | number:'1.0-0' }}đ</span>
+          </div>
+          <div class="cart-item-remove">
+            <button class="remove-btn" (click)="removeFromCart(item.product._id)">×</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="cart-summary">
+        <h2 class="summary-title">Thông tin đơn hàng</h2>
+        <div class="summary-row">
+          <span>Tổng tiền:</span>
+          <span class="total-price">{{ totalPrice | number:'1.0-0' }}đ</span>
+        </div>
+        <button class="checkout-btn" (click)="checkout()">THANH TOÁN</button>
+
+        <div class="delivery-options">
+          <div class="continue-shopping">
+            <a href="#"><i class="arrow-icon"></i> Tiếp tục mua hàng</a>
+          </div>
+
+          <div class="delivery-option">
+            <i class="check-icon"></i>
+            <div class="delivery-text">
+              <strong>Không rủi ro. Đặt hàng trước, thanh toán sau tại nhà. Miễn phí giao hàng & lắp đặt</strong>
+              <span>tại tất cả quận huyện thuộc TP.HCM, Hà Nội, Khu đô thị Ecopark, Biên Hòa và một số khu vực thuộc Bình Dương (*)</span>
+            </div>
+          </div>
+
+          <div class="delivery-option">
+            <i class="check-icon"></i>
+            <div class="delivery-text">
+              <strong>Đơn hàng của quý khách sẽ được <span class="highlight">giao hàng trong vòng 3 ngày</span>,</strong>
+              <span>vui lòng đợi nhân viên tư vấn xác nhận lịch giao hàng trước khi thực hiện chuyển khoản đơn hàng</span>
+            </div>
+          </div>
+
+          <div class="delivery-option">
+            <i class="check-icon"></i>
+            <div class="delivery-text">
+              <strong>Miễn phí 1 đổi 1 - Bảo hành 2 năm - Bảo trì trọn đời</strong>
+              <span>(**)</span>
+            </div>
+          </div>
+
+          <div class="delivery-option">
+            <i class="check-icon"></i>
+            <div class="delivery-text">
+              <strong>Tất cả sản phẩm được thiết kế bởi các chuyên gia thiết kế nội thất đến từ</strong>
+              <span>Đan Mạch và Hàn Quốc</span>
+            </div>
+          </div>
+
+          <div class="delivery-option">
+            <i class="check-icon"></i>
+            <div class="delivery-text">
+              <strong>Chất lượng Quốc Tế đảm bảo theo tiêu chuẩn</strong>
+              <span>cho người dùng tại Việt Nam</span>
+            </div>
+          </div>
+
+          <div class="delivery-option">
+            <i class="check-icon"></i>
+            <div class="delivery-text">
+              <strong>Sản xuất tại nhà máy SAVIMEX với gần</strong>
+              <span>40 năm kinh nghiệm</span>
+            </div>
+          </div>
+
+          <div class="notes">
+            <p>(*) Không áp dụng cho danh mục Đồ Trang Trí</p>
+            <p>(**) Không áp dụng cho các sản phẩm Clearance.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cart-actions">
+      <div class="order-note">
+        <h3>Ghi chú đơn hàng</h3>
+        <textarea placeholder="Nhập ghi chú đơn hàng của bạn..." [(ngModel)]="orderNote"></textarea>
+      </div>
+    </div>
+  </div>
+</main>

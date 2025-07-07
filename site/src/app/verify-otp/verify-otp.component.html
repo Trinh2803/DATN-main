@@ -1,0 +1,43 @@
+<div class="all">
+  <div class="container">
+    <div class="left-section">
+      <h1>Xác minh mã OTP</h1>
+      <p>Nhập mã OTP đã được gửi về email: <b>{{ email }}</b></p>
+      <div class="divider"></div>
+    </div>
+
+    <div class="right-section">
+      <h3>Nhập mã xác thực</h3>
+
+      <form #otpForm="ngForm" (ngSubmit)="submitOtp()">
+        <input
+          type="text"
+          name="otp"
+          placeholder="Mã OTP"
+          [(ngModel)]="otp"
+          #otpCtrl="ngModel"
+          required
+          minlength="4"
+          maxlength="6"
+        />
+        <small class="text-danger" *ngIf="otpCtrl.invalid && otpCtrl.touched">
+          ❌ Mã OTP cần từ 4 đến 6 chữ số!
+        </small>
+
+        <button type="submit" [disabled]="otpForm.invalid">Xác minh OTP</button>
+
+        <div class="register-option">
+          <span>Nhập sai email?</span>
+          <a [routerLink]="['/forgot-password']" class="register-link">Quay lại</a>
+        </div>
+      </form>
+
+      <p *ngIf="successMessage" class="text-success text-center mt-3">
+        {{ successMessage }}
+      </p>
+      <p *ngIf="errorMessage" class="text-danger text-center mt-3">
+        {{ errorMessage }}
+      </p>
+    </div>
+  </div>
+</div>

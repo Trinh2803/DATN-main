@@ -1,0 +1,38 @@
+<div class="main-bg">
+  <div class="container">
+    <div class="left-panel">
+      <div class="logo-block">
+        <div class="logo"><span>ADMIN</span></div>
+      </div>
+      <h2 class="welcome">Chào mừng bạn trở lại!</h2>
+      <div class="desc">Vui lòng đăng nhập để tiếp tục</div>
+
+      <!-- Hiển thị thông báo lỗi form -->
+      <div *ngIf="formError" class="error-message">
+        {{ formError }}
+      </div>
+
+      <form class="login-form" (ngSubmit)="login()">
+        <label class="input-label">Email</label>
+        <div class="input-wrap">
+          <svg class="input-icon" width="18" height="18" fill="none">
+            <path d="M2.25 4.5A2.25 2.25 0 0 1 4.5 2.25h9A2.25 2.25 0 0 1 15.75 4.5v9a2.25 2.25 0 0 1-2.25 2.25h-9A2.25 2.25 0 0 1 2.25 13.5v-9Z" stroke="#a9a9bc" stroke-width="1.5"/>
+            <path d="m3 5.25 6 5.25 6-5.25" stroke="#a9a9bc" stroke-width="1.5"/>
+          </svg>
+          <input type="email" placeholder="Nhập email" [(ngModel)]="email" name="email" required />
+        </div>
+        <label class="input-label">Mật khẩu</label>
+        <div class="input-wrap">
+          <svg class="input-icon" width="18" height="18" fill="none">
+            <path d="M9 11.25a2.25 2.25 0 0 0 0-4.5 2.25 2.25 0 0 0 0 4.5Zm4.5 3v-2.25a4.5 4.5 0 0 0-9 0V14.25" stroke="#a9a9bc" stroke-width="1.5"/>
+          </svg>
+          <input type="password" placeholder="Mật khẩu" [(ngModel)]="password" name="password" required />
+        </div>
+        <button type="submit" class="login-btn">Login</button>
+      </form>
+    </div>
+    <div class="right-panel">
+      <img src="https://bizweb.dktcdn.net/100/438/413/themes/838171/assets/img_tab_1.jpg?1718613871355" alt="Login Illustration" class="illu-img"/>
+    </div>
+  </div>
+</div>

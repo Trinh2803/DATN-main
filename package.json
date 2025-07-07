@@ -1,0 +1,24 @@
+{
+  "name": "datn",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Trinh2803/DATN.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Trinh2803/DATN/issues"
+  },
+  "homepage": "https://github.com/Trinh2803/DATN#readme",
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^20.0.1"
+  }
+}

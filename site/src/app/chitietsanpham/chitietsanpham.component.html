@@ -1,0 +1,120 @@
+<!-- src/app/chitietsanpham/chitietsanpham.component.html -->
+<div class="container">
+  <!-- Breadcrumb Navigation -->
+  <div class="breadcrumb">
+    <a routerLink="/">Trang chủ</a> /
+    <a routerLink="/sanpham">Tất cả sản phẩm MOHO</a> /
+    {{ product?.name || 'Ghế Ăn Gỗ MOHO KOSTER Màu Nâu' }}
+  </div>
+
+  <!-- Product Page -->
+  <div class="product-page" *ngIf="product">
+    <!-- Product Gallery (Thumbnails) -->
+    <div class="product-gallery">
+      <div class="thumbnail" *ngIf="product.thumbnail" (click)="selectImage(product.thumbnail)">
+        <img [src]="'http://localhost:3000' + product.thumbnail" alt="Thumbnail">
+      </div>
+      <div class="thumbnail" *ngFor="let image of product.images" (click)="selectImage(image)">
+        <img [src]="'http://localhost:3000' + image" alt="Product Image">
+      </div>
+    </div>
+
+    <!-- Main Product Image -->
+    <div class="main-image">
+      <img [src]="'http://localhost:3000' + (selectedImage || product.thumbnail)" alt="Main Image">
+    </div>
+
+    <!-- Product Information -->
+    <div class="product-info">
+      <h1 class="product-title">{{ product.name }}</h1>
+
+      <div class="product-price">
+        <span class="discount-badge" *ngIf="isSaleProduct()">
+          Giảm {{ calculateDiscountPercentage() }}%
+        </span>
+        <span class="current-price">{{ getCurrentPrice() | currency:'VND':'symbol' }}</span>
+        <span class="old-price" *ngIf="isSaleProduct()">{{ getOriginalPrice() | currency:'VND':'symbol' }}</span>
+      </div>
+
+      <!-- Variants Section -->
+      <div class="variants-section" *ngIf="product.variants && product.variants.length > 0">
+        <div class="variant-title">Chọn kích thước:</div>
+        <div class="variants-container">
+          <div
+            class="variant-option"
+            *ngFor="let variant of product.variants"
+            [class.selected]="selectedVariant?.id === variant.id"
+            [class.out-of-stock]="!isVariantInStock(variant)"
+            (click)="isVariantInStock(variant) ? selectVariant(variant) : null"
+          >
+            <div class="variant-size">{{ variant.size }}</div>
+            <div class="variant-price">
+              <span class="variant-current-price">{{ (variant.salePrice || variant.price) | currency:'VND':'symbol' }}</span>
+              <span class="variant-old-price" *ngIf="variant.salePrice && variant.salePrice < variant.price">
+                {{ variant.price | currency:'VND':'symbol' }}
+              </span>
+            </div>
+            <div class="variant-discount" *ngIf="calculateVariantDiscount(variant) > 0">
+              -{{ calculateVariantDiscount(variant) }}%
+            </div>
+            <div class="variant-stock" [class.low-stock]="variant.stock <= 5">
+              {{ variant.stock > 0 ? (variant.stock + ' còn lại') : 'Hết hàng' }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-dimensions">
+        <div class="dimension-title">Kích thước:</div>
+        <div>{{ product.description || 'Dài 48,5 X Rộng 42 X Cao 77 (cm)' }}</div>
+      </div>
+
+      <div class="product-disclaimer">
+        (*) Tiêu chuẩn California Air Resources Board xuất khẩu Mỹ, đảm bảo gỗ không độc hại, an toàn cho sức khỏe
+      </div>
+
+      <div class="quantity-control">
+        <div class="qty-btn" (click)="decreaseQuantity()">-</div>
+        <input type="text" class="qty-input" [value]="quantity" readonly>
+        <div class="qty-btn" (click)="increaseQuantity()">+</div>
+      </div>
+
+      <div class="stock-info" *ngIf="selectedVariant">
+        <span class="stock-text">Còn {{ getCurrentStock() }} sản phẩm</span>
+      </div>
+
+      <button class="add-to-cart" (click)="addToCart()" [disabled]="!selectedVariant && product.variants?.length">
+        {{ !selectedVariant && product.variants?.length ? 'Vui lòng chọn kích thước' : 'Thêm vào giỏ' }}
+      </button>
+      <button class="buy-now" (click)="buyNow()" [disabled]="!selectedVariant && product.variants?.length">
+        Mua ngay
+      </button>
+
+      <div class="delivery-info">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"></path>
+          <path d="M12 5l7 7-7 7"></path>
+        </svg>
+        <div>Miễn phí giao hàng & lắp đặt tại tất cả quận huyện thuộc TP.HCM, Hà Nội, Khu đô thị Ecopark, Biên Hòa và một số quận thuộc Bình Dương (*)</div>
+      </div>
+
+      <div class="warranty-info">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"></path>
+          <path d="M12 5l7 7-7 7"></path>
+        </svg>
+        <div>
+          <div>Miễn phí 1 đổi 1 - Bảo hành 2 năm - Bảo trì trọn đời (**)</div>
+          <div class="warranty-disclaimer">(*) Không áp dụng cho danh mục Đồ Trang Trí</div>
+          <div class="warranty-disclaimer">(**) Không áp dụng cho các sản phẩm Clearance. Chỉ bảo hành 01 năm cho khung ghế, mâm và cần đối với Ghế Văn Phòng</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading or Error State -->
+  <div class="loading-state" *ngIf="!product">
+    <div class="loading-spinner"></div>
+    <p>Đang tải thông tin sản phẩm...</p>
+  </div>
+</div>

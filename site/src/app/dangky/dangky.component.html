@@ -1,0 +1,97 @@
+<div class="all">
+<div class="container">
+  <div class="left-section">
+    <h1>Tạo tài khoản</h1>
+    <p>Đăng ký tài khoản chỉ trong 1 phút để tích lũy điểm và nhận ưu đãi từ DEHO.</p>
+    <div class="divider"></div>
+    <p>Đã có tài khoản? <a [routerLink]="['/dangnhap']">Đăng nhập ngay</a></p>
+  </div>
+  <div class="right-section">
+    <h3>Đăng kí bằng email</h3>
+    <form #registerForm="ngForm" (ngSubmit)="onSubmit(registerForm)">
+      <input
+        type="text"
+        placeholder="Họ tên"
+        name="name"
+        [(ngModel)]="user.name"
+        #name="ngModel"
+        required
+        minlength="3"
+      />
+      <small class="text-danger" *ngIf="name.invalid && name.touched">
+        ❌ Họ tên tối thiểu 3 ký tự!
+      </small>
+
+      <input
+        type="tel"
+        placeholder="Số điện thoại"
+        name="phone"
+        [(ngModel)]="user.phone"
+        #phone="ngModel"
+        required
+        pattern="^[0-9]{10}$"
+      />
+      <small class="text-danger" *ngIf="phone.invalid && phone.touched">
+        ❌ Số điện thoại phải có 10 chữ số!
+      </small>
+
+      <input
+        type="email"
+        placeholder="Email"
+        name="email"
+        [(ngModel)]="user.email"
+        #email="ngModel"
+        required
+        email
+      />
+      <small class="text-danger" *ngIf="email.invalid && email.touched">
+        ❌ Email không hợp lệ!
+      </small>
+
+      <input
+        type="password"
+        placeholder="Mật khẩu"
+        name="password"
+        [(ngModel)]="user.password"
+        #password="ngModel"
+        required
+        minlength="6"
+      />
+      <small class="text-danger" *ngIf="password.invalid && password.touched">
+        ❌ Mật khẩu tối thiểu 6 ký tự!
+      </small>
+
+      <input
+        type="password"
+        placeholder="Xác nhận mật khẩu"
+        name="confirmPassword"
+        [(ngModel)]="user.confirmPassword"
+        #confirmPassword="ngModel"
+        required
+        minlength="6"
+      />
+      <small class="text-danger" *ngIf="confirmPassword.invalid && confirmPassword.touched">
+        ❌ Xác nhận mật khẩu không hợp lệ!
+      </small>
+      <small class="text-danger" *ngIf="user.password !== user.confirmPassword && confirmPassword.touched">
+        ❌ Mật khẩu và xác nhận không khớp!
+      </small>
+
+      <button
+        type="submit"
+        class="btn-register"
+        [disabled]="registerForm.invalid"
+      >
+        Đăng ký ngay
+      </button>
+    </form>
+
+    <p *ngIf="submitted && !errorMessage" class="text-success text-center mt-3">
+      {{ successMessage }}
+    </p>
+    <p *ngIf="errorMessage" class="text-danger text-center mt-3">
+      {{ errorMessage }}
+    </p>
+  </div>
+</div>
+</div>

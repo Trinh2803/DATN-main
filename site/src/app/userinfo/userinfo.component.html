@@ -1,0 +1,98 @@
+<div class="all">
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo">
+      <!-- Có thể thêm logo nếu cần -->
+    </div>
+
+    <nav class="sidebar-menu">
+      <a routerLink="/userinfo" class="menu-item active">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <rect x="3" y="3" width="7" height="7" rx="1" fill="currentColor"/>
+          <rect x="14" y="3" width="7" height="7" rx="1" fill="currentColor"/>
+          <rect x="3" y="14" width="7" height="7" rx="1" fill="currentColor"/>
+          <rect x="14" y="14" width="7" height="7" rx="1" fill="currentColor"/>
+        </svg>
+        <span>Thông tin cá nhân</span>
+      </a>
+      <a routerLink="/lichsudonhang" class="menu-item">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="8" y1="1" x2="8" y2="4" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="16" y1="1" x2="16" y2="4" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <span>Lịch sử đơn hàng</span>
+      </a>
+      <a href="#" class="menu-item">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="7" y1="14" x2="17" y2="14" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="7" y1="17" x2="13" y2="17" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <span>Cài đặt</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="#" class="settings-link" (click)="logout()">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <span>Đăng xuất</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Header -->
+    <div class="header">
+      <h1>Chào, {{ user?.name || 'Người dùng' }}!</h1>
+    </div>
+
+    <div class="dashboard-content">
+      <!-- Tiêu đề -->
+      <h3 class="card-title">Thông tin cá nhân</h3>
+
+      <div class="user-info-card">
+        <!-- Ảnh đại diện với icon cây bút -->
+        <div class="avatar-wrapper">
+          <img
+            *ngIf="user?.avatar"
+            [src]="'http://localhost:3000' + user.avatar"
+            alt="Avatar"
+            class="user-avatar"
+            id="userAvatar"
+          />
+          <i *ngIf="!user?.avatar" class="far fa-user user-avatar" style="font-size: 120px;"></i>
+          <label for="avatarInput" class="edit-avatar-btn">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 20h9"></path>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+            </svg>
+          </label>
+          <input
+            type="file"
+            id="avatarInput"
+            accept="image/*"
+            style="display: none;"
+            (change)="onFileSelected($event)"
+          />
+        </div>
+
+        <!-- Thông tin người dùng -->
+        <div class="user-info">
+          <h4 class="user-name">Họ và tên: {{ user?.name || 'Chưa có thông tin' }}</h4>
+          <p><strong>Email:</strong> {{ user?.email || 'Chưa có thông tin' }}</p>
+          <p><strong>Số điện thoại:</strong> {{ user?.phone || 'Chưa có thông tin' }}</p>
+        </div>
+        <button class="action-btn edit" (click)="updateAvatar()">Cập nhật Avatar</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>

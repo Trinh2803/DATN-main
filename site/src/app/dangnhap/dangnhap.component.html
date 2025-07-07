@@ -1,0 +1,61 @@
+<div class="all">
+  <div class="container">
+    <div class="left-section">
+      <h1>Đăng nhập</h1>
+      <p>Đăng nhập để được trải nghiệm những dịch vụ tốt nhất</p>
+      <div class="divider"></div>
+    </div>
+    <div class="right-section">
+      <h3>Đăng nhập bằng email</h3>
+      <form #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)">
+        <input
+          type="email"
+          placeholder="Email"
+          name="email"
+          [(ngModel)]="user.email"
+          #email="ngModel"
+          required
+          email
+        />
+        <small class="text-danger" *ngIf="email.invalid && email.touched">
+          ❌ Email không hợp lệ!
+        </small>
+
+        <input
+          type="password"
+          placeholder="Mật khẩu"
+          name="password"
+          [(ngModel)]="user.password"
+          #password="ngModel"
+          required
+          minlength="6"
+        />
+        <small class="text-danger" *ngIf="password.invalid && password.touched">
+          ❌ Mật khẩu tối thiểu 6 ký tự!
+        </small>
+
+        <div class="form-options">
+          <div class="remember-option">
+            <input type="checkbox" id="remember" name="remember" [(ngModel)]="user.remember" />
+            <label for="remember">Ghi nhớ đăng nhập</label>
+          </div>
+          <a  [routerLink]="['/forgot-password']" class="forgot-password">Quên mật khẩu?</a>
+        </div>
+
+        <button type="submit" [disabled]="loginForm.invalid">Đăng nhập</button>
+
+        <div class="register-option">
+          <span>Bạn chưa có tài khoản?</span>
+          <a [routerLink]="['/dangky']" class="register-link">Đăng ký</a>
+        </div>
+      </form>
+
+      <p *ngIf="submitted && !errorMessage" class="text-success text-center mt-3">
+        {{ successMessage }}
+      </p>
+      <p *ngIf="errorMessage" class="text-danger text-center mt-3">
+        {{ errorMessage }}
+      </p>
+    </div>
+  </div>
+</div>

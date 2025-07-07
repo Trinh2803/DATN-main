@@ -1,0 +1,254 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+
+:root {
+  --primary-bg: #0e0e0e;
+  --card-bg: #0A1A2F;
+  --sidebar-bg: #ffffff;
+  --text-primary: #ffffff;
+  --text-secondary: #a4a4a4;
+  --text-dark: #2d2d2d;
+  --accent-color: #316df3;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --card-radius: 12px;
+  --icon-color: #737474;
+  --success-color: #3FEC77;
+  --progress-color: #3F4BB8;
+  --chart-line: #787DFF;
+}
+
+body {
+  background-color: #ffffff;
+  color: var(--text-primary);
+}
+.all {
+margin:40px ;}
+
+.dashboard-container {
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.05));
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+  max-width: 1600px;
+  min-height: 800px;
+  display: flex;
+  position: relative;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  background-color: var(--sidebar-bg);
+  color: var(--text-dark);
+  width: 230px;
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #eee;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 24px;
+  margin-bottom: 30px;
+  padding-left: 10px;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 30px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  text-decoration: none;
+  color: var(--text-dark);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.menu-item svg {
+  margin-right: 10px;
+  color: var(--icon-color);
+}
+
+.menu-item.active {
+  background-color: rgba(0, 0, 0, 0.05);
+  font-weight: 600;
+}
+
+.menu-item.active svg {
+  color: var(--text-dark);
+}
+
+.menu-item:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.sidebar-footer {
+  margin-top: auto;
+}
+
+.settings-link {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  text-decoration: none;
+  color: var(--text-dark);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.settings-link svg {
+  margin-right: 10px;
+  color: var(--icon-color);
+}
+
+.settings-link:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+/* Main Content Styles */
+.main-content {
+  background-color: #ffffff;
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.header h1 {
+  color: #2d2d2d;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+/* Dashboard Content */
+.dashboard-content {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tiêu đề */
+.card-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #2d2d2d;
+  margin-bottom: 16px;
+}
+
+/* Table Styling */
+.dashboard-grid {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-grid th,
+.dashboard-grid td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.dashboard-grid th {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2d2d2d;
+  background-color: #f3f4f6;
+}
+
+.dashboard-grid td {
+  font-size: 14px;
+  color: #4b4b4b;
+}
+
+.dashboard-grid tr:hover {
+  background-color: #f1f5f9;
+}
+
+/* Cột sản phẩm */
+.product-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.product-cell img {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.product-cell span {
+  font-size: 14px;
+  color: #2d2d2d;
+}
+
+/* Action Buttons */
+.action-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.action-btn.view-details {
+  background-color: #0d9488;
+  color: #ffffff;
+}
+
+.action-btn.view-details:hover {
+  background-color: #0f766e;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard-grid {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .dashboard-grid th,
+  .dashboard-grid td {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .product-cell img {
+    width: 40px;
+    height: 40px;
+  }
+}

@@ -1,0 +1,102 @@
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="logo">
+      <span class="logo-text"><img src="/images/logo.png" width="100px"></span>
+    </div>
+    <nav class="sidebar-menu">
+      <a class="menu-item" [routerLink]="['/thongke']"><span class="icon menu-dashboard"></span> Bảng điều khiển</a>
+      <a class="menu-item" [routerLink]="['/quanlydanhmuc']"><span class="icon menu-list"></span> Danh mục</a>
+      <a class="menu-item" [routerLink]="['/quanlysanpham']"><span class="icon menu-product"></span> Sản phẩm</a>
+      <a class="menu-item" [routerLink]="['/quanlynguoidung']"><span class="icon menu-customer"></span> Khách hàng</a>
+      <a class="menu-item active" [routerLink]="['/quanlydonhang']"><span class="icon menu-order"></span> Đơn hàng</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <a class="logout" (click)="logout()"><span class="icon logout-icon"></span> Đăng xuất</a>
+    </div>
+  </aside>
+
+  <div class="main-container">
+    <header class="main-header">
+      <div class="header-left">
+        <div class="page-title">Chi tiết đơn hàng</div>
+        <div class="breadcrumb">Home / Đơn hàng / Chi tiết</div>
+      </div>
+      <div class="header-right">
+       <img class="avatar" src="/images/avt.png" alt="avatar">
+      </div>
+    </header>
+
+    <main class="dashboard-content">
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        {{ errorMessage }}
+      </div>
+
+      <section class="order-detail-section">
+        <div *ngIf="order; else loading">
+          <h2>Thông tin đơn hàng</h2>
+          <div class="order-info">
+            <div class="info-group">
+              <h3>Thông tin khách hàng</h3>
+              <p><strong>Tên:</strong> {{ order.customerName || 'Chưa cập nhật' }}</p>
+              <p><strong>Email:</strong> {{ order.customerEmail || 'Chưa cập nhật' }}</p>
+              <p><strong>Số điện thoại:</strong> {{ order.customerPhone || 'Chưa cập nhật' }}</p>
+              <p><strong>Địa chỉ:</strong> {{ order.customerAddress || 'Chưa cập nhật' }}</p>
+              <p><strong>Ghi chú khách hàng:</strong> {{ order.customerNote || 'Không có' }}</p>
+            </div>
+            <div class="info-group">
+              <h3>Thông tin đơn hàng</h3>
+              <p><strong>Tổng tiền:</strong> {{ order.total | currency:'VND' }}</p>
+              <p><strong>Trạng thái:</strong> {{ order.status }}</p>
+            </div>
+          </div>
+
+          <h3>Danh sách sản phẩm</h3>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>STT</th>
+                  <th>Tên sản phẩm</th>
+                  <th>Số lượng</th>
+                  <th>Giá</th>
+                  <th>Tổng</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of order.items; index as i">
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ item.productName || 'Chưa cập nhật' }}</td>
+                  <td>{{ item.quantity }}</td>
+                  <td>{{ item.price | currency:'VND' }}</td>
+                  <td>{{ item.quantity * item.price | currency:'VND' }}</td>
+                </tr>
+                <tr *ngIf="order.items.length === 0">
+                  <td colspan="5">Không có sản phẩm nào.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="back-button-container">
+            <button class="back-button" [routerLink]="['/quanlydonhang']">Quay lại</button>
+          </div>
+        </div>
+
+        <ng-template #loading>
+          <p>Đang tải chi tiết đơn hàng...</p>
+        </ng-template>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- SVG ICONS template -->
+<svg style="display: none;">
+  <symbol id="menu-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2" fill="#b3b8c5"/><rect x="3" y="14" width="7" height="7" rx="2" fill="#b3b8c5"/><rect x="14" y="3" width="7" height="7" rx="2" fill="#b3b8c5"/><rect x="14" y="14" width="7" height="7" rx="2" fill="#b3b8c5"/></symbol>
+  <symbol id="menu-list" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="2" rx="1" fill="#b3b8c5"/><rect x="4" y="11" width="16" height="2" rx="1" fill="#b3b8c5"/><rect x="4" y="15" width="16" height="2" rx="1" fill="#b3b8c5"/></symbol>
+  <symbol id="menu-product" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" stroke="#b3b8c5" stroke-width="2" fill="none"/></symbol>
+  <symbol id="menu-customer" viewBox="0 0 24 24"><circle cx="12" cy="9" r="5" stroke="#b3b8c5" stroke-width="2" fill="none"/><path d="M3 21c0-4.418 4.03-8 9-8s9 3.582 9 8" stroke="#b3b8c5" stroke-width="2" fill="none"/></symbol>
+  <symbol id="menu-order" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" stroke="#b3b8c5" stroke-width="2" fill="none"/></symbol>
+  <symbol id="logout-icon" viewBox="0 0 24 24"><path d="M16 17l5-5-5-5M21 12H9M13 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2" stroke="#b3b8c5" stroke-width="2" fill="none"/></symbol>
+  <symbol id="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke="#b3b8c5" stroke-width="2" fill="none"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="#b3b8c5" stroke-width="2"/></symbol>
+</svg>

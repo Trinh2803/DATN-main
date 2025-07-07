@@ -1,0 +1,18 @@
+[
+  {
+    "name": "Nguyễn Quản Trị",
+    "email": "admin@furnistore.vn",
+    "phone": "0909000000",
+    "address": "456 Đường Quản Trị, Quận 3, TP. HCM",
+    "role": "admin",
+    "password": "$2b$12$3u/M3AXDwHDxZuzfrwDd1eXbKn/JZJGjCqU9HDXp2JXJg6pO09cjq"
+  },
+  {
+    "name": "Trần Khách Hàng",
+    "email": "customer@furnistore.vn",
+    "phone": "0909888777",
+    "address": "789 Đường Mua Sắm, Quận 5, TP. HCM",
+    "role": "customer",
+    "password": "$2b$12$3u/M3AXDwHDxZuzfrwDd1eXbKn/JZJGjCqU9HDXp2JXJg6pO09cjq"
+  }
+]

@@ -1,0 +1,96 @@
+[{
+  "_id": {
+    "$oid": "6808151796d97b8bb40e7ba4"
+  },
+  "from": "admin",
+  "to": "client",
+  "message": "hi",
+  "timestamp": {
+    "$date": "2025-04-22T22:15:51.495Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6808151796d97b8bb40e7ba6"
+  },
+  "from": "client",
+  "to": "admin",
+  "message": "alo",
+  "timestamp": {
+    "$date": "2025-04-22T22:15:51.537Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6808151796d97b8bb40e7ba9"
+  },
+  "from": "client",
+  "to": "admin",
+  "message": "alo ạ",
+  "timestamp": {
+    "$date": "2025-04-22T22:15:51.543Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6808151796d97b8bb40e7ba8"
+  },
+  "from": "client",
+  "to": "admin",
+  "message": "alo",
+  "timestamp": {
+    "$date": "2025-04-22T22:15:51.542Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6808152196d97b8bb40e7bac"
+  },
+  "from": "client",
+  "to": "admin",
+  "message": "alo ạ",
+  "timestamp": {
+    "$date": "2025-04-22T22:16:01.320Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6808152696d97b8bb40e7bae"
+  },
+  "from": "admin",
+  "to": "client",
+  "message": "heloo bạn",
+  "timestamp": {
+    "$date": "2025-04-22T22:16:06.549Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "680816b796d97b8bb40e7bde"
+  },
+  "from": "client",
+  "to": "admin",
+  "message": "xin chào mình cần hỏi vài câu",
+  "timestamp": {
+    "$date": "2025-04-22T22:22:47.807Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "680816bd96d97b8bb40e7be0"
+  },
+  "from": "admin",
+  "to": "client",
+  "message": "bạn cần gì ạ",
+  "timestamp": {
+    "$date": "2025-04-22T22:22:53.989Z"
+  },
+  "__v": 0
+}]

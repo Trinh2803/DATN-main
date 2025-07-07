@@ -1,0 +1,88 @@
+<div class="container">
+  <div class="left-section">
+    <div class="page-title">
+      <h1>Nội Thất MOHO</h1>
+      <div class="breadcrumb">
+        <a href="/cart">Giỏ hàng</a>
+        <span>›</span>
+        <span>Thông tin giao hàng</span>
+      </div>
+    </div>
+
+    <h2 class="section-title">Thông tin giao hàng</h2>
+    
+    <form>
+      <div class="form-group">
+        <input type="text" class="form-control" placeholder="Họ và tên" [(ngModel)]="shippingInfo.fullName" name="fullName" required />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <input type="tel" class="form-control" placeholder="Số điện thoại" [(ngModel)]="shippingInfo.phone" name="phone" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <input type="text" class="form-control" placeholder="Địa chỉ" [(ngModel)]="shippingInfo.address" name="address" required />
+      </div>
+      <div class="form-group">
+        <input type="text" class="form-control" placeholder="Ghi chú" [(ngModel)]="shippingInfo.note" name="note" />
+      </div>
+
+      <h2 class="section-title">Phương thức vận chuyển</h2>
+      <div class="shipping-option">
+        <label>
+          <input type="radio" name="shippingMethod" [(ngModel)]="shippingInfo.shippingMethod" value="free" checked />
+          Miễn phí vận chuyển khắp toàn quốc
+        </label>
+      </div>
+
+      <h2 class="section-title">Phương thức thanh toán</h2>
+      <div class="payment-methods">
+        <div class="payment-option">
+          <input type="radio" id="cod" name="paymentMethod" [(ngModel)]="shippingInfo.paymentMethod" value="cod" checked />
+          <label for="cod">
+            <img src="https://cdn-icons-png.flaticon.com/512/2168/2168742.png" width="24" height="24" alt="COD Icon" />
+            Thanh toán khi nhận hàng
+          </label>
+        </div>
+      </div>
+    </form>
+
+    <div class="btn-row">
+<button class="btn btn-outline" (click)="goToCart()">Quay lại giỏ hàng</button>
+      <button class="btn btn-primary" (click)="onCheckout()">Hoàn tất đơn hàng</button>
+    </div>
+  </div>
+
+  <div class="right-section">
+    <div class="cart-items">
+      <div class="cart-item" *ngFor="let item of cartItems; let i = index">
+        <div class="cart-item-image">
+          <span class="item-number">{{ i + 1 }}</span>
+          <img [src]="'http://localhost:3000' + item.product.thumbnail" [alt]="item.product.name" />
+        </div>
+        <div class="cart-item-details">
+          <h3 class="cart-item-title">{{ item.product.name }}</h3>
+          <p class="cart-item-desc">Số lượng: {{ item.quantity }}</p>
+        </div>
+        <div class="cart-item-price">{{ (item.product.salePrice || item.product.price) * item.quantity | number:'1.0-0' }}₫</div>
+      </div>
+    </div>
+
+    <div class="cart-summary">
+      <div class="summary-row">
+        <span>Tạm tính</span>
+        <span>{{ totalPrice | number:'1.0-0' }}₫</span>
+      </div>
+      <div class="summary-row">
+        <span>Phí vận chuyển</span>
+        <span>Miễn phí</span>
+      </div>
+      <div class="summary-row total">
+        <span>Tổng cộng</span>
+        <span>VND {{ totalPrice | number:'1.0-0' }}₫</span>
+      </div>
+    </div>
+  </div>
+</div>

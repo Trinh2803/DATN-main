@@ -1,0 +1,38 @@
+[{
+  "_id": {
+    "$oid": "67e326a52157440b136ea715"
+  },
+  "name": "Phòng Ngủ",
+  "slug": "phong-ngu ",
+  "image": "/images/categories/phong-ngu.png",
+  "updatedAt": {
+    "$date": "2025-04-03T10:44:17.659Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "67e326a52157440b136ea716"
+  },
+  "name": "Phòng Khách",
+  "slug": "phong-khach",
+  "image": "/images/categories/phong-khach.png"
+},
+{
+  "_id": {
+    "$oid": "67e326a52157440b136ea717"
+  },
+  "name": "Phòng Ăn",
+  "slug": "phong-an",
+  "image": "/images/categories/phong-an.png"
+},
+{
+  "_id": {
+    "$oid": "67e326a52157440b136ea718"
+  },
+  "name": "Phòng Làm Việc ",
+  "slug": "phong-lam-viec",
+  "image": "/images/categories/phong-lam-viec.png",
+  "updatedAt": {
+    "$date": "2025-03-31T05:14:46.916Z"
+  }
+}]

@@ -1,0 +1,56 @@
+<!-- ✅ Admin/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="./css/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <img src="/Admin/assets/logo.png" alt="Deho Logo" class="logo" />
+        </div>
+        <ul class="sidebar-nav">
+          <li><button id="btnDashboard" class="active"><i class="fas fa-home"></i> Tổng quan</button></li>
+          <li><button id="btnCategories"><i class="fas fa-th-list"></i> Danh mục</button></li>
+          <li><button id="btnProducts"><i class="fas fa-box"></i> Sản phẩm</button></li>
+          <li class="has-submenu">
+            <button id="btnUserMenu"><i class="fas fa-users-cog"></i> Quản trị tài khoản</button>
+            <ul class="submenu" id="userSubmenu">
+              <li><button id="btnAdmins"><i class="fas fa-user-shield"></i> Quản trị</button></li>
+              <li><button id="btnCustomers"><i class="fas fa-user"></i> Khách hàng</button></li>
+            </ul>
+          </li>
+                    <li><button id="btnOrders"><i class="fas fa-receipt"></i> Đơn hàng</button></li>
+        </ul>
+      </aside>
+
+      <main class="main-content">
+        <div class="header-bar">
+          <div class="right-icons">
+            <img src="/Admin/assets/lang-icon.png" alt="Language" />
+            <img src="/Admin/assets/notify-icon.png" alt="Notification" />
+            <img src="/Admin/assets/user-icon.png" alt="User" class="avatar" />
+          </div>
+        </div>
+
+        <section id="content">
+          <!-- Nội dung sẽ được tải ở đây -->
+        </section>
+      </main>
+    </div>
+<!-- Modal hiển thị form -->
+<div id="categoryModal" class="modal">
+  <div class="modal-content">
+    <span class="modal-close" onclick="closeModal()">×</span>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+    <script src="js/main.js" type="module"></script>
+  </body>
+</html>

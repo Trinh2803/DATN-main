@@ -1,0 +1,234 @@
+body, html {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', Arial, sans-serif;
+  background: linear-gradient(120deg,#aa81ea 0%, #f5dfd8 50%, #fffde4 100%);
+  min-height: 100vh;
+}
+
+.main-bg {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  width: 95vw;
+  max-width: 1300px;
+  height: 90vh;
+  min-height: 650px;
+  display: flex;
+  background: #fff;
+  border-radius: 32px;
+  overflow: hidden;
+  box-shadow: 0 2px 24px 0 rgba(151, 150, 190, .1);
+}
+
+.left-panel {
+  flex: 1 1 0;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 55px;
+  position: relative;
+  justify-content: center;
+}
+
+.right-panel {
+  flex: 1 1 0;
+  background:#f7d3db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-block {
+  margin-bottom: 18px;
+}
+.logo {
+  background: #266880;
+  color: #fff;
+  
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  font-size: 2.3rem;
+  font-weight: 700;
+  letter-spacing: .10em;
+  margin: 0 auto;
+}
+
+.welcome {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #181433;
+  margin: 0;
+  margin-bottom: 5px;
+  letter-spacing: 0.01em;
+  text-align: center;
+}
+.desc {
+  font-size: 1rem;
+  color: #9796aa;
+  text-align: center;
+  margin-bottom: 26px;
+  margin-top: 0;
+}
+.login-form {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.input-label {
+  font-size: .97rem;
+  color: #585579;
+  margin-bottom: 5px;
+  margin-top: 8px;
+  font-weight: 500;
+}
+.input-wrap {
+  width: 100%;
+  position: relative;
+  margin-bottom: 4px;
+}
+.input-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.input-wrap input {
+  width: 100%;
+  font-size: 1rem;
+  padding: .93em 1em .93em 42px;
+  background: #fafafd;
+  border: 1.5px solid #ececf4;
+  border-radius: 8px;
+  outline: none;
+  color: #25233a;
+  margin-bottom: 2px;
+  transition: border .2s;
+  font-family: inherit;
+}
+.input-wrap input:focus {
+  border-color: #a091f8;
+}
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2px;
+  margin-bottom: 3px;
+}
+.checkbox-wrap {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  color: #7e7ea8;
+  cursor: pointer;
+  gap: 6px;
+  user-select: none;
+}
+.checkbox-wrap input {
+  accent-color: #a091f8;
+  margin-right: 4px;
+  width: 18px;
+  height: 18px;
+}
+.checkmark {
+  display: none;
+}
+.forgot-link {
+  font-size: .96rem;
+  color:#266880;
+  text-decoration: none;
+  float: right;
+  font-weight: 500;
+  transition: text-decoration .2s;
+}
+.forgot-link:hover {
+  text-decoration: underline;
+}
+.login-btn {
+  width: 100%;
+  background:#266880;
+  color: #fff;
+  font-size: 1.2rem;
+  padding: .75em;
+  border: none;
+  border-radius: 8px;
+  margin-top: 17px;
+  box-shadow: 0 2px 6px rgba(160,145,248,.05);
+  cursor: pointer;
+  font-weight: 600;
+  transition: background .18s;
+}
+.login-btn:hover {
+  background: #8b71f8;
+}
+.register-cta {
+  margin-top: 37px;
+  width: 100%;
+  text-align: center;
+  font-size: 1.1rem;
+  color: #266880;
+}
+.register-cta a {
+  color: #266880;
+  text-decoration: none;
+  font-weight: 600;
+  margin-left: 2px;
+}
+.register-cta a:hover { text-decoration: underline; }
+
+.illu-img {
+  max-width: 93%;
+  max-height: 83%;
+  display: block;
+  margin: 0 auto;
+  object-fit: contain;
+}
+.back-btn {
+  position: absolute;
+  top: 34px;
+  left: 34px;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  z-index: 1;
+  padding: 0;
+}
+.back-btn svg {
+  width: 40px;
+  height: 40px;
+  box-shadow: 0 2px 8px rgba(167,163,228,.07);
+  border-radius: 12px;
+  background: #f6f4fc;
+}
+
+@media (max-width: 900px) {
+  .container {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    max-width: 95vw;
+  }
+  .left-panel, .right-panel {
+    flex: unset;
+    width: 100%;
+    padding: 38px 18px;
+  }
+  .illu-img {
+    max-width: 350px;
+    margin-top: 22px;
+  }
+}

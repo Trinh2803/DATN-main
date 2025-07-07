@@ -1,0 +1,120 @@
+[{
+  "_id": {
+    "$oid": "682f7badee59a19a9a372399"
+  },
+  "name": "Ghế Sofa MOHO HALDEN 801 Nhỏ",
+  "price": 1200000,
+  "sale": 1080000,
+  "productId": {
+    "$oid": "67fb0351f07de8526cae34bb"
+  },
+  "img": "sofa_halden_small.jpeg"
+},
+{
+  "_id": {
+    "$oid": "682f7bf8ee59a19a9a37239a"
+  },
+  "name": "Ghế Sofa MOHO HALDEN 801 Lớn",
+  "price": 2000000,
+  "sale": 1800000,
+  "productId": {
+    "$oid": "67fb0351f07de8526cae34bb"
+  },
+  "img": "sofa_halden_large.jpeg"
+},
+{
+  "_id": {
+    "$oid": "6827359e9a1ce07c1ac429dd"
+  },
+  "name": "Ghế Sofa MOHO LYNGBY Góc L",
+  "price": 12990000,
+  "sale": 8199000,
+  "productId": {
+    "$oid": "67fb04b5f07de8526cae34c8"
+  },
+  "img": "/images/1744503989540-pro_be_noi_that_moho___2__acd996ed82684c60b11f65cede53b78d_master.jpg"
+},
+{
+  "_id": {
+    "$oid": "682735dd9a1ce07c1ac429de"
+  },
+  "name": "Tủ Giày – Tủ Trang Trí Gỗ MOHO VIENNA 204",
+  "price": 4490000,
+  "sale": 2899000,
+  "productId": {
+    "$oid": "67fb0564f07de8526cae34d2"
+  },
+  "img": "/images/1744504164108-pro_go_phoi_trang_noi_that_moho_tu_giay_trang_tri_vienna_204_878b1deccc9c409481404d310e8fb045_master.webp"
+},
+{
+  "_id": {
+    "$oid": "682736339a1ce07c1ac429df"
+  },
+  "name": "Bàn Làm Việc Gỗ MOHO VLINE 601 Màu Nâu",
+  "price": 2990000,
+  "sale": 2990000,
+  "productId": {
+    "$oid": "67fb0564f07de8526cae34d2"
+  },
+  "img": "/images/1744504407951-pro_nau_noi_that_moho_ban_lam_viec_vline_601_a_e60e2f8b72854311ae12424eed3cb88a_master.webp"
+},
+{
+  "_id": {
+    "$oid": "682736889a1ce07c1ac429e0"
+  },
+  "name": "Ghế Xoay Văn Phòng Tay Gập Thông Minh MOHO RIGA 701",
+  "price": 1690000,
+  "sale": 10990000,
+  "productId": {
+    "$oid": "67fb0351f07de8526cae34bb"
+  },
+  "img": "/images/1744504493568-pro_den_noi_that_moho_ghe_van_phong_riga_3_4722911408574dbf8513ef8d4aeefe0e_master.webp"
+},
+{
+  "_id": {
+    "$oid": "682736fd9a1ce07c1ac429e1"
+  },
+  "name": "Kệ Để Sách 3 Tầng MOHO WORKS 703",
+  "price": 2490000,
+  "sale": 2490000,
+  "productId": {
+    "$oid": "67fb0351f07de8526cae34bb"
+  },
+  "img": "/images/1744504558161-pro_den_noi_that_moho_ke_de_sach_8_e44f4b290be04aac83bc2f615437144c_master.webp"
+},
+{
+  "_id": {
+    "$oid": "6827372a9a1ce07c1ac429e2"
+  },
+  "name": "Combo Bàn Làm Việc Gỗ MOHO VLINE 1m2",
+  "price": 5180000,
+  "sale": 5180000,
+  "productId": {
+    "$oid": "67fb0351f07de8526cae34bb"
+  },
+  "img": "/images/1744504629419-pro_nau_noi_that_moho_combo_ban_lam_viec_go_moho_ghe_nexo_5_75d8bfa8974d45f2ad79ae23ae7e7537_master.webp"
+},
+{
+  "_id": {
+    "$oid": "6827377e9a1ce07c1ac429e3"
+  },
+  "name": "Nệm Lò Xo Royal Vải Tricat Nhiều Kích Thước (Bảo Hành 8 Năm)",
+  "price": 3970000,
+  "sale": 3970000,
+  "productId": {
+    "$oid": "67fb0351f07de8526cae34bb"
+  },
+  "img": "/images/1744504809245-pro_trang_kem_noi_that_moho_nem_lo_xo_van_thanh_1_f450cb4751eb444d963cf01ecad6b5d5_master.png"
+},
+{
+  "_id": {
+    "$oid": "682737bd9a1ce07c1ac429e4"
+  },
+  "name": "Nệm Foam Vải Gấm (Bảo Hành 10 Năm)",
+  "price": 3880000,
+  "sale": 3880000,
+  "productId": {
+    "$oid": "67fb0351f07de8526cae34bb"
+  },
+  "img": "/images/1744504809245-pro_trang_kem_noi_that_moho_nem_lo_xo_van_thanh_1_f450cb4751eb444d963cf01ecad6b5d5_master.png"
+}]
