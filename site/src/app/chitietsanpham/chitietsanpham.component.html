@@ -122,4 +122,38 @@
     <div class="loading-spinner"></div>
     <p>Đang tải thông tin sản phẩm...</p>
   </div>
+
+  <!-- Related Products Section -->
+  <div class="related-products-section" *ngIf="relatedProducts.length > 0">
+    <h2 class="related-title">Sản phẩm liên quan</h2>
+    <div class="related-products-grid">
+      <div 
+        class="related-product-card" 
+        *ngFor="let relatedProduct of relatedProducts"
+        (click)="goToProduct(relatedProduct._id!)"
+      >
+        <div class="related-product-image">
+          <img 
+            [src]="'http://localhost:3000' + (relatedProduct.thumbnail || '')" 
+            [alt]="relatedProduct.name"
+            (error)="onImageError($event)"
+          >
+          <div class="related-product-overlay">
+            <span class="view-details">Xem chi tiết</span>
+          </div>
+        </div>
+        <div class="related-product-info">
+          <h3 class="related-product-name">{{ relatedProduct.name }}</h3>
+          <div class="related-product-price">
+            <span class="current-price">
+              {{ getRelatedProductPrice(relatedProduct) | currency:'VND':'symbol' }}
+            </span>
+            <span class="old-price" *ngIf="isRelatedProductOnSale(relatedProduct)">
+              {{ getRelatedProductOriginalPrice(relatedProduct) | currency:'VND':'symbol' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
