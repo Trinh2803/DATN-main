@@ -116,25 +116,24 @@
     </div>
   </div>
 
-  
+
   <!-- Loading or Error State -->
   <div class="loading-state" *ngIf="!product">
     <div class="loading-spinner"></div>
     <p>Đang tải thông tin sản phẩm...</p>
   </div>
-
-  <!-- Related Products Section -->
+   <!-- Related Products Section -->
   <div class="related-products-section" *ngIf="relatedProducts.length > 0">
     <h2 class="related-title">Sản phẩm liên quan</h2>
     <div class="related-products-grid">
-      <div 
-        class="related-product-card" 
+      <div
+        class="related-product-card"
         *ngFor="let relatedProduct of relatedProducts"
         (click)="goToProduct(relatedProduct._id!)"
       >
         <div class="related-product-image">
-          <img 
-            [src]="'http://localhost:3000' + (relatedProduct.thumbnail || '')" 
+          <img
+            [src]="'http://localhost:3000' + (relatedProduct.thumbnail || '')"
             [alt]="relatedProduct.name"
             (error)="onImageError($event)"
           >
@@ -157,3 +156,4 @@
     </div>
   </div>
 </div>
+
