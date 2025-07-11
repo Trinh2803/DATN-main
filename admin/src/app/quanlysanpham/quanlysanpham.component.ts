@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -37,7 +37,8 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
   constructor(
     private productService: ProductService,
     private categoryService: CategoryService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -157,6 +158,9 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
     this.showForm = true;
     this.editMode = false;
     this.currentProduct = this.resetProduct();
+    // Đảm bảo variants được khởi tạo
+    this.currentProduct.variants = [];
+    console.log('Show add form - variants initialized:', this.currentProduct.variants);
   }
 
   showEditForm(product: Product): void {
@@ -180,6 +184,10 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
       thumbnailUrl: product.thumbnail ? `http://localhost:3000${product.thumbnail}` : undefined,
       imageUrls: product.images?.map(img => `http://localhost:3000${img}`)
     };
+    // Đảm bảo variants được khởi tạo
+    if (!this.currentProduct.variants) {
+      this.currentProduct.variants = [];
+    }
     console.log('Current product:', this.currentProduct);
   }
 
@@ -200,14 +208,21 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
   }
 
   addVariant(): void {
-    this.currentProduct.variants = this.currentProduct.variants || [];
-    this.currentProduct.variants.push({
+    if (!this.currentProduct.variants) {
+      this.currentProduct.variants = [];
+    }
+    const newVariant = {
       id: this.generateId(),
       size: '',
       price: 0,
       salePrice: undefined,
       stock: 0
-    });
+    };
+    this.currentProduct.variants.push(newVariant);
+    console.log('Added variant:', newVariant);
+    console.log('All variants:', this.currentProduct.variants);
+    console.log('Variants length:', this.currentProduct.variants.length);
+    this.cdr.detectChanges();
   }
 
   removeVariant(index: number): void {
@@ -389,5 +404,9 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
 
   private generateId(): string {
     return Math.random().toString(36).substr(2, 24);
+  }
+
+  trackByVariantId(index: number, variant: Variant): string {
+    return variant.id;
   }
 }

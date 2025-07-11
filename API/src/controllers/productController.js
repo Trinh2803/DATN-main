@@ -44,13 +44,24 @@ const getSaleProducts = async (req, res) => {
 // Thêm mới sản phẩm
 const createProduct = async (req, res) => {
   try {
-    const { name, slug, description, price, salePrice, categoryId } = req.body;
+    const { name, slug, description, price, salePrice, categoryId, variants } = req.body;
     // Sửa đường dẫn để bao gồm /products/
     const thumbnail = req.files?.thumbnail ? `/images/products/${req.files.thumbnail[0].filename}` : '';
     const images = req.files?.images?.map(file => `/images/products/${file.filename}`) || [];
 
+    // Parse variants nếu có
+    let parsedVariants = [];
+    if (variants) {
+      try {
+        parsedVariants = JSON.parse(variants);
+      } catch (parseError) {
+        console.error('Lỗi parse variants:', parseError);
+        parsedVariants = [];
+      }
+    }
+
     const newProduct = await productService.createProduct({
-      name, slug, description, price, salePrice, categoryId, thumbnail, images
+      name, slug, description, price, salePrice, categoryId, thumbnail, images, variants: parsedVariants
     });
 
     res.status(201).json({ success: true, message: 'Tạo sản phẩm thành công', data: newProduct });
@@ -63,11 +74,22 @@ const createProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, slug, description, price, salePrice, categoryId } = req.body;
+    const { name, slug, description, price, salePrice, categoryId, variants } = req.body;
+
+    // Parse variants nếu có
+    let parsedVariants = [];
+    if (variants) {
+      try {
+        parsedVariants = JSON.parse(variants);
+      } catch (parseError) {
+        console.error('Lỗi parse variants:', parseError);
+        parsedVariants = [];
+      }
+    }
 
     // Sửa đường dẫn để bao gồm /products/
     const updated = await productService.updateProduct(id, {
-      name, slug, description, price, salePrice, categoryId
+      name, slug, description, price, salePrice, categoryId, variants: parsedVariants
     }, req.files);
 
     res.status(200).json({ success: true, message: 'Cập nhật sản phẩm thành công', data: updated });
