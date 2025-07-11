@@ -484,3 +484,21 @@ a {
     padding-left: 0;
   }
 }
+
+.sp-lq {
+  margin-top: 590px;         /* Tạo khoảng cách phía trên */
+  padding-top: 16px;        /* Padding phía trên */
+  /* border-top: 1px solid #eee; Đường kẻ nhẹ để tách biệt */
+  text-align: left;
+  float: left;  /* Căn trái tiêu đề */
+  margin-left: -50px;
+}
+
+
+.sp-lq h3 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  letter-spacing: 1px;
+}
