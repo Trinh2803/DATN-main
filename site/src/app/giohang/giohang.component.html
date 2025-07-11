@@ -69,6 +69,11 @@
           <div class="cart-item-remove">
             <button class="remove-btn" (click)="removeFromCart(item.product._id, item.selectedVariant)">×</button>
           </div>
+          <div class="discount-box">
+            <input type="text" [(ngModel)]="item.discountCode" placeholder="Nhập mã giảm giá cho sản phẩm này" />
+            <button (click)="applyDiscount(item)">Áp dụng</button>
+            <span *ngIf="item.discountInfo">Đã áp dụng: {{ item.discountCode }}</span>
+          </div>
         </div>
       </div>
 

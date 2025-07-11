@@ -1,0 +1,80 @@
+.discount-manager {
+  max-width: 1100px;
+  margin: 32px auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(44, 62, 80, 0.08);
+  padding: 32px 36px 36px 36px;
+}
+.discount-manager h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: #232944;
+}
+.discount-manager form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.discount-manager input,
+.discount-manager select {
+  padding: 8px 12px;
+  border: 1px solid #dbe2ef;
+  border-radius: 6px;
+  font-size: 1rem;
+  outline: none;
+  min-width: 120px;
+}
+.discount-manager input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-right: 6px;
+}
+.discount-manager button {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 6px;
+  background: #2e6cff;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.discount-manager button[type="button"] {
+  background: #b3b8c5;
+  color: #fff;
+  margin-left: 8px;
+}
+.discount-manager button:hover {
+  background: #1a4fb7;
+}
+.discount-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+.discount-table th, .discount-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #eaeaea;
+  text-align: left;
+}
+.discount-table th {
+  background: #f6f8fe;
+  color: #232944;
+  font-weight: 700;
+}
+.discount-table tr:last-child td {
+  border-bottom: none;
+}
+.discount-table input[type="checkbox"] {
+  pointer-events: none;
+}
+.error {
+  color: #dc3545;
+  margin-bottom: 12px;
+  font-weight: 500;
+}

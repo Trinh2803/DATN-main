@@ -1,0 +1,22 @@
+[
+  {
+    "code": "BBB",
+    "description": "BBB",
+    "discountType": "percent",
+    "discountValue": 100,
+    "startDate": "2025-07-10",
+    "endDate": "2025-07-25",
+    "active": true,
+    "id": "1752249214460"
+  },
+  {
+    "code": "BAN2025",
+    "description": "",
+    "discountType": "percent",
+    "discountValue": 100,
+    "startDate": "2025-07-11",
+    "endDate": "2025-07-25",
+    "active": true,
+    "id": "1752250233542"
+  }
+]

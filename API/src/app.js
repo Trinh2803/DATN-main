@@ -13,6 +13,7 @@ var productsRouter = require('./routes/products');
 var orderssRouter = require('./routes/orders');
 const multer = require('multer');
 const mongoose = require('mongoose');
+const discountsRouter = require('./routes/discounts');
 
 const viewEngine = require('./config/viewEngine');
 var app = express();
@@ -41,6 +42,7 @@ app.use('/', indexRouter);
 app.use('/categories', categoriesRouter);
 app.use('/products', require('./routes/products'), productsRouter);
 app.use('/orders', orderssRouter);
+app.use('/discounts', discountsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -1,0 +1,50 @@
+<div class="discount-manager">
+  <h2>Quản lý mã giảm giá</h2>
+  <div *ngIf="errorMsg" class="error">{{ errorMsg }}</div>
+  <form (ngSubmit)="saveDiscount()" #discountForm="ngForm">
+    <input type="text" [(ngModel)]="selectedDiscount.code" name="code" placeholder="Mã giảm giá" required />
+    <input type="text" [(ngModel)]="selectedDiscount.description" name="description" placeholder="Mô tả" />
+    <select [(ngModel)]="selectedDiscount.discountType" name="discountType">
+      <option value="percent">Phần trăm (%)</option>
+      <option value="fixed">Số tiền cố định</option>
+    </select>
+    <input type="number" [(ngModel)]="selectedDiscount.discountValue" name="discountValue" placeholder="Giá trị giảm" required />
+    <input type="date" [(ngModel)]="selectedDiscount.startDate" name="startDate" placeholder="Ngày bắt đầu" />
+    <input type="date" [(ngModel)]="selectedDiscount.endDate" name="endDate" placeholder="Ngày kết thúc" />
+    <label>
+      <input type="checkbox" [(ngModel)]="selectedDiscount.active" name="active" /> Kích hoạt
+    </label>
+    <button type="submit">{{ isEditMode ? 'Cập nhật' : 'Thêm mới' }}</button>
+    <button type="button" (click)="resetForm()" *ngIf="isEditMode">Hủy</button>
+  </form>
+
+  <table class="discount-table">
+    <thead>
+      <tr>
+        <th>Mã</th>
+        <th>Mô tả</th>
+        <th>Loại</th>
+        <th>Giá trị</th>
+        <th>Bắt đầu</th>
+        <th>Kết thúc</th>
+        <th>Kích hoạt</th>
+        <th>Hành động</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let d of discounts">
+        <td>{{ d.code }}</td>
+        <td>{{ d.description }}</td>
+        <td>{{ d.discountType === 'percent' ? 'Phần trăm' : 'Cố định' }}</td>
+        <td>{{ d.discountValue }}</td>
+        <td>{{ d.startDate | date:'yyyy-MM-dd' }}</td>
+        <td>{{ d.endDate | date:'yyyy-MM-dd' }}</td>
+        <td><input type="checkbox" [checked]="d.active" disabled /></td>
+        <td>
+          <button (click)="selectDiscount(d)">Sửa</button>
+          <button (click)="deleteDiscount(d.id)">Xóa</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
