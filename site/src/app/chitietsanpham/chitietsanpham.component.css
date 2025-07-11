@@ -167,6 +167,16 @@ a {
   font-size: 16px;
 }
 
+.price-info {
+  margin-top: 5px;
+}
+
+.price-note {
+  color: #666;
+  font-size: 12px;
+  font-style: italic;
+}
+
 /* Variants Section */
 .variants-section {
   margin-bottom: 20px;

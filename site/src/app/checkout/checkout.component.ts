@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CartService } from '../cart.service';
-import { ProductInterface } from '../product-interface';
+import { ProductInterface, Variant } from '../product-interface';
 import { UserService } from '../user.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 interface CartItem {
   product: ProductInterface;
   quantity: number;
+  selectedVariant?: Variant;
 }
 
 interface ShippingInfo {
@@ -92,7 +93,9 @@ export class CheckoutComponent implements OnInit {
       items: this.cartItems.map(item => ({
         productId: item.product._id,
         quantity: item.quantity,
-        price: item.product.salePrice || item.product.price,
+        price: this.getItemPrice(item),
+        variantId: item.selectedVariant?.id,
+        variantSize: item.selectedVariant?.size,
       })),
       total: this.totalPrice,
       status: 'Chờ xác nhận',
@@ -123,5 +126,21 @@ export class CheckoutComponent implements OnInit {
   // Thêm phương thức public để quay lại giỏ hàng
   goToCart(): void {
     this.router.navigate(['/giohang']);
+  }
+
+  // Lấy giá hiện tại cho item trong checkout
+  getItemPrice(item: CartItem): number {
+    if (item.selectedVariant) {
+      return item.selectedVariant.salePrice || item.selectedVariant.price;
+    }
+    return item.product.salePrice || item.product.price;
+  }
+
+  // Lấy thông tin biến thể để hiển thị
+  getVariantInfo(item: CartItem): string {
+    if (item.selectedVariant) {
+      return `${item.selectedVariant.size}`;
+    }
+    return '';
   }
 }

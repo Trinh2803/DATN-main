@@ -62,6 +62,10 @@ export class ChiTietSanPhamComponent implements OnInit {
       );
     }
     if (this.product) {
+      // Nếu có biến thể, kiểm tra xem có biến thể nào có giảm giá không (đồng nhất với trang chủ)
+      if (this.product.variants && this.product.variants.length > 0) {
+        return this.product.variants.some(v => v.salePrice && v.salePrice < v.price);
+      }
       return (
         this.product.salePrice != null &&
         this.product.salePrice < this.product.price
@@ -84,6 +88,14 @@ export class ChiTietSanPhamComponent implements OnInit {
       );
     }
     if (this.product) {
+      // Nếu có biến thể, tìm % giảm giá cao nhất (đồng nhất với trang chủ)
+      if (this.product.variants && this.product.variants.length > 0) {
+        const maxDiscount = Math.max(...this.product.variants.map(v => {
+          if (!v.salePrice || v.salePrice >= v.price) return 0;
+          return Math.round(((v.price - v.salePrice) / v.price) * 100);
+        }));
+        return maxDiscount;
+      }
       if (
         !this.product.salePrice ||
         this.product.salePrice >= this.product.price
@@ -152,9 +164,16 @@ export class ChiTietSanPhamComponent implements OnInit {
   // Lấy giá hiện tại (có thể là giá biến thể hoặc giá sản phẩm)
   getCurrentPrice(): number {
     if (this.selectedVariant) {
+      // Nếu đã chọn biến thể, hiển thị giá của biến thể đó
       return this.selectedVariant.salePrice || this.selectedVariant.price;
     }
     if (this.product) {
+      // Nếu có biến thể nhưng chưa chọn, hiển thị giá thấp nhất (đồng nhất với trang chủ)
+      if (this.product.variants && this.product.variants.length > 0) {
+        const minPrice = Math.min(...this.product.variants.map(v => v.salePrice || v.price));
+        return minPrice;
+      }
+      // Nếu không có biến thể, hiển thị giá sản phẩm chính
       return this.product.salePrice || this.product.price;
     }
     return 0;
@@ -166,6 +185,11 @@ export class ChiTietSanPhamComponent implements OnInit {
       return this.selectedVariant.price;
     }
     if (this.product) {
+      // Nếu có biến thể, hiển thị giá gốc thấp nhất (đồng nhất với trang chủ)
+      if (this.product.variants && this.product.variants.length > 0) {
+        const minOriginalPrice = Math.min(...this.product.variants.map(v => v.price));
+        return minOriginalPrice;
+      }
       return this.product.price;
     }
     return 0;

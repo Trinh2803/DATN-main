@@ -29,8 +29,10 @@ export class CartService {
   }
 
   private saveCartToLocalStorage() {
+    console.log('CartService: Saving cart to localStorage:', this.cartItems);
     localStorage.setItem('cart', JSON.stringify(this.cartItems));
     this.cartItemsSubject.next(this.cartItems);
+    console.log('CartService: Cart saved successfully');
   }
 
   addToCart(product: ProductInterface) {
@@ -90,9 +92,16 @@ export class CartService {
   }
 
   removeFromCart(productId: string, selectedVariant?: Variant) {
-    this.cartItems = this.cartItems.filter((item) =>
-      !(item.product._id === productId && this.compareVariants(item.selectedVariant, selectedVariant))
-    );
+    console.log('CartService: Removing product:', productId, 'with variant:', selectedVariant);
+    console.log('CartService: Before removal, cart items:', this.cartItems);
+    
+    this.cartItems = this.cartItems.filter((item) => {
+      const shouldRemove = item.product._id === productId && this.compareVariants(item.selectedVariant, selectedVariant);
+      console.log('CartService: Checking item:', item.product.name, 'shouldRemove:', shouldRemove);
+      return !shouldRemove;
+    });
+    
+    console.log('CartService: After removal, cart items:', this.cartItems);
     this.saveCartToLocalStorage();
   }
 

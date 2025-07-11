@@ -65,8 +65,10 @@
         <div class="cart-item-details">
           <h3 class="cart-item-title">{{ item.product.name }}</h3>
           <p class="cart-item-desc">Số lượng: {{ item.quantity }}</p>
+          <!-- Hiển thị thông tin biến thể nếu có -->
+          <p class="cart-item-variant" *ngIf="getVariantInfo(item)">{{ getVariantInfo(item) }}</p>
         </div>
-        <div class="cart-item-price">{{ (item.product.salePrice || item.product.price) * item.quantity | number:'1.0-0' }}₫</div>
+        <div class="cart-item-price">{{ getItemPrice(item) * item.quantity | number:'1.0-0' }}₫</div>
       </div>
     </div>
 
