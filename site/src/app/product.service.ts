@@ -75,4 +75,5 @@ export class ProductService {
 getProductById(id: string): Observable<ProductInterface> {
     return this.http.get<ProductInterface>(`${this.apiUrl}/${id}`);
   }
+  
 }
