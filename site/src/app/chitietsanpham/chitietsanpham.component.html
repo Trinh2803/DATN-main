@@ -138,7 +138,10 @@
             (error)="onImageError($event)"
           >
           <div class="related-product-overlay">
-            <span class="view-details">Xem chi tiết</span>
+            <span
+              class="view-details"
+              (click)="goToProduct(relatedProduct._id)"
+            >Xem chi tiết</span>
           </div>
         </div>
         <div class="related-product-info">
