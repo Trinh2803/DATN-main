@@ -1284,14 +1284,14 @@
       "id": "681f6aadee59a19a9a372397",
       "size": "Nhỏ",
       "price": 1200000,
-      "salePrice": 888000,
+      "salePrice": 1088000,
       "stock": 10
     },
     {
       "id": "681f6af8ee59a19a9a372398",
       "size": "Lớn",
-      "price": 2000000,
-      "salePrice": 1799000,
+      "price": 15490000,
+      "salePrice": 13999000,
       "stock": 5
     }
   ],
@@ -1365,14 +1365,14 @@
     {
       "id": "681f6aadee59a19a9a372397",
       "size": "Nhỏ",
-      "price": 1200000,
-      "salePrice": 888000,
+      "price": 2200000,
+      "salePrice": 1280000,
       "stock": 10
     },
     {
       "id": "681f6af8ee59a19a9a372398",
       "size": "Lớn",
-      "price": 2000000,
+      "price": 2490000,
       "salePrice": 1799000,
       "stock": 5
     }
@@ -1437,8 +1437,8 @@
   "name": "Bàn Sofa - Bàn Cafe - Bàn Trà Gỗ DEHO VLINE 601",
   "slug": "ban-sofa-ban-cafe-ban-tra-go-vline-601",
   "description": "Kích thước: Dài 100cm x  Rộng 50cm x Cao 40cm",
-  "price": 2490000,
-  "salePrice": 1990000,
+  "price": 2450000,
+  "salePrice": 2390000,
   "thumbnail": "/images/1745316517342-pro_mau_tu_nhien_ban_sofa_vline_601_01_ef3e51bcd70b4879bcbbca2928a5a906_master.webp",
   "images": [
     "/images/1745316517379-pro_mau_tu_nhien_ban_sofa_vline_601_01_ef3e51bcd70b4879bcbbca2928a5a906_master.webp"
@@ -1447,15 +1447,15 @@
     {
       "id": "681f6aadee59a19a9a372397",
       "size": "Nhỏ",
-      "price": 1200000,
-      "salePrice": 888000,
+      "price": 2000000,
+      "salePrice": 1900000,
       "stock": 10
     },
     {
       "id": "681f6af8ee59a19a9a372398",
       "size": "Lớn",
-      "price": 2000000,
-      "salePrice": 1799000,
+      "price": 2450000,
+      "salePrice": 2390000,
       "stock": 5
     }
   ],
@@ -1734,15 +1734,15 @@
     {
       "id": "681f6aadee59a19a9a372397",
       "size": "Nhỏ",
-      "price": 1200000,
-      "salePrice": 888000,
+      "price": 4250000,
+      "salePrice": 3288000,
       "stock": 10
     },
     {
       "id": "681f6af8ee59a19a9a372398",
       "size": "Lớn",
-      "price": 2000000,
-      "salePrice": 1799000,
+      "price": 4590000,
+      "salePrice": 3490000,
       "stock": 5
     }
   ],
@@ -2257,8 +2257,8 @@
   "name": "Kệ Để Sách 3 Tầng DEHO WORKS 703",
   "slug": "ke-de-sach-3-tang-works-703",
   "description": "Kích thước: Dài 80cm x Rộng 32cm x Cao 106cm ",
-  "price": 2490000,
-  "salePrice": 1799000,
+  "price": 4900000,
+  "salePrice": 3799000,
   "thumbnail": "/images/1745323568900-pro_den_noi_that_moho_ke_de_sach_7_6d68505ffeaa46e6a1642cad38af56a5_master.webp",
   "images": [
     "/images/1745323568901-pro_den_noi_that_moho_ke_de_sach_7_6d68505ffeaa46e6a1642cad38af56a5_master.webp"
@@ -2267,15 +2267,15 @@
     {
       "id": "681f6aadee59a19a9a372397",
       "size": "Nhỏ",
-      "price": 1200000,
-      "salePrice": 888000,
+      "price": 2200000,
+      "salePrice": 2088000,
       "stock": 10
     },
     {
       "id": "681f6af8ee59a19a9a372398",
       "size": "Lớn",
-      "price": 2000000,
-      "salePrice": 1799000,
+      "price": 4900000,
+      "salePrice": 3799000,
       "stock": 5
     }
   ],

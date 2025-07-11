@@ -111,6 +111,11 @@ export class ThongkeComponent implements OnInit, AfterViewInit {
       },
       error: (err) => {
         console.error('Error loading avatar:', err);
+        // Nếu lỗi xác thực, đăng xuất và chuyển về trang login
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.router.navigate(['/login']);
+        }
       },
     });
   }

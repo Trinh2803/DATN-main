@@ -17,6 +17,7 @@ export class ChiTietSanPhamComponent implements OnInit {
   selectedVariant: Variant | null = null;
   quantity: number = 1;
   selectedImage: string | null = null;  //Thêm biến lưu ảnh chính
+  relatedProducts: ProductInterface[] = []; // Thêm sản phẩm liên quan
 
   constructor(
     private route: ActivatedRoute,
@@ -34,6 +35,8 @@ export class ChiTietSanPhamComponent implements OnInit {
           this.selectedVariant = data.selectedVariant || null;
           this.selectedImage = data.thumbnail;
           console.log('Processed product data:', data);
+          // Lấy sản phẩm liên quan sau khi có thông tin sản phẩm
+          this.loadRelatedProducts();
         },
         error: (err: any) => {
           console.error('Lỗi khi lấy chi tiết sản phẩm:', err);
@@ -206,5 +209,69 @@ export class ChiTietSanPhamComponent implements OnInit {
       return this.selectedVariant.stock;
     }
     return Infinity; // Nếu không có biến thể, coi như không giới hạn
+  }
+
+  // Lấy sản phẩm liên quan
+  loadRelatedProducts(): void {
+    if (!this.product) return;
+
+    // Lấy sản phẩm cùng danh mục
+    const categoryId = typeof this.product.categoryId === 'string' 
+      ? this.product.categoryId 
+      : this.product.categoryId?._id;
+    
+    if (!categoryId) return;
+
+    this.productService.getProductsByCategory(categoryId).subscribe({
+      next: (products: ProductInterface[]) => {
+        // Lọc bỏ sản phẩm hiện tại và lấy tối đa 4 sản phẩm
+        this.relatedProducts = products
+          .filter(p => p._id !== this.product?._id)
+          .slice(0, 4);
+        console.log('Related products:', this.relatedProducts);
+      },
+      error: (err: any) => {
+        console.error('Lỗi khi lấy sản phẩm liên quan:', err);
+      }
+    });
+  }
+
+  // Chuyển đến trang chi tiết sản phẩm liên quan
+  goToProduct(productId: string): void {
+    this.router.navigate(['/chitietsanpham', productId]);
+  }
+
+  // Lấy giá hiện tại của sản phẩm liên quan
+  getRelatedProductPrice(product: ProductInterface): number {
+    if (product.variants && product.variants.length > 0) {
+      const minPrice = Math.min(...product.variants.map(v => v.salePrice || v.price));
+      return minPrice;
+    }
+    return product.salePrice || product.price;
+  }
+
+  // Lấy giá gốc của sản phẩm liên quan
+  getRelatedProductOriginalPrice(product: ProductInterface): number {
+    if (product.variants && product.variants.length > 0) {
+      const minOriginalPrice = Math.min(...product.variants.map(v => v.price));
+      return minOriginalPrice;
+    }
+    return product.price;
+  }
+
+  // Kiểm tra sản phẩm liên quan có giảm giá không
+  isRelatedProductOnSale(product: ProductInterface): boolean {
+    if (product.variants && product.variants.length > 0) {
+      return product.variants.some(v => v.salePrice && v.salePrice < v.price);
+    }
+    return product.salePrice != null && product.salePrice < product.price;
+  }
+
+  // Xử lý lỗi ảnh
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (img) {
+      img.style.display = 'none';
+    }
   }
 }
