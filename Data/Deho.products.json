@@ -21,7 +21,30 @@
     "$date": "2025-04-20T18:44:29.693Z"
   },
   "__v": 0,
-  "sellCount": 4
+  "sellCount": 4,
+  "variants": [
+    {
+      "id": "variant1",
+      "size": "S (120cm)",
+      "price": 8999000,
+      "salePrice": 5999000,
+      "stock": 10
+    },
+    {
+      "id": "variant2", 
+      "size": "M (150cm)",
+      "price": 10790000,
+      "salePrice": 6999000,
+      "stock": 15
+    },
+    {
+      "id": "variant3",
+      "size": "L (180cm)", 
+      "price": 12990000,
+      "salePrice": 8999000,
+      "stock": 8
+    }
+  ]
 },
 {
   "_id": {

@@ -44,7 +44,54 @@ export class GiohangComponent implements OnInit {
   }
 
   removeFromCart(productId: string, selectedVariant?: Variant): void {
-    this.cartService.removeFromCart(productId, selectedVariant);
+    console.log('Attempting to remove product:', productId, 'with variant:', selectedVariant);
+    console.log('Current cart items:', this.cartItems);
+    
+    const item = this.cartItems.find(item => 
+      item.product._id === productId && 
+      this.compareVariants(item.selectedVariant, selectedVariant)
+    );
+    
+    console.log('Found item to remove:', item);
+    
+    if (item) {
+      const confirmMessage = `Bạn có chắc muốn xóa "${item.product.name}"${item.selectedVariant ? ` (${item.selectedVariant.size})` : ''} khỏi giỏ hàng?`;
+      if (confirm(confirmMessage)) {
+        console.log('User confirmed removal, calling cart service...');
+        this.cartService.removeFromCart(productId, selectedVariant);
+        console.log('Cart service called successfully');
+      } else {
+        console.log('User cancelled removal');
+      }
+    } else {
+      console.log('Item not found, calling cart service anyway...');
+      this.cartService.removeFromCart(productId, selectedVariant);
+    }
+  }
+
+  // Phương thức helper để so sánh biến thể
+  private compareVariants(variant1?: Variant, variant2?: Variant): boolean {
+    if (!variant1 && !variant2) return true;
+    if (!variant1 || !variant2) return false;
+    return variant1.id === variant2.id;
+  }
+
+  // Xóa tất cả sản phẩm trong giỏ hàng
+  clearCart(): void {
+    if (this.cartItems.length > 0) {
+      if (confirm('Bạn có chắc muốn xóa tất cả sản phẩm khỏi giỏ hàng?')) {
+        this.cartService.clearCart();
+      }
+    }
+  }
+
+  // Phương thức test để kiểm tra chức năng xóa
+  testRemove(): void {
+    if (this.cartItems.length > 0) {
+      const firstItem = this.cartItems[0];
+      console.log('Testing removal of first item:', firstItem);
+      this.removeFromCart(firstItem.product._id, firstItem.selectedVariant);
+    }
   }
 
   // Lấy giá hiện tại cho item trong giỏ hàng
@@ -114,8 +161,12 @@ export class GiohangComponent implements OnInit {
 
   // Tăng số lượng
   increaseQuantity(item: CartItem): void {
-    const newQuantity = item.quantity + 1;
-    this.updateQuantity(item.product._id, newQuantity, item.selectedVariant);
+    if (this.canIncreaseQuantity(item)) {
+      const newQuantity = item.quantity + 1;
+      this.updateQuantity(item.product._id, newQuantity, item.selectedVariant);
+    } else {
+      alert('Đã đạt giới hạn số lượng có sẵn!');
+    }
   }
 
   // Giảm số lượng
@@ -123,6 +174,9 @@ export class GiohangComponent implements OnInit {
     if (item.quantity > 1) {
       const newQuantity = item.quantity - 1;
       this.updateQuantity(item.product._id, newQuantity, item.selectedVariant);
+    } else {
+      // Nếu giảm xuống 0, xóa sản phẩm khỏi giỏ hàng
+      this.removeFromCart(item.product._id, item.selectedVariant);
     }
   }
 
@@ -140,5 +194,39 @@ export class GiohangComponent implements OnInit {
       return item.selectedVariant.stock;
     }
     return 999; // Nếu không có biến thể, coi như không giới hạn
+  }
+
+  // Kiểm tra có thể tăng số lượng không
+  canIncreaseQuantity(item: CartItem): boolean {
+    if (item.selectedVariant) {
+      return item.quantity < item.selectedVariant.stock;
+    }
+    return true; // Nếu không có biến thể, coi như không giới hạn
+  }
+
+  // Xử lý khi người dùng thay đổi số lượng trực tiếp
+  onQuantityChange(item: CartItem, event: any): void {
+    const newQuantity = parseInt(event.target.value);
+    if (isNaN(newQuantity) || newQuantity < 1) {
+      event.target.value = item.quantity; // Khôi phục giá trị cũ
+      return;
+    }
+    
+    const maxStock = this.getStockQuantity(item);
+    if (newQuantity > maxStock) {
+      event.target.value = maxStock;
+      this.updateQuantity(item.product._id, maxStock, item.selectedVariant);
+      alert(`Số lượng tối đa có thể mua là ${maxStock}`);
+    } else {
+      this.updateQuantity(item.product._id, newQuantity, item.selectedVariant);
+    }
+  }
+
+  // Xử lý khi người dùng rời khỏi input
+  onQuantityBlur(item: CartItem): void {
+    // Đảm bảo giá trị hợp lệ khi blur
+    if (item.quantity < 1) {
+      this.updateQuantity(item.product._id, 1, item.selectedVariant);
+    }
   }
 }

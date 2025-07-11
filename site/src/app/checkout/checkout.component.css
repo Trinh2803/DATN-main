@@ -279,9 +279,16 @@ body {
 }
 
 .cart-item-desc {
-  color: #777;
+  color: #666;
   font-size: 12px;
-  margin-bottom: 5px;
+  margin-bottom: 2px;
+}
+
+.cart-item-variant {
+  color: #666;
+  font-size: 11px;
+  font-style: italic;
+  margin-bottom: 2px;
 }
 
 .cart-item-price {
