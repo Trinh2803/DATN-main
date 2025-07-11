@@ -44,7 +44,11 @@ const getSaleProducts = async (req, res) => {
 // Thêm mới sản phẩm
 const createProduct = async (req, res) => {
   try {
+<<<<<<< HEAD
     const { name, slug, description, price, salePrice, categoryId, variants } = req.body;
+=======
+    const { name, slug, description, price, salePrice, categoryId } = req.body;
+>>>>>>> parent of 7e17903 (haha)
     // Sửa đường dẫn để bao gồm /products/
     const thumbnail = req.files?.thumbnail ? `/images/products/${req.files.thumbnail[0].filename}` : '';
     const images = req.files?.images?.map(file => `/images/products/${file.filename}`) || [];
@@ -61,7 +65,11 @@ const createProduct = async (req, res) => {
     }
 
     const newProduct = await productService.createProduct({
+<<<<<<< HEAD
       name, slug, description, price, salePrice, categoryId, thumbnail, images, variants: parsedVariants
+=======
+      name, slug, description, price, salePrice, categoryId, thumbnail, images
+>>>>>>> parent of 7e17903 (haha)
     });
 
     res.status(201).json({ success: true, message: 'Tạo sản phẩm thành công', data: newProduct });
@@ -74,6 +82,7 @@ const createProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
+<<<<<<< HEAD
     const { name, slug, description, price, salePrice, categoryId, variants } = req.body;
 
     // Parse variants nếu có
@@ -90,6 +99,13 @@ const updateProduct = async (req, res) => {
     // Sửa đường dẫn để bao gồm /products/
     const updated = await productService.updateProduct(id, {
       name, slug, description, price, salePrice, categoryId, variants: parsedVariants
+=======
+    const { name, slug, description, price, salePrice, categoryId } = req.body;
+
+    // Sửa đường dẫn để bao gồm /products/
+    const updated = await productService.updateProduct(id, {
+      name, slug, description, price, salePrice, categoryId
+>>>>>>> parent of 7e17903 (haha)
     }, req.files);
 
     res.status(200).json({ success: true, message: 'Cập nhật sản phẩm thành công', data: updated });

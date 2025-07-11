@@ -37,8 +37,12 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
   constructor(
     private productService: ProductService,
     private categoryService: CategoryService,
+<<<<<<< HEAD
     private router: Router,
     private cdr: ChangeDetectorRef
+=======
+    private router: Router
+>>>>>>> parent of 7e17903 (haha)
   ) {}
 
   ngOnInit(): void {
