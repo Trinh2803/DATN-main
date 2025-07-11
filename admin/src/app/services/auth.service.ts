@@ -37,14 +37,23 @@ export class AuthService {
 
   getUserAvatar(): Observable<string | null> {
     const token = this.getToken();
-    if (!token) return new Observable(observer => observer.next(null));
+    if (!token) {
+      console.log('No token found');
+      return new Observable(observer => observer.next(null));
+    }
 
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       const userId = payload.userId;
+      console.log('Token payload:', payload);
+      console.log('User ID from token:', userId);
 
-      return this.http.get(`${this.apiUrl}/users/${userId}`).pipe(
+      const headers = { 'Authorization': `Bearer ${token}` };
+      console.log('Request headers:', headers);
+
+      return this.http.get(`${this.apiUrl}/users/${userId}`, { headers }).pipe(
         tap((response: any) => {
+          console.log('User response:', response);
           const avatar = response.data?.avatar || null;
           localStorage.setItem('userAvatar', avatar || '');
         }),

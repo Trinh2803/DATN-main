@@ -159,11 +159,15 @@
             <!-- Variants Section -->
             <div class="form-group">
               <div class="variants-header">
-                <label>Biến thể sản phẩm</label>
-                <button type="button" class="add-variant-btn" (click)="addVariant()">+ Thêm biến thể</button>
+                <label>Biến thể sản phẩm ({{ currentProduct.variants?.length || 0 }})</label>
+                <button type="button" class="add-variant-btn" (click)="addVariant()" style="background: red; color: white;">+ Thêm biến thể (Click me!)</button>
               </div>
-              <div class="variants-container" *ngIf="currentProduct.variants?.length">
-                <div class="variant-item" *ngFor="let variant of currentProduct.variants; let i = index">
+              <div class="variants-container" *ngIf="currentProduct.variants && currentProduct.variants.length > 0">
+                <div class="variant-item" *ngFor="let variant of currentProduct.variants; let i = index; trackBy: trackByVariantId">
+                  <!-- Debug info -->
+                  <div style="background: yellow; padding: 5px; margin: 5px;">
+                    Debug: Variant {{i}} - ID: {{variant.id}} - Size: {{variant.size}}
+                  </div>
                   <div class="variant-header">
                     <h4>Biến thể {{ i + 1 }}</h4>
                     <button type="button" class="remove-variant-btn" (click)="removeVariant(i)">×</button>
@@ -171,25 +175,26 @@
                   <div class="variant-fields">
                     <div class="variant-field">
                       <label>Kích thước:</label>
-                      <input type="text" [(ngModel)]="variant.size" name="size_{{i}}" placeholder="VD: S, M, L, XL" />
+                      <input type="text" [ngModel]="variant.size" (ngModelChange)="variant.size = $event" [name]="'size_' + i" placeholder="VD: S, M, L, XL" />
                     </div>
                     <div class="variant-field">
                       <label>Giá:</label>
-                      <input type="number" [(ngModel)]="variant.price" name="price_{{i}}" min="0" placeholder="0" />
+                      <input type="number" [ngModel]="variant.price" (ngModelChange)="variant.price = $event" [name]="'price_' + i" min="0" placeholder="0" />
                     </div>
                     <div class="variant-field">
                       <label>Giá giảm:</label>
-                      <input type="number" [(ngModel)]="variant.salePrice" name="salePrice_{{i}}" min="0" placeholder="0" />
+                      <input type="number" [ngModel]="variant.salePrice" (ngModelChange)="variant.salePrice = $event" [name]="'salePrice_' + i" min="0" placeholder="0" />
                     </div>
                     <div class="variant-field">
                       <label>Số lượng:</label>
-                      <input type="number" [(ngModel)]="variant.stock" name="stock_{{i}}" min="0" placeholder="0" />
+                      <input type="number" [ngModel]="variant.stock" (ngModelChange)="variant.stock = $event" [name]="'stock_' + i" min="0" placeholder="0" />
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="no-variants" *ngIf="!currentProduct.variants?.length">
+              <div class="no-variants" *ngIf="!currentProduct.variants || currentProduct.variants.length === 0">
                 <p>Chưa có biến thể nào. Nhấn "Thêm biến thể" để tạo.</p>
+                <p style="background: yellow; padding: 5px;">Debug: currentProduct.variants = {{ currentProduct.variants | json }}</p>
               </div>
             </div>
 
