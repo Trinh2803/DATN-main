@@ -48,6 +48,11 @@
             <span class="old-price" *ngIf="hasDiscount(product)">
               {{ getOriginalPrice(product) | number:'1.0-0' }}₫
             </span>
+            
+            <!-- Hiển thị thông tin "Giá từ" khi có biến thể -->
+            <div class="price-from-info" *ngIf="product.variants && product.variants.length > 0">
+              <small class="price-from-text">Giá từ</small>
+            </div>
           </div>
         </div>
 

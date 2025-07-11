@@ -15,6 +15,18 @@
       <div class="cart-products">
         <div class="cart-info">
           <p>Có <span>{{ cartItemCount }} sản phẩm</span> trong giỏ hàng</p>
+          <div class="cart-actions-buttons">
+            <button class="clear-cart-btn" 
+                    (click)="clearCart()" 
+                    *ngIf="cartItems.length > 0">
+              Xóa tất cả
+            </button>
+            <button class="test-remove-btn" 
+                    (click)="testRemove()" 
+                    *ngIf="cartItems.length > 0">
+              Test Xóa
+            </button>
+          </div>
         </div>
 
         <div class="cart-item" *ngFor="let item of cartItems">
@@ -24,20 +36,38 @@
           <div class="cart-item-details">
             <h3 class="product-title">{{ item.product.name }}</h3>
             <div class="product-price">
-              <span class="current-price">{{ (item.product.salePrice || item.product.price) | number:'1.0-0' }}đ</span>
-              <span class="original-price" *ngIf="item.product.salePrice">({{ item.product.price | number:'1.0-0' }}đ)</span>
+              <span class="current-price">{{ getItemPrice(item) | number:'1.0-0' }}đ</span>
+              <span class="original-price" *ngIf="hasDiscount(item)">({{ getItemOriginalPrice(item) | number:'1.0-0' }}đ)</span>
+              <!-- Hiển thị thông tin biến thể nếu có -->
+              <div class="variant-info" *ngIf="getVariantInfo(item)">
+                <small class="variant-text">{{ getVariantInfo(item) }}</small>
+              </div>
             </div>
             <div class="quantity-control">
-              <button class="decrease" (click)="updateQuantity(item.product._id, item.quantity - 1)">-</button>
-              <input type="text" [value]="item.quantity" readonly />
-              <button class="increase" (click)="updateQuantity(item.product._id, item.quantity + 1)">+</button>
+              <button class="decrease" 
+                      (click)="decreaseQuantity(item)"
+                      [disabled]="item.quantity <= 1">-</button>
+              <input type="number" 
+                     [value]="item.quantity" 
+                     (change)="onQuantityChange(item, $event)"
+                     (blur)="onQuantityBlur(item)"
+                     min="1"
+                     [max]="getStockQuantity(item)"
+                     class="quantity-input" />
+              <button class="increase" 
+                      (click)="increaseQuantity(item)"
+                      [disabled]="!canIncreaseQuantity(item)">+</button>
+            </div>
+            <!-- Hiển thị thông tin tồn kho -->
+            <div class="stock-info" *ngIf="item.selectedVariant">
+              <small class="stock-text">Còn {{ getStockQuantity(item) }} sản phẩm</small>
             </div>
           </div>
           <div class="cart-item-total">
-            <span>{{ (item.product.salePrice || item.product.price) * item.quantity | number:'1.0-0' }}đ</span>
+            <span>{{ getItemPrice(item) * item.quantity | number:'1.0-0' }}đ</span>
           </div>
           <div class="cart-item-remove">
-            <button class="remove-btn" (click)="removeFromCart(item.product._id)">×</button>
+            <button class="remove-btn" (click)="removeFromCart(item.product._id, item.selectedVariant)">×</button>
           </div>
         </div>
       </div>
@@ -52,7 +82,7 @@
 
         <div class="delivery-options">
           <div class="continue-shopping">
-            <a href="#"><i class="arrow-icon"></i> Tiếp tục mua hàng</a>
+            <a routerLink="/sanpham"><i class="arrow-icon"></i> Tiếp tục mua hàng</a>
           </div>
 
           <div class="delivery-option">

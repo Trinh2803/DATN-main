@@ -34,6 +34,10 @@
         </span>
         <span class="current-price">{{ getCurrentPrice() | currency:'VND':'symbol' }}</span>
         <span class="old-price" *ngIf="isSaleProduct()">{{ getOriginalPrice() | currency:'VND':'symbol' }}</span>
+        <!-- Hiển thị thông tin giá khi có biến thể nhưng chưa chọn -->
+        <div class="price-info" *ngIf="product.variants && product.variants.length > 0 && !selectedVariant">
+          <small class="price-note">Giá từ - Vui lòng chọn kích thước để xem giá cụ thể</small>
+        </div>
       </div>
 
       <!-- Variants Section -->
