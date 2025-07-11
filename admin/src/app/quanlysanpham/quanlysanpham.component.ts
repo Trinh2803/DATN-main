@@ -6,7 +6,6 @@ import { ProductService, Product, Variant } from '../services/product.service';
 import { CategoryService, Category } from '../services/category.service';
 import { FindCategoryPipe } from '../pipes/find-category.pipe';
 import { forkJoin } from 'rxjs';
-import { Discount, DiscountService } from '../services/discount.service';
 
 @Component({
   selector: 'app-quanlysanpham',
@@ -30,23 +29,19 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
     imageFiles?: File[];
     thumbnailUrl?: string;
     imageUrls?: string[];
-    discountId?: string;
   } = this.resetProduct();
   currentPage: number = 1;
   productsPerPage: number = 5;
   totalPages: number = 1;
-  discounts: Discount[] = [];
 
   constructor(
     private productService: ProductService,
     private categoryService: CategoryService,
-    private router: Router,
-    private discountService: DiscountService
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.checkAuthAndLoadData();
-    this.discountService.getDiscounts().subscribe(data => this.discounts = data);
   }
 
     private checkAuthAndLoadData(): void {
@@ -183,8 +178,7 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
       images: product.images,
       variants: product.variants || [],
       thumbnailUrl: product.thumbnail ? `http://localhost:3000${product.thumbnail}` : undefined,
-      imageUrls: product.images?.map(img => `http://localhost:3000${img}`),
-      discountId: product.discountId
+      imageUrls: product.images?.map(img => `http://localhost:3000${img}`)
     };
     console.log('Current product:', this.currentProduct);
   }
@@ -235,8 +229,7 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
       categoryId: this.currentProduct.categoryId,
       thumbnail: this.currentProduct.thumbnailFile,
       images: this.currentProduct.imageFiles,
-      variants: this.currentProduct.variants,
-      discountId: this.currentProduct.discountId
+      variants: this.currentProduct.variants
     };
 
     if (this.editMode) {
@@ -365,7 +358,7 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
     return pages;
   }
 
-  private resetProduct(): Product & { thumbnailFile?: File; imageFiles?: File[]; thumbnailUrl?: string; imageUrls?: string[]; discountId?: string } {
+  private resetProduct(): Product & { thumbnailFile?: File; imageFiles?: File[]; thumbnailUrl?: string; imageUrls?: string[] } {
     return {
       name: '',
       slug: '',
@@ -379,8 +372,7 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
       thumbnailFile: undefined,
       imageFiles: undefined,
       thumbnailUrl: undefined,
-      imageUrls: undefined,
-      discountId: undefined
+      imageUrls: undefined
     };
   }
 

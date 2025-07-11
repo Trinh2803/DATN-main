@@ -21,7 +21,6 @@ const productSchema = new Schema({
   images: [String],
   categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'categories' },
   variants: [variantSchema], // Thêm trường variants
-  discountId: { type: mongoose.Schema.Types.ObjectId, ref: 'discounts' }, // Thêm trường discountId
   
 }, { timestamps: true })
 

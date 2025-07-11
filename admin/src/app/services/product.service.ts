@@ -21,7 +21,6 @@ export interface Product {
   images?: string[];
   variants?: Variant[];
   categoryId: string;
-  discountId?: string;
   createdAt?: string;
   updatedAt?: string;
   sellCount?: number;
@@ -75,7 +74,6 @@ export class ProductService {
     thumbnail?: File;
     images?: File[];
     variants?: Variant[];
-    discountId?: string;
   }): Observable<ApiResponse<Product>> {
     const formData = new FormData();
     formData.append('name', product.name);
@@ -105,7 +103,6 @@ export class ProductService {
     thumbnail?: File;
     images?: File[];
     variants?: Variant[];
-    discountId?: string;
   }): Observable<ApiResponse<Product>> {
     const formData = new FormData();
     formData.append('name', product.name);

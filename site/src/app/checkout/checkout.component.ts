@@ -130,16 +130,10 @@ export class CheckoutComponent implements OnInit {
 
   // Lấy giá hiện tại cho item trong checkout
   getItemPrice(item: CartItem): number {
-    let basePrice = item.selectedVariant ? (item.selectedVariant.salePrice || item.selectedVariant.price) : (item.product.salePrice || item.product.price);
-    if ((item as any).discountInfo) {
-      const discountInfo = (item as any).discountInfo;
-      if (discountInfo.discountType === 'percent') {
-        return Math.round(basePrice * (1 - discountInfo.discountValue / 100));
-      } else if (discountInfo.discountType === 'fixed') {
-        return Math.max(0, basePrice - discountInfo.discountValue);
-      }
+    if (item.selectedVariant) {
+      return item.selectedVariant.salePrice || item.selectedVariant.price;
     }
-    return basePrice;
+    return item.product.salePrice || item.product.price;
   }
 
   // Lấy thông tin biến thể để hiển thị

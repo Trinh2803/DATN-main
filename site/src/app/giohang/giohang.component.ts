@@ -5,14 +5,11 @@ import { UserService } from '../user.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductInterface, Variant } from '../product-interface';
-import { HttpClient } from '@angular/common/http';
 
 interface CartItem {
   product: ProductInterface;
   quantity: number;
   selectedVariant?: Variant;
-  discountCode?: string;
-  discountInfo?: { discountType: string; discountValue: number };
 }
 
 @Component({
@@ -30,8 +27,7 @@ export class GiohangComponent implements OnInit {
   constructor(
     private cartService: CartService,
     private router: Router,
-    private userService: UserService,
-    private http: HttpClient
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
@@ -39,13 +35,8 @@ export class GiohangComponent implements OnInit {
     this.cartService.cartItems$.subscribe((items) => {
       this.cartItems = items;
       this.cartItemCount = this.cartService.getCartItemCount();
-      this.updateTotalPrice();
+      this.totalPrice = this.cartService.getTotalPrice();
     });
-  }
-
-  // Thêm hàm cập nhật tổng tiền theo giá đã giảm
-  updateTotalPrice(): void {
-    this.totalPrice = this.cartItems.reduce((sum, item) => sum + this.getItemPrice(item) * item.quantity, 0);
   }
 
   updateQuantity(productId: string, quantity: number, selectedVariant?: Variant): void {
@@ -103,46 +94,12 @@ export class GiohangComponent implements OnInit {
     }
   }
 
-  applyDiscount(item: CartItem) {
-    if (!item.discountCode) return;
-    // Thêm log để debug productId
-    console.log('DEBUG: product._id =', item.product._id);
-    let productId = item.product._id;
-    // Nếu productId là object và có thuộc tính $oid là string thì lấy chuỗi
-    if (productId && typeof productId === 'object' && typeof (productId as any).$oid === 'string') {
-      productId = (productId as any).$oid;
-    }
-    this.http.post<any>('http://localhost:3000/products/check-discount', {
-      productId: productId,
-      discountCode: item.discountCode
-    }).subscribe({
-      next: (res) => {
-        item.discountInfo = {
-          discountType: res.discountType,
-          discountValue: res.discountValue
-        };
-        alert(res.message || 'Áp dụng mã giảm giá thành công!');
-        this.updateTotalPrice(); // Cập nhật tổng tiền sau khi áp dụng mã giảm giá
-      },
-      error: (err) => {
-        item.discountInfo = undefined;
-        alert(err.error?.message || 'Mã giảm giá không hợp lệ!');
-        this.updateTotalPrice(); // Cập nhật tổng tiền nếu mã giảm giá không hợp lệ
-      }
-    });
-  }
-
   // Lấy giá hiện tại cho item trong giỏ hàng
   getItemPrice(item: CartItem): number {
-    let basePrice = item.selectedVariant ? (item.selectedVariant.salePrice || item.selectedVariant.price) : (item.product.salePrice || item.product.price);
-    if (item.discountInfo) {
-      if (item.discountInfo.discountType === 'percent') {
-        return Math.round(basePrice * (1 - item.discountInfo.discountValue / 100));
-      } else if (item.discountInfo.discountType === 'fixed') {
-        return Math.max(0, basePrice - item.discountInfo.discountValue);
-      }
+    if (item.selectedVariant) {
+      return item.selectedVariant.salePrice || item.selectedVariant.price;
     }
-    return basePrice;
+    return item.product.salePrice || item.product.price;
   }
 
   // Lấy giá gốc cho item trong giỏ hàng
