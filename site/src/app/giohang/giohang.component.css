@@ -458,6 +458,104 @@ main {
   outline: none;
 }
 
+/* Discount Box */
+.discount-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+.discount-box input[type="text"] {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1.5px solid #2d7f9e;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.discount-box input[type="text"]:focus {
+  border-color: #ff9800;
+}
+.discount-box button {
+  background-color: #2d7f9e;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.discount-box button:hover {
+  background: #338eaf;
+}
+.discount-box span {
+  margin-left: 8px;
+  color: #43a047;
+  font-weight: 500;
+  font-size: 13px;
+  background: #e8f5e9;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
+/* Cart Discount Section */
+.discount-section {
+  margin: 20px 0;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.discount-info {
+  margin-top: 10px;
+}
+
+.discount-applied {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #28a745;
+  font-weight: 500;
+  font-size: 14px;
+  background: #d4edda;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #c3e6cb;
+}
+
+.discount-applied i {
+  color: #28a745;
+}
+
+.discount-applied small {
+  color: #155724;
+  font-weight: 600;
+}
+
+.discount-amount {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.final-total {
+  border-top: 2px solid #dee2e6;
+  padding-top: 15px;
+  margin-top: 15px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.final-price {
+  color: #dc3545;
+  font-size: 18px;
+  font-weight: 700;
+}
+
 /* Responsive Styles */
 @media (max-width: 992px) {
   .cart-container {

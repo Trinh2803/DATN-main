@@ -1,0 +1,318 @@
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="logo">
+      <span class="logo-text"><img src="/images/logo.png" width="100px"></span>
+    </div>
+    <nav class="sidebar-menu">
+      <a class="menu-item" [routerLink]="['/thongke']"><span class="icon menu-dashboard"></span> Bảng điều khiển</a>
+      <a class="menu-item" [routerLink]="['/quanlydanhmuc']"><span class="icon menu-list"></span> Danh mục</a>
+      <a class="menu-item" [routerLink]="['/quanlysanpham']"><span class="icon menu-product"></span> Sản phẩm</a>
+      <a class="menu-item" [routerLink]="['/quanlynguoidung']"><span class="icon menu-customer"></span> Khách hàng</a>
+      <a class="menu-item" [routerLink]="['/quanlydonhang']"><span class="icon menu-order"></span> Đơn hàng</a>
+      <a class="menu-item active" [routerLink]="['/quanlygiamgia']"><span class="icon menu-discount"></span> Chương trình giảm giá</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <a class="logout" (click)="logout()"><span class="icon logout-icon"></span> Đăng xuất</a>
+    </div>
+  </aside>
+
+  <div class="main-container">
+    <header class="main-header">
+      <div class="header-left">
+        <div class="page-title">Quản lý chương trình giảm giá</div>
+        <div class="breadcrumb">Home / Chương trình giảm giá</div>
+      </div>
+      <div class="header-right">
+        <div class="search-box">
+          <span class="icon search-icon"></span>
+          <input type="text" placeholder="Tìm kiếm mã giảm giá" [(ngModel)]="searchQuery" (input)="search()" />
+        </div>
+        <img class="avatar" src="/images/avt.png" alt="avatar">
+      </div>
+    </header>
+
+    <main class="dashboard-content">
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        {{ errorMessage }}
+      </div>
+
+      <div *ngIf="successMessage" class="alert alert-success">
+        {{ successMessage }}
+      </div>
+
+      <div class="section-header">
+        <h2>Danh sách mã giảm giá</h2>
+        <button class="add-button" (click)="showAddForm()" [disabled]="loading">
+          <i class="fas fa-plus"></i> Thêm mã giảm giá
+        </button>
+      </div>
+
+      <!-- Add/Edit Form -->
+      <div class="form-overlay" *ngIf="showForm">
+        <div class="form-container">
+          <div class="form-header">
+            <h3>{{ isEditing ? 'Chỉnh sửa mã giảm giá' : 'Thêm mã giảm giá mới' }}</h3>
+            <button class="btn-close" (click)="hideForm()">&times;</button>
+          </div>
+
+          <form (ngSubmit)="saveDiscount()" #discountForm="ngForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="code">Mã giảm giá *</label>
+                <input 
+                  type="text" 
+                  id="code" 
+                  name="code" 
+                  [(ngModel)]="newDiscount.code" 
+                  required 
+                  placeholder="VD: WELCOME10"
+                  [disabled]="loading">
+              </div>
+              <div class="form-group">
+                <label for="name">Tên mã giảm giá *</label>
+                <input 
+                  type="text" 
+                  id="name" 
+                  name="name" 
+                  [(ngModel)]="newDiscount.name" 
+                  required 
+                  placeholder="VD: Giảm giá chào mừng"
+                  [disabled]="loading">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="description">Mô tả</label>
+              <textarea 
+                id="description" 
+                name="description" 
+                [(ngModel)]="newDiscount.description" 
+                placeholder="Mô tả chi tiết về mã giảm giá"
+                [disabled]="loading"></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="discountType">Loại giảm giá *</label>
+                <select 
+                  id="discountType" 
+                  name="discountType" 
+                  [(ngModel)]="newDiscount.discountType" 
+                  required
+                  [disabled]="loading">
+                  <option value="percentage">Phần trăm (%)</option>
+                  <option value="fixed">Số tiền cố định (VNĐ)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="discountValue">Giá trị giảm giá *</label>
+                <input 
+                  type="number" 
+                  id="discountValue" 
+                  name="discountValue" 
+                  [(ngModel)]="newDiscount.discountValue" 
+                  required 
+                  [min]="0"
+                  [max]="newDiscount.discountType === 'percentage' ? 100 : null"
+                  [placeholder]="newDiscount.discountType === 'percentage' ? 'VD: 10' : 'VD: 50000'"
+                  [disabled]="loading">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="minOrderValue">Giá trị đơn hàng tối thiểu</label>
+                <input 
+                  type="number" 
+                  id="minOrderValue" 
+                  name="minOrderValue" 
+                  [(ngModel)]="newDiscount.minOrderValue" 
+                  [min]="0"
+                  placeholder="VD: 500000"
+                  [disabled]="loading">
+              </div>
+              <div class="form-group" *ngIf="newDiscount.discountType === 'percentage'">
+                <label for="maxDiscount">Giảm giá tối đa</label>
+                <input 
+                  type="number" 
+                  id="maxDiscount" 
+                  name="maxDiscount" 
+                  [(ngModel)]="newDiscount.maxDiscount" 
+                  [min]="0"
+                  placeholder="VD: 100000"
+                  [disabled]="loading">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="startDate">Ngày bắt đầu *</label>
+                <input 
+                  type="datetime-local" 
+                  id="startDate" 
+                  name="startDate" 
+                  [(ngModel)]="newDiscount.startDate" 
+                  required
+                  [disabled]="loading">
+              </div>
+              <div class="form-group">
+                <label for="endDate">Ngày kết thúc *</label>
+                <input 
+                  type="datetime-local" 
+                  id="endDate" 
+                  name="endDate" 
+                  [(ngModel)]="newDiscount.endDate" 
+                  required
+                  [disabled]="loading">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="usageLimit">Giới hạn sử dụng</label>
+                <input 
+                  type="number" 
+                  id="usageLimit" 
+                  name="usageLimit" 
+                  [(ngModel)]="newDiscount.usageLimit" 
+                  [min]="0"
+                  placeholder="VD: 100 (0 = không giới hạn)"
+                  [disabled]="loading">
+              </div>
+              <div class="form-group">
+                <label class="checkbox-label">
+                  <input 
+                    type="checkbox" 
+                    [(ngModel)]="newDiscount.isActive" 
+                    name="isActive"
+                    [disabled]="loading">
+                  <span class="checkmark"></span>
+                  Kích hoạt mã giảm giá
+                </label>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn-cancel" (click)="hideForm()" [disabled]="loading">
+                Hủy
+              </button>
+              <button type="submit" class="btn-save" [disabled]="loading || !discountForm.form.valid">
+                <span *ngIf="loading">Đang lưu...</span>
+                <span *ngIf="!loading">{{ isEditing ? 'Cập nhật' : 'Thêm mới' }}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Discount List -->
+      <div class="content">
+        <div class="loading" *ngIf="loading && !showForm">
+          <div class="spinner"></div>
+          <p>Đang tải dữ liệu...</p>
+        </div>
+
+        <div class="discount-list" *ngIf="!loading && filteredDiscounts.length > 0">
+          <div class="discount-item" *ngFor="let discount of filteredDiscounts">
+            <div class="discount-header">
+              <div class="discount-code">
+                <h4>{{ discount.code }}</h4>
+                <span class="discount-name">{{ discount.name }}</span>
+              </div>
+              <div class="discount-actions">
+                <button class="btn-toggle" 
+                        [class.active]="discount.isActive"
+                        (click)="toggleActive(discount)"
+                        [disabled]="loading">
+                  {{ discount.isActive ? 'Hoạt động' : 'Vô hiệu' }}
+                </button>
+                <button class="btn-edit" (click)="showEditForm(discount)" [disabled]="loading">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn-delete" (click)="deleteDiscount(discount._id!)" [disabled]="loading">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="discount-details">
+              <div class="detail-row">
+                <div class="detail-item">
+                  <span class="label">Mô tả:</span>
+                  <span class="value">{{ discount.description || 'Không có mô tả' }}</span>
+                </div>
+              </div>
+
+              <div class="detail-row">
+                <div class="detail-item">
+                  <span class="label">Loại giảm giá:</span>
+                  <span class="value">{{ getDiscountTypeText(discount.discountType) }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="label">Giá trị:</span>
+                  <span class="value">
+                    {{ discount.discountType === 'percentage' ? discount.discountValue + '%' : formatCurrency(discount.discountValue) }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="detail-row">
+                <div class="detail-item">
+                  <span class="label">Đơn hàng tối thiểu:</span>
+                  <span class="value">{{ formatCurrency(discount.minOrderValue) }}</span>
+                </div>
+                <div class="detail-item" *ngIf="discount.maxDiscount">
+                  <span class="label">Giảm tối đa:</span>
+                  <span class="value">{{ formatCurrency(discount.maxDiscount) }}</span>
+                </div>
+              </div>
+
+              <div class="detail-row">
+                <div class="detail-item">
+                  <span class="label">Thời gian:</span>
+                  <span class="value">{{ formatDate(discount.startDate) }} - {{ formatDate(discount.endDate) }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="label">Sử dụng:</span>
+                  <span class="value">{{ discount.usedCount }}/{{ discount.usageLimit || '∞' }}</span>
+                </div>
+              </div>
+
+              <div class="detail-row">
+                <div class="detail-item">
+                  <span class="label">Trạng thái:</span>
+                  <span class="value" [class]="getStatusClass(discount.isActive)">
+                    {{ getStatusText(discount.isActive) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="!loading && filteredDiscounts.length === 0">
+          <div class="empty-icon">
+            <i class="fas fa-tag"></i>
+          </div>
+          <h3>Chưa có mã giảm giá nào</h3>
+          <p>Bắt đầu tạo mã giảm giá đầu tiên để khuyến khích khách hàng mua sắm</p>
+          <button class="btn-add" (click)="showAddForm()">
+            <i class="fas fa-plus"></i> Thêm mã giảm giá
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- SVG ICONS template -->
+<svg style="display: none;">
+  <symbol id="menu-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2" fill="#b3b8c5"/><rect x="3" y="14" width="7" height="7" rx="2" fill="#b3b8c5"/><rect x="14" y="3" width="7" height="7" rx="2" fill="#b3b8c5"/><rect x="14" y="14" width="7" height="7" rx="2" fill="#b3b8c5"/></symbol>
+  <symbol id="menu-list" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="2" rx="1" fill="#b3b8c5"/><rect x="4" y="11" width="16" height="2" rx="1" fill="#b3b8c5"/><rect x="4" y="15" width="16" height="2" rx="1" fill="#b3b8c5"/></symbol>
+  <symbol id="menu-product" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" stroke="#b3b8c5" stroke-width="2" fill="none"/></symbol>
+  <symbol id="menu-customer" viewBox="0 0 24 24"><circle cx="12" cy="9" r="5" stroke="#b3b8c5" stroke-width="2" fill="none"/><path d="M3 21c0-4.418 4.03-8 9-8s9 3.582 9 8" stroke="#b3b8c5" stroke-width="2" fill="none"/></symbol>
+  <symbol id="menu-order" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" stroke="#b3b8c5" stroke-width="2" fill="none"/></symbol>
+  <symbol id="menu-discount" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="2" rx="1" fill="#b3b8c5"/><rect x="4" y="11" width="16" height="2" rx="1" fill="#b3b8c5"/><rect x="4" y="15" width="16" height="2" rx="1" fill="#b3b8c5"/></symbol>
+  <symbol id="logout-icon" viewBox="0 0 24 24"><path d="M16 17l5-5-5-5M21 12H9M13 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2" stroke="#b3b8c5" stroke-width="2" fill="none"/></symbol>
+  <symbol id="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke="#b3b8c5" stroke-width="2" fill="none"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="#b3b8c5" stroke-width="2"/></symbol>
+</svg>

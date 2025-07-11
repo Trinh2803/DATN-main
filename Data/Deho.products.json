@@ -7,6 +7,7 @@
   "description": "Kích thước: Dài 180cm x Rộng 85cm x Cao 82cm",
   "price": 8879000,
   "salePrice": 6999000,
+  "discountId": "discount001",
   "thumbnail": "/images/1744503633763-ghesofa1.webp",
   "images": [
     "/images/1744503633763-ghesofa1.1.jpg",
@@ -49,17 +50,9 @@
   "name": "Ghế Sofa MOHO LYNGBY 601",
   "slug": "sofa",
   "description": "Kích thước: Dài 160cm x Rộng 79cm x Cao 72cm",
-<<<<<<< HEAD
   "price": 10790000,
   "salePrice": 6499000,
-<<<<<<< HEAD
-  "discountId": "1752250233542",
-=======
-  "price": 1179000,
-  "salePrice": 909000,
->>>>>>> main
-=======
->>>>>>> parent of 7e17903 (haha)
+  "discountId": "discount002",
   "thumbnail": "/images/1744503844075-pro_be_noi_that_moho_sofa_lyngby_7_ba5f47391b59470e842a70476e8def06_master.jpg",
   "images": [
     "/images/1744503844082-pro_be_noi_that_moho_sofa_lyngby_3_bfd59f3a9ace4e0bbea337fc23debdd5_master.jpg",
@@ -97,34 +90,6 @@
 },
 {
   "_id": {
-<<<<<<< HEAD
-    "$oid": "67fb04b5f07de8526cae34c8"
-  },
-  "name": "Ghế Sofa MOHO LYNGBY Góc L",
-  "slug": "sofa",
-  "description": "Kích thước: Dài 192cm x Rộng 132cm x Cao 72cm",
-  "price": 12990000,
-  "salePrice": 8199000,
-  "thumbnail": "/images/1744503989537-pro_be_noi_that_moho___1__2a8d850c5cba4d0c87f1b4803eace91d_master.jpg",
-  "images": [
-    "/images/1744503989540-pro_be_noi_that_moho___2__acd996ed82684c60b11f65cede53b78d_master.jpg"
-  ],
-  "categoryId": {
-    "$oid": "67e326a52157440b136ea716"
-  },
-  "createdAt": {
-    "$date": "2025-04-13T00:26:29.546Z"
-  },
-  "updatedAt": {
-    "$date": "2025-04-20T16:49:38.506Z"
-  },
-  "__v": 0,
-  "sellCount": 2
-},
-{
-  "_id": {
-=======
->>>>>>> main
     "$oid": "67fb0564f07de8526cae34d2"
   },
   "name": "Tủ Giày – Tủ Trang Trí Gỗ MOHO VIENNA 204",
@@ -132,6 +97,7 @@
   "description": "Kích thước: Dài 80cm x Rộng 32cm x Cao 100cm",
   "price": 4490000,
   "salePrice": 2899000,
+  "discountId": "discount003",
   "thumbnail": "/images/1744504164107-pro_go_phoi_trang_noi_that_moho_tu_giay_trang_tri_vienna_204_9_b9e1762b3b104e2b95e3297cb6bd83da_master.webp",
   "images": [
     "/images/1744504164108-pro_go_phoi_trang_noi_that_moho_tu_giay_trang_tri_vienna_204_878b1deccc9c409481404d310e8fb045_master.webp",
@@ -176,6 +142,7 @@
   "description": "Kích thước: Dài 110cm x Rộng 55cm x Cao 74cm",
   "price": 2990000,
   "salePrice": null,
+  "discountId": "",
   "thumbnail": "/images/1744504407947-pro_nau_noi_that_moho_ban_lam_viec_vline_601_45d5b92f9a2b464e8382610013e531d7_master.webp",
   "images": [
     "/images/1744504407951-pro_nau_noi_that_moho_ban_lam_viec_vline_601_a_e60e2f8b72854311ae12424eed3cb88a_master.webp",
@@ -220,6 +187,7 @@
   "description": "Kích thước: Dài 52cm x Rộng 65cm x Cao 94-101cm",
   "price": 1690000,
   "salePrice": 1099000,
+  "discountId": "",
   "thumbnail": "/images/1744504493567-pro_den_noi_that_moho_ghe_van_phong_riga_1_36e7043208564abbb45f8bd6f68f998d_master.jpg",
   "images": [
     "/images/1744504493568-pro_den_noi_that_moho_ghe_van_phong_riga_3_4722911408574dbf8513ef8d4aeefe0e_master.webp",
@@ -263,15 +231,8 @@
   "slug": "ke",
   "description": "Kích thước: Dài 80cm x Rộng 32cm x Cao 106cm ",
   "price": 2490000,
-<<<<<<< HEAD
   "salePrice": null,
-<<<<<<< HEAD
   "discountId": "",
-=======
-  "salePrice": 2290000,
->>>>>>> main
-=======
->>>>>>> parent of 7e17903 (haha)
   "thumbnail": "/images/1744504558160-pro_den_noi_that_moho_ke_de_sach_7_6d68505ffeaa46e6a1642cad38af56a5_master.webp",
   "images": [
     "/images/1744504558161-pro_den_noi_that_moho_ke_de_sach_8_e44f4b290be04aac83bc2f615437144c_master.webp",
@@ -315,15 +276,8 @@
   "slug": "banlamviec",
   "description": "- Bàn làm việc VLINE: Dài 110cm x Rộng 55cm x Cao 74cm  - Ghế ăn MILAN: Dài 52cm x Rộng 49cm x Cao 74cm",
   "price": 5180000,
-<<<<<<< HEAD
   "salePrice": null,
-<<<<<<< HEAD
   "discountId": "",
-=======
-  "salePrice": 508000,
->>>>>>> main
-=======
->>>>>>> parent of 7e17903 (haha)
   "thumbnail": "/images/1744504629416-pro_nau_noi_that_moho_combo_ban_lam_viec_go_moho_ghe_fyn_5_8bc415ae0bd24dc88a3c261f13a95710_master.webp",
   "images": [
     "/images/1744504629419-pro_nau_noi_that_moho_combo_ban_lam_viec_go_moho_ghe_nexo_5_75d8bfa8974d45f2ad79ae23ae7e7537_master.webp",
@@ -367,15 +321,8 @@
   "slug": "nem",
   "description": "Kích thước: 1m/ 1m2/ 1m4/ 1m6/ 1m8 x 2m x 10/ 15/ 20cm",
   "price": 3970000,
-<<<<<<< HEAD
   "salePrice": null,
-<<<<<<< HEAD
   "discountId": "",
-=======
-  "salePrice": 2799000,
->>>>>>> main
-=======
->>>>>>> parent of 7e17903 (haha)
   "thumbnail": "/images/1744504809242-pro_trang_kem_noi_that_moho_nem_lo_xo_van_thanh__9ffeace09eae494baf02dd69905f753b_master.png",
   "images": [
     "/images/1744504809245-pro_trang_kem_noi_that_moho_nem_lo_xo_van_thanh_1_f450cb4751eb444d963cf01ecad6b5d5_master.png"
@@ -416,15 +363,8 @@
   "slug": "nem",
   "description": "Kích thước: 1m6x2m0x11",
   "price": 3880000,
-<<<<<<< HEAD
   "salePrice": null,
-<<<<<<< HEAD
   "discountId": "",
-=======
-  "salePrice": 2799000,
->>>>>>> main
-=======
->>>>>>> parent of 7e17903 (haha)
   "thumbnail": "/images/1744504884974-10_nam_mousse_ep_fced4c16452e416eaab21f4418ca16eb_1024x1024.webp",
   "images": [],
   "variants": [
@@ -464,6 +404,7 @@
   "description": "- Bếp chữ L 3.4m: 2274 x 1724mm",
   "price": 19816667,
   "salePrice": null,
+  "discountId": "",
   "thumbnail": "/images/1744505018740-pro_1m5_chu_i_noi_that_moho_tu_bep_premium_chu_i_1m5_narvik_b_804c3680a33649c097732eaf825f08a8_master.webp",
   "images": [
     "/images/1744505018741-pro_1m5_chu_i_noi_that_moho_tu_bep_premium_chu_i_1m5_narvik_c_8273740dc0ef4573906ba2ffed50ffdd_master.webp",
@@ -505,17 +446,9 @@
   "name": "Hệ tủ bếp MOHO Kitchen Premium Ubeda",
   "slug": "bep",
   "description": "Bếp chữ L 3.4m: 2274 x 1724mm ",
-<<<<<<< HEAD
   "price": 19816667,
   "salePrice": null,
-<<<<<<< HEAD
   "discountId": "",
-=======
-  "price": 1980610,
-  "salePrice": 15816000,
->>>>>>> main
-=======
->>>>>>> parent of 7e17903 (haha)
   "thumbnail": "/images/1744505216848-pro_1m5_chu_i_noi_that_moho_tu_bep_premium_chu_i_1m5_ubeda_c_604284e648254233b4b822f8a0f6de15_master.webp",
   "images": [
     "/images/1744505216849-1744505018740-pro_1m5_chu_i_noi_that_moho_tu_bep_premium_chu_i_1m5_narvik_b_804c3680a33649c097732eaf825f08a8_master.webp",
@@ -559,6 +492,7 @@
   "description": "Bàn Sofa: Dài 90 X Rộng 50 X H40 (cm)",
   "price": 2090000,
   "salePrice": null,
+  "discountId": "",
   "thumbnail": "/images/1744505297756-pro_nau_noi_that_moho_ban_sofa_koster_mau_nau_1_7bd3712bece542ecb45bfe3933373900_large.webp",
   "images": [
     "/images/1744505297756-pro_nau_noi_that_moho_ban_sofa_koster_mau_nau_2_2e9b0e60494541dc8f65b0efcf70298a_master.webp",
@@ -602,15 +536,8 @@
   "slug": "ban",
   "description": "Kích thước: Rộng 400 x Dài 900 x Cao 400",
   "price": 1990000,
-<<<<<<< HEAD
   "salePrice": null,
-<<<<<<< HEAD
   "discountId": "",
-=======
-  "salePrice": 1890000,
->>>>>>> main
-=======
->>>>>>> parent of 7e17903 (haha)
   "thumbnail": "/images/1744505451109-pro_mau_nau_noi_that_moho_ban_sofa_hobro___1__b8b2225e1732409086e953121185762d_master.jpg",
   "images": [
     "/images/1744505451111-pro_mau_nau_noi_that_moho_ban_sofa_hobro___2__eca0f716a389412991d0de9fe840ec58_master.jpg",

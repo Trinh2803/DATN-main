@@ -87,7 +87,10 @@ const items = await Promise.all(
     ...orderData,
     customerAddress,
     items,
-    total: items.reduce((sum, item) => sum + item.quantity * item.price, 0)
+    total: orderData.total || items.reduce((sum, item) => sum + item.quantity * item.price, 0),
+    finalAmount: orderData.finalAmount || orderData.total || items.reduce((sum, item) => sum + item.quantity * item.price, 0),
+    discountCode: orderData.discountCode || null,
+    discountInfo: orderData.discountInfo || null
   });
   await updateSellCountForOrder(order.items);
   await order.save();

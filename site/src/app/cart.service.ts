@@ -74,7 +74,7 @@ export class CartService {
   private compareVariants(variant1?: Variant, variant2?: Variant): boolean {
     if (!variant1 && !variant2) return true;
     if (!variant1 || !variant2) return false;
-    return variant1.id === variant2.id;
+    return variant1._id === variant2._id;
   }
 
   updateQuantity(productId: string, quantity: number, selectedVariant?: Variant) {

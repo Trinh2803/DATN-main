@@ -77,13 +77,20 @@
         <span>Tạm tính</span>
         <span>{{ totalPrice | number:'1.0-0' }}₫</span>
       </div>
+      
+      <div class="summary-row" *ngIf="discountInfo">
+        <span>Giảm giá ({{ discountInfo.code }})</span>
+        <span class="discount-amount">-{{ discountInfo.discountAmount | number:'1.0-0' }}₫</span>
+      </div>
+      
       <div class="summary-row">
         <span>Phí vận chuyển</span>
         <span>Miễn phí</span>
       </div>
+      
       <div class="summary-row total">
         <span>Tổng cộng</span>
-        <span>VND {{ totalPrice | number:'1.0-0' }}₫</span>
+        <span>VND {{ finalAmount | number:'1.0-0' }}₫</span>
       </div>
     </div>
   </div>
