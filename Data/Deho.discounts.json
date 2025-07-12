@@ -136,5 +136,23 @@
     "applicableCategories": [],
     "createdAt": "2025-01-20T00:00:00.000Z",
     "_id": "1737388800000"
+  },
+  {
+    "code": "TANKHUNG",
+    "name": "DEAL 100%",
+    "description": "",
+    "discountType": "percentage",
+    "discountValue": 100,
+    "minOrderValue": 0,
+    "maxDiscount": 0,
+    "startDate": "2025-07-12T09:08:00.000Z",
+    "endDate": "2025-07-13T09:09:00.000Z",
+    "usageLimit": 2,
+    "usedCount": 1,
+    "isActive": true,
+    "applicableProducts": [],
+    "applicableCategories": [],
+    "createdAt": "2025-07-12T09:09:32.510Z",
+    "_id": "1752311372510"
   }
 ]
