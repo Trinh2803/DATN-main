@@ -112,7 +112,7 @@
     "startDate": "2025-07-12T07:32:00.000Z",
     "endDate": "2025-07-24T07:32:00.000Z",
     "usageLimit": 1,
-    "usedCount": 0,
+    "usedCount": 1,
     "isActive": true,
     "applicableProducts": [],
     "applicableCategories": [],
