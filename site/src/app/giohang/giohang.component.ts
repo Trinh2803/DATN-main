@@ -62,6 +62,13 @@ export class GiohangComponent implements OnInit {
     this.finalAmount = this.totalAmount - this.discountAmount;
   }
 
+  getDiscountedTotal(): number {
+    return this.cartItems.reduce((total, item) => {
+      const price = this.getDiscountedItemPrice(item);
+      return total + (price * item.quantity);
+    }, 0);
+  }
+
   // Methods for HTML template
   getItemPrice(item: CartItem): number {
     return this.getProductPrice(item);
