@@ -38,14 +38,14 @@
           <h3 class="cart-item-title">{{ item.product.name }}</h3>
           <p class="cart-item-desc">Số lượng: {{ item.quantity }}</p>
         </div>
-        <div class="cart-item-price">{{ (item.product.salePrice || item.product.price) * item.quantity | number:'1.0-0' }}₫</div>
+        <div class="cart-item-price">{{ getDiscountedItemPrice(item) * item.quantity | number:'1.0-0' }}₫</div>
       </div>
     </div>
 
     <div class="cart-summary">
       <div class="summary-row">
         <span>Tạm tính</span>
-        <span>{{ order?.totalPrice | number:'1.0-0' }}₫</span>
+        <span>{{ getDiscountedTotal() | number:'1.0-0' }}₫</span>
       </div>
       <div class="summary-row">
         <span>Phí vận chuyển</span>
@@ -53,7 +53,7 @@
       </div>
       <div class="summary-row total">
         <span>Tổng cộng</span>
-        <span>VND {{ order?.totalPrice | number:'1.0-0' }}₫</span>
+        <span>VND {{ getDiscountedTotal() | number:'1.0-0' }}₫</span>
       </div>
     </div>
   </div>

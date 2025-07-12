@@ -12,7 +12,7 @@ export async function renderOrders() {
       <h2>Quản lý đơn hàng</h2>
       <table>
         <thead>
-          <tr><th>STT</th><th>Khách hàng</th><th>Email</th><th>Trạng thái</th><th>Ngày</th><th>Hành động</th></tr>
+          <tr><th>STT</th><th>Khách hàng</th><th>Email</th><th>Tổng tiền</th><th>Trạng thái</th><th>Ngày</th><th>Hành động</th></tr>
         </thead>
         <tbody>
           ${orders.map((o, i) => `
@@ -20,6 +20,7 @@ export async function renderOrders() {
               <td>${i + 1}</td>
               <td>${o.customerName}</td>
               <td>${o.customerEmail}</td>
+              <td>${o.finalAmount ? o.finalAmount.toLocaleString() : o.total.toLocaleString()}đ</td>
               <td>${o.status}</td>
               <td>${new Date(o.createdAt).toLocaleString()}</td>
               <td>
@@ -89,6 +90,11 @@ async function showOrderDetails(id) {
         </table>
 
         <p class="total">Tổng cộng: ${order.total.toLocaleString()}đ</p>
+        ${order.discountInfo ? `
+          <p><strong>Mã giảm giá:</strong> ${order.discountInfo.code} (${order.discountInfo.name})</p>
+          <p><strong>Giảm giá:</strong> -${order.discountInfo.discountAmount.toLocaleString()}đ</p>
+          <p class="total"><strong>Tổng thanh toán:</strong> ${order.finalAmount.toLocaleString()}đ</p>
+        ` : ''}
         <p><strong>Trạng thái:</strong> ${order.status}</p>
         <p><strong>Ghi chú của admin:</strong> ${order.adminNote || 'Không có'}</p>
       </div>

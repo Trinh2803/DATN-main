@@ -2,6 +2,7 @@ import { renderCategories } from "./categories.js";
 import { renderProducts } from "./products.js";
 import { renderUsersByRole } from "./users.js";
 import { renderOrders } from "./orders.js";
+import { renderDiscounts } from "./discounts.js";
 
 let currentTab = "dashboard";
 
@@ -14,8 +15,8 @@ document.addEventListener("DOMContentLoaded", () => {
     { id: "btnDashboard", action: () => { currentTab = "dashboard"; renderDashboard(); } },
     { id: "btnAdmins", action: () => { currentTab = "admin"; renderUsersByRole("admin"); } },
     { id: "btnCustomers", action: () => { currentTab = "customer"; renderUsersByRole("customer"); } },
-    { id: "btnOrders", action: () => { currentTab = "order"; renderOrders(); } }
-
+    { id: "btnOrders", action: () => { currentTab = "order"; renderOrders(); } },
+    { id: "btnDiscounts", action: () => { currentTab = "discount"; renderDiscounts(); } }
   ];
 
   buttons.forEach(({ id, action }) => {

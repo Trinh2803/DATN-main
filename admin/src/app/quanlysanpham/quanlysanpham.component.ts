@@ -4,13 +4,14 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ProductService, Product, Variant } from '../services/product.service';
 import { CategoryService, Category } from '../services/category.service';
-import { FindCategoryPipe } from '../pipes/find-category.pipe';
+import { FindCategoryPipe, FindDiscountPipe } from '../pipes/find-category.pipe';
 import { forkJoin } from 'rxjs';
+import { Discount, DiscountService } from '../services/discount.service';
 
 @Component({
   selector: 'app-quanlysanpham',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, FormsModule, FindCategoryPipe],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, FormsModule, FindCategoryPipe, FindDiscountPipe],
   templateUrl: './quanlysanpham.component.html',
   styleUrls: ['./quanlysanpham.component.css'],
 })
@@ -29,24 +30,28 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
     imageFiles?: File[];
     thumbnailUrl?: string;
     imageUrls?: string[];
+    discountId?: string;
   } = this.resetProduct();
   currentPage: number = 1;
   productsPerPage: number = 5;
   totalPages: number = 1;
+  discounts: Discount[] = [];
 
   constructor(
     private productService: ProductService,
     private categoryService: CategoryService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private discountService: DiscountService
   ) {}
 
   ngOnInit(): void {
     this.checkAuthAndLoadData();
+    this.discountService.getAllDiscounts().subscribe((data: Discount[]) => this.discounts = data);
   }
 
     private checkAuthAndLoadData(): void {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) {
       this.errorMessage = 'Vui lòng đăng nhập.';
       this.router.navigate(['/login']);
@@ -182,7 +187,8 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
       images: product.images,
       variants: product.variants || [],
       thumbnailUrl: product.thumbnail ? `http://localhost:3000${product.thumbnail}` : undefined,
-      imageUrls: product.images?.map(img => `http://localhost:3000${img}`)
+      imageUrls: product.images?.map(img => `http://localhost:3000${img}`),
+      discountId: product.discountId
     };
     // Đảm bảo variants được khởi tạo
     if (!this.currentProduct.variants) {
@@ -212,7 +218,7 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
       this.currentProduct.variants = [];
     }
     const newVariant = {
-      id: this.generateId(),
+      _id: this.generateId(),
       size: '',
       price: 0,
       salePrice: undefined,
@@ -244,7 +250,8 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
       categoryId: this.currentProduct.categoryId,
       thumbnail: this.currentProduct.thumbnailFile,
       images: this.currentProduct.imageFiles,
-      variants: this.currentProduct.variants
+      variants: this.currentProduct.variants,
+      discountId: this.currentProduct.discountId
     };
 
     if (this.editMode) {
@@ -373,7 +380,7 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
     return pages;
   }
 
-  private resetProduct(): Product & { thumbnailFile?: File; imageFiles?: File[]; thumbnailUrl?: string; imageUrls?: string[] } {
+  private resetProduct(): Product & { thumbnailFile?: File; imageFiles?: File[]; thumbnailUrl?: string; imageUrls?: string[]; discountId?: string } {
     return {
       name: '',
       slug: '',
@@ -387,7 +394,8 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
       thumbnailFile: undefined,
       imageFiles: undefined,
       thumbnailUrl: undefined,
-      imageUrls: undefined
+      imageUrls: undefined,
+      discountId: undefined
     };
   }
 
@@ -407,6 +415,6 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
   }
 
   trackByVariantId(index: number, variant: Variant): string {
-    return variant.id;
+    return variant._id;
   }
 }

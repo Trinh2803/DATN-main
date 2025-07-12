@@ -9,6 +9,7 @@
       <a class="menu-item active" [routerLink]="['/quanlysanpham']"><span class="icon menu-product"></span> Sản phẩm</a>
       <a class="menu-item" [routerLink]="['/quanlynguoidung']"><span class="icon menu-customer"></span> Khách hàng</a>
       <a class="menu-item" [routerLink]="['/quanlydonhang']"><span class="icon menu-order"></span> Đơn hàng</a>
+      <a class="menu-item" [routerLink]="['/quanlygiamgia']"><span class="icon menu-discount"></span> Chương trình giảm giá</a>
     </nav>
     <div class="sidebar-bottom">
       <a class="logout" (click)="logout()"><span class="icon logout-icon"></span> Đăng xuất</a>
@@ -50,6 +51,7 @@
                 <th>Giá</th>
                 <th>Giá giảm</th>
                 <th>Danh mục</th>
+                <th>Mã giảm giá</th>
                 <th>Biến thể</th>
                 <th>Thumbnail</th>
                 <th>Hành động</th>
@@ -64,6 +66,12 @@
                 <td>{{ product.salePrice || 'N/A' }}</td>
                 <td>{{ (categories | findCategory:product.categoryId)?.name || 'N/A' }}</td>
                 <td>
+                  <span *ngIf="product.discountId">
+                    {{ (discounts | findDiscount:product.discountId)?.code || 'N/A' }}
+                  </span>
+                  <span *ngIf="!product.discountId">Không có</span>
+                </td>
+                <td>
                   <span *ngIf="product.variants && product.variants.length">{{ product.variants.length }} biến thể</span>
                   <span *ngIf="!product.variants || !product.variants.length">Không có</span>
                 </td>
@@ -77,7 +85,7 @@
                 </td>
               </tr>
               <tr *ngIf="displayedProducts.length === 0">
-                <td colspan="9">Không có sản phẩm nào.</td>
+                <td colspan="10">Không có sản phẩm nào.</td>
               </tr>
             </tbody>
           </table>
@@ -166,7 +174,7 @@
                 <div class="variant-item" *ngFor="let variant of currentProduct.variants; let i = index; trackBy: trackByVariantId">
                   <!-- Debug info -->
                   <div style="background: yellow; padding: 5px; margin: 5px;">
-                    Debug: Variant {{i}} - ID: {{variant.id}} - Size: {{variant.size}}
+                    Debug: Variant {{i}} - ID: {{variant._id}} - Size: {{variant.size}}
                   </div>
                   <div class="variant-header">
                     <h4>Biến thể {{ i + 1 }}</h4>
@@ -197,6 +205,15 @@
                 <p style="background: yellow; padding: 5px;">Debug: currentProduct.variants = {{ currentProduct.variants | json }}</p>
               </div>
             </div>
+
+                          <div class="form-group">
+                <label>Mã giảm giá:
+                  <select [(ngModel)]="currentProduct.discountId" name="discountId">
+                    <option [ngValue]="null">-- Không áp dụng --</option>
+                    <option *ngFor="let d of discounts" [ngValue]="d._id">{{ d.code }} - {{ d.description }}</option>
+                  </select>
+                </label>
+              </div>
 
             <div class="form-actions">
               <button type="button" (click)="saveProduct()">{{ editMode ? 'Cập nhật' : 'Thêm' }}</button>

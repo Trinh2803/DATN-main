@@ -14,10 +14,26 @@ const orderSchema = new Schema({
       productId: { type: String },
       productName: String, // Chỉ giữ một lần
       quantity: Number,
-      price: Number
+      price: Number,
+      discountInfo: {
+        code: String,
+        name: String,
+        discountType: String,
+        discountValue: Number,
+        discountAmount: Number
+      }
     }
   ],
   total: Number,
+  finalAmount: Number,
+  discountCode: String,
+  discountInfo: {
+    code: String,
+    name: String,
+    discountType: String,
+    discountValue: Number,
+    discountAmount: Number
+  },
   status: {
     type: String,
     enum: ['Chờ xác nhận', 'Đang chuẩn bị', 'Đang giao', 'Đã giao', 'Đã hủy', 'Đã hoàn thành'],

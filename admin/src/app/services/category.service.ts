@@ -38,7 +38,7 @@ export class CategoryService {
       formData.append('image', category.image);
     }
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) {
       return throwError(() => new Error('Thiếu token xác thực'));
     }
@@ -57,7 +57,7 @@ export class CategoryService {
       formData.append('image', category.image);
     }
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) {
       return throwError(() => new Error('Thiếu token xác thực'));
     }
@@ -69,7 +69,7 @@ export class CategoryService {
   }
 
   deleteCategory(id: string): Observable<ApiResponse<null>> {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) {
       return throwError(() => new Error('Thiếu token xác thực'));
     }

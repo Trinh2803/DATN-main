@@ -79,7 +79,7 @@
               <span>Số Lượng: {{ order.product?.quantity || 0 }}</span>
             </td>
             <td>{{ order.orderDate }}</td>
-            <td>{{ order.total | number:'1.0-0' }} VNĐ</td>
+            <td>{{ order.finalAmount ? (order.finalAmount | number:'1.0-0') : (order.total | number:'1.0-0') }} VNĐ</td>
             <td>{{ order.status }}</td>
             <td>
               <button class="action-btn view-details" (click)="viewOrderDetails(order._id)">

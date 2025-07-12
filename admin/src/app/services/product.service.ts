@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 
 export interface Variant {
-  id: string;
+  _id: string;
   size: string;
   price: number;
   salePrice?: number;
@@ -21,6 +21,7 @@ export interface Product {
   images?: string[];
   variants?: Variant[];
   categoryId: string;
+  discountId?: string;
   createdAt?: string;
   updatedAt?: string;
   sellCount?: number;
@@ -49,7 +50,7 @@ export class ProductService {
     if (params.name) queryParams.set('name', params.name);
     if (queryParams.toString()) url += `?${queryParams.toString()}`;
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) return throwError(() => new Error('Thiếu token xác thực'));
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
@@ -57,7 +58,7 @@ export class ProductService {
   }
 
   getProductById(id: string): Observable<Product> {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) return throwError(() => new Error('Thiếu token xác thực'));
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
@@ -74,6 +75,7 @@ export class ProductService {
     thumbnail?: File;
     images?: File[];
     variants?: Variant[];
+    discountId?: string;
   }): Observable<ApiResponse<Product>> {
     const formData = new FormData();
     formData.append('name', product.name);
@@ -86,7 +88,7 @@ export class ProductService {
     if (product.images) product.images.forEach((file, index) => formData.append('images', file));
     if (product.variants) formData.append('variants', JSON.stringify(product.variants));
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) return throwError(() => new Error('Thiếu token xác thực'));
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
@@ -103,6 +105,7 @@ export class ProductService {
     thumbnail?: File;
     images?: File[];
     variants?: Variant[];
+    discountId?: string;
   }): Observable<ApiResponse<Product>> {
     const formData = new FormData();
     formData.append('name', product.name);
@@ -115,7 +118,7 @@ export class ProductService {
     if (product.images) product.images.forEach((file, index) => formData.append('images', file));
     if (product.variants) formData.append('variants', JSON.stringify(product.variants));
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) return throwError(() => new Error('Thiếu token xác thực'));
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
@@ -123,7 +126,7 @@ export class ProductService {
   }
 
   deleteProduct(id: string): Observable<ApiResponse<null>> {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) return throwError(() => new Error('Thiếu token xác thực'));
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 

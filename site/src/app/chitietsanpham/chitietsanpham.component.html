@@ -47,7 +47,7 @@
           <div
             class="variant-option"
             *ngFor="let variant of product.variants"
-            [class.selected]="selectedVariant?.id === variant.id"
+            [class.selected]="selectedVariant?._id === variant._id"
             [class.out-of-stock]="!isVariantInStock(variant)"
             (click)="isVariantInStock(variant) ? selectVariant(variant) : null"
           >
