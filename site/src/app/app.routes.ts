@@ -26,6 +26,7 @@ export const routes: Routes = [
     { path: 'trangchu', component: TrangchuComponent},
     { path: 'sanpham', component: SanphamComponent},
     {path : 'chitiet/:id', component: ChiTietSanPhamComponent},
+    { path: 'chitietsanpham/:id', component: ChiTietSanPhamComponent },
     { path: "giohang", component: GiohangComponent },
     { path: 'forgot-password', component: ForgotPasswordComponent },
     { path: 'verify-otp', component: VerifyOtpComponent },

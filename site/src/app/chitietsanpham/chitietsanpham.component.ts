@@ -216,10 +216,10 @@ export class ChiTietSanPhamComponent implements OnInit {
     if (!this.product) return;
 
     // Lấy sản phẩm cùng danh mục
-    const categoryId = typeof this.product.categoryId === 'string' 
-      ? this.product.categoryId 
+    const categoryId = typeof this.product.categoryId === 'string'
+      ? this.product.categoryId
       : this.product.categoryId?._id;
-    
+
     if (!categoryId) return;
 
     this.productService.getProductsByCategory(categoryId).subscribe({
@@ -237,8 +237,8 @@ export class ChiTietSanPhamComponent implements OnInit {
   }
 
   // Chuyển đến trang chi tiết sản phẩm liên quan
-  goToProduct(productId: string): void {
-    this.router.navigate(['/chitietsanpham', productId]);
+  goToProduct(id: string): void {
+    this.router.navigate(['/chitietsanpham', id]);
   }
 
   // Lấy giá hiện tại của sản phẩm liên quan
