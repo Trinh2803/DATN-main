@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { DiscountService, Discount } from '../services/discount.service';
+import { ProductService, Product } from '../services/product.service';
+import { CategoryService, Category } from '../services/category.service';
 
 @Component({
   selector: 'app-quanlygiamgia',
@@ -15,6 +17,25 @@ export class QuanlygiamgiaComponent implements OnInit, AfterViewInit {
   discounts: Discount[] = [];
   filteredDiscounts: Discount[] = [];
   searchQuery = '';
+  
+  // Danh sách sản phẩm và danh mục
+  products: Product[] = [];
+  categories: Category[] = [];
+  
+  // Sản phẩm và danh mục đã chọn
+  selectedProducts: Product[] = [];
+  selectedCategories: Category[] = [];
+  
+  // Tìm kiếm sản phẩm và danh mục
+  productSearchQuery = '';
+  categorySearchQuery = '';
+  filteredProducts: Product[] = [];
+  filteredCategories: Category[] = [];
+  
+  // Hiển thị modal chọn sản phẩm/danh mục
+  showProductModal = false;
+  showCategoryModal = false;
+  
   newDiscount: Discount = {
     code: '',
     name: '',
@@ -41,11 +62,15 @@ export class QuanlygiamgiaComponent implements OnInit, AfterViewInit {
 
   constructor(
     private discountService: DiscountService,
+    private productService: ProductService,
+    private categoryService: CategoryService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     this.loadDiscounts();
+    this.loadProducts();
+    this.loadCategories();
   }
 
   ngAfterViewInit(): void {
@@ -92,6 +117,30 @@ export class QuanlygiamgiaComponent implements OnInit, AfterViewInit {
     });
   }
 
+  loadProducts(): void {
+    this.productService.getProducts().subscribe({
+      next: (data) => {
+        this.products = data;
+        this.filteredProducts = data;
+      },
+      error: (error) => {
+        console.error('Error loading products:', error);
+      }
+    });
+  }
+
+  loadCategories(): void {
+    this.categoryService.getCategories().subscribe({
+      next: (response) => {
+        this.categories = response.data;
+        this.filteredCategories = response.data;
+      },
+      error: (error) => {
+        console.error('Error loading categories:', error);
+      }
+    });
+  }
+
   showAddForm(): void {
     this.showForm = true;
     this.isEditing = false;
@@ -104,6 +153,7 @@ export class QuanlygiamgiaComponent implements OnInit, AfterViewInit {
     this.isEditing = true;
     this.editingDiscount = { ...discount };
     this.newDiscount = { ...discount };
+    this.updateSelectedItems();
   }
 
   hideForm(): void {
@@ -131,6 +181,8 @@ export class QuanlygiamgiaComponent implements OnInit, AfterViewInit {
       applicableProducts: [],
       applicableCategories: []
     };
+    this.selectedProducts = [];
+    this.selectedCategories = [];
   }
 
   clearMessages(): void {
@@ -254,5 +306,111 @@ export class QuanlygiamgiaComponent implements OnInit, AfterViewInit {
 
   getStatusClass(isActive: boolean): string {
     return isActive ? 'status-active' : 'status-inactive';
+  }
+
+  // Quản lý sản phẩm
+  showProductSelectionModal(): void {
+    this.showProductModal = true;
+    this.productSearchQuery = '';
+    this.filteredProducts = this.products;
+  }
+
+  hideProductModal(): void {
+    this.showProductModal = false;
+    this.productSearchQuery = '';
+  }
+
+  searchProducts(): void {
+    if (!this.productSearchQuery.trim()) {
+      this.filteredProducts = this.products;
+    } else {
+      const query = this.productSearchQuery.toLowerCase();
+      this.filteredProducts = this.products.filter(product =>
+        product.name.toLowerCase().includes(query) ||
+        product.description.toLowerCase().includes(query)
+      );
+    }
+  }
+
+  selectProduct(product: Product): void {
+    if (!this.selectedProducts.find(p => p._id === product._id)) {
+      this.selectedProducts.push(product);
+      this.newDiscount.applicableProducts.push(product._id!);
+    }
+  }
+
+  removeProduct(productId: string): void {
+    this.selectedProducts = this.selectedProducts.filter(p => p._id !== productId);
+    this.newDiscount.applicableProducts = this.newDiscount.applicableProducts.filter(id => id !== productId);
+  }
+
+  // Quản lý danh mục
+  showCategorySelectionModal(): void {
+    this.showCategoryModal = true;
+    this.categorySearchQuery = '';
+    this.filteredCategories = this.categories;
+  }
+
+  hideCategoryModal(): void {
+    this.showCategoryModal = false;
+    this.categorySearchQuery = '';
+  }
+
+  searchCategories(): void {
+    if (!this.categorySearchQuery.trim()) {
+      this.filteredCategories = this.categories;
+    } else {
+      const query = this.categorySearchQuery.toLowerCase();
+      this.filteredCategories = this.categories.filter(category =>
+        category.name.toLowerCase().includes(query)
+      );
+    }
+  }
+
+  selectCategory(category: Category): void {
+    if (!this.selectedCategories.find(c => c._id === category._id)) {
+      this.selectedCategories.push(category);
+      this.newDiscount.applicableCategories.push(category._id!);
+    }
+  }
+
+  removeCategory(categoryId: string): void {
+    this.selectedCategories = this.selectedCategories.filter(c => c._id !== categoryId);
+    this.newDiscount.applicableCategories = this.newDiscount.applicableCategories.filter(id => id !== categoryId);
+  }
+
+  // Cập nhật form khi chỉnh sửa
+  updateSelectedItems(): void {
+    // Cập nhật sản phẩm đã chọn
+    this.selectedProducts = this.products.filter(product => 
+      this.newDiscount.applicableProducts.includes(product._id!)
+    );
+    
+    // Cập nhật danh mục đã chọn
+    this.selectedCategories = this.categories.filter(category => 
+      this.newDiscount.applicableCategories.includes(category._id!)
+    );
+  }
+
+  // Lấy tên sản phẩm theo ID
+  getProductName(productId: string): string {
+    const product = this.products.find(p => p._id === productId);
+    return product ? product.name : 'Sản phẩm không tồn tại';
+  }
+
+  // Lấy tên danh mục theo ID
+  getCategoryName(categoryId: string): string {
+    const category = this.categories.find(c => c._id === categoryId);
+    return category ? category.name : 'Danh mục không tồn tại';
+  }
+
+  // Kiểm tra sản phẩm đã được chọn
+  isProductSelected(productId: string): boolean {
+    return this.selectedProducts.some(p => p._id === productId);
+  }
+
+  // Kiểm tra danh mục đã được chọn
+  isCategorySelected(categoryId: string): boolean {
+    return this.selectedCategories.some(c => c._id === categoryId);
   }
 }

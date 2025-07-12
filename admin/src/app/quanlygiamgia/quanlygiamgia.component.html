@@ -192,6 +192,38 @@
               </div>
             </div>
 
+            <!-- Chọn sản phẩm áp dụng -->
+            <div class="form-group">
+              <label>Sản phẩm áp dụng</label>
+              <div class="selection-container">
+                <div class="selected-items">
+                  <div class="selected-item" *ngFor="let product of selectedProducts">
+                    <span class="item-name">{{ product.name }}</span>
+                    <button type="button" class="btn-remove" (click)="removeProduct(product._id!)">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                  <div class="selected-item" *ngFor="let category of selectedCategories">
+                    <span class="item-name">Danh mục: {{ category.name }}</span>
+                    <button type="button" class="btn-remove" (click)="removeCategory(category._id!)">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                  <div class="no-items" *ngIf="selectedProducts.length === 0 && selectedCategories.length === 0">
+                    Chưa chọn sản phẩm hoặc danh mục nào
+                  </div>
+                </div>
+                <div class="selection-buttons">
+                  <button type="button" class="btn-select" (click)="showProductSelectionModal()">
+                    <i class="fas fa-plus"></i> Chọn sản phẩm
+                  </button>
+                  <button type="button" class="btn-select" (click)="showCategorySelectionModal()">
+                    <i class="fas fa-folder-plus"></i> Chọn danh mục
+                  </button>
+                </div>
+              </div>
+            </div>
+
             <div class="form-actions">
               <button type="button" class="btn-cancel" (click)="hideForm()" [disabled]="loading">
                 Hủy
@@ -286,6 +318,42 @@
                   </span>
                 </div>
               </div>
+
+              <div class="detail-row" *ngIf="discount.applicableProducts.length > 0 || discount.applicableCategories.length > 0">
+                <div class="detail-item">
+                  <span class="label">Áp dụng cho:</span>
+                  <div class="applicable-items">
+                    <span class="applicable-count" *ngIf="discount.applicableProducts.length > 0">
+                      {{ discount.applicableProducts.length }} sản phẩm
+                    </span>
+                    <span class="applicable-count" *ngIf="discount.applicableCategories.length > 0">
+                      {{ discount.applicableCategories.length }} danh mục
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="detail-row" *ngIf="discount.applicableProducts.length > 0">
+                <div class="detail-item">
+                  <span class="label">Sản phẩm:</span>
+                  <div class="applicable-products">
+                    <span class="product-name" *ngFor="let productId of discount.applicableProducts">
+                      {{ getProductName(productId) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="detail-row" *ngIf="discount.applicableCategories.length > 0">
+                <div class="detail-item">
+                  <span class="label">Danh mục:</span>
+                  <div class="applicable-categories">
+                    <span class="category-name" *ngFor="let categoryId of discount.applicableCategories">
+                      {{ getCategoryName(categoryId) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -316,3 +384,80 @@
   <symbol id="logout-icon" viewBox="0 0 24 24"><path d="M16 17l5-5-5-5M21 12H9M13 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2" stroke="#b3b8c5" stroke-width="2" fill="none"/></symbol>
   <symbol id="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke="#b3b8c5" stroke-width="2" fill="none"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="#b3b8c5" stroke-width="2"/></symbol>
 </svg>
+
+<!-- Modal chọn sản phẩm -->
+<div class="modal-overlay" *ngIf="showProductModal" (click)="hideProductModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Chọn sản phẩm áp dụng</h3>
+      <button class="btn-close" (click)="hideProductModal()">&times;</button>
+    </div>
+    
+    <div class="modal-search">
+      <input 
+        type="text" 
+        placeholder="Tìm kiếm sản phẩm..." 
+        [(ngModel)]="productSearchQuery" 
+        (input)="searchProducts()">
+    </div>
+    
+    <div class="modal-content">
+      <div class="product-list">
+        <div class="product-item" *ngFor="let product of filteredProducts" (click)="selectProduct(product)">
+          <div class="product-info">
+            <img [src]="product.thumbnail || '/images/default-product.png'" alt="{{ product.name }}" class="product-thumbnail">
+            <div class="product-details">
+              <h4>{{ product.name }}</h4>
+              <p class="product-price">{{ formatCurrency(product.price) }}</p>
+            </div>
+          </div>
+          <div class="product-check" *ngIf="isProductSelected(product._id!)">
+            <i class="fas fa-check"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="hideProductModal()">Đóng</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal chọn danh mục -->
+<div class="modal-overlay" *ngIf="showCategoryModal" (click)="hideCategoryModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Chọn danh mục áp dụng</h3>
+      <button class="btn-close" (click)="hideCategoryModal()">&times;</button>
+    </div>
+    
+    <div class="modal-search">
+      <input 
+        type="text" 
+        placeholder="Tìm kiếm danh mục..." 
+        [(ngModel)]="categorySearchQuery" 
+        (input)="searchCategories()">
+    </div>
+    
+    <div class="modal-content">
+      <div class="category-list">
+        <div class="category-item" *ngFor="let category of filteredCategories" (click)="selectCategory(category)">
+          <div class="category-info">
+            <img [src]="category.image || '/images/default-category.png'" alt="{{ category.name }}" class="category-thumbnail">
+            <div class="category-details">
+              <h4>{{ category.name }}</h4>
+            </div>
+          </div>
+          <div class="category-check" *ngIf="isCategorySelected(category._id!)">
+            <i class="fas fa-check"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="hideCategoryModal()">Đóng</button>
+    </div>
+  </div>
+</div>

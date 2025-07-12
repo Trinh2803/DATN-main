@@ -78,7 +78,8 @@ const items = await Promise.all(
         productName,
         thumbnail, // Lưu thumbnail vào items
         quantity: item.quantity,
-        price: item.price
+        price: item.price,
+        discountInfo: item.discountInfo || null // Lưu discountInfo nếu có
       };
     })
   );
@@ -94,6 +95,20 @@ const items = await Promise.all(
   });
   await updateSellCountForOrder(order.items);
   await order.save();
+
+  // Tăng usedCount cho các mã giảm giá đã dùng
+  const Discount = require('../models/discountModel');
+  const usedDiscountCodes = new Set();
+  for (const item of order.items) {
+    if (item.discountInfo && item.discountInfo.code && !usedDiscountCodes.has(item.discountInfo.code)) {
+      const discount = Discount.getDiscountByCode(item.discountInfo.code);
+      if (discount) {
+        Discount.updateDiscount(discount._id, { usedCount: (discount.usedCount || 0) + 1 });
+        usedDiscountCodes.add(item.discountInfo.code);
+      }
+    }
+  }
+
   return order;
 };
 

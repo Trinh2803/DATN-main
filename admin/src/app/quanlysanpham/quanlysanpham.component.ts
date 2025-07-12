@@ -51,7 +51,7 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
   }
 
     private checkAuthAndLoadData(): void {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) {
       this.errorMessage = 'Vui lòng đăng nhập.';
       this.router.navigate(['/login']);

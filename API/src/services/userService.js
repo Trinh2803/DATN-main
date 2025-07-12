@@ -88,7 +88,12 @@ const login = async (email, password) => {
       throw new Error('Tài khoản không tồn tại');
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    let isMatch = false;
+    if (user.password.startsWith('$2b$')) {
+      isMatch = await bcrypt.compare(password, user.password);
+    } else {
+      isMatch = password === user.password;
+    }
     if (!isMatch) {
       console.log('Incorrect password for:', email);
       throw new Error('Sai mật khẩu');

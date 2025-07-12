@@ -54,9 +54,7 @@ export class GiohangComponent implements OnInit {
 
   calculateTotal(): void {
     this.totalAmount = this.cartItems.reduce((total, item) => {
-      const price = item.selectedVariant ? 
-        (item.selectedVariant.salePrice || item.selectedVariant.price) :
-        (item.product.salePrice || item.product.price);
+      const price = this.getDiscountedItemPrice(item); // Sử dụng giá đã giảm nếu có
       return total + (price * item.quantity);
     }, 0);
     
@@ -71,6 +69,18 @@ export class GiohangComponent implements OnInit {
 
   getItemOriginalPrice(item: CartItem): number {
     return this.getProductOriginalPrice(item);
+  }
+
+  getDiscountedItemPrice(item: CartItem): number {
+    let basePrice = item.selectedVariant ? (item.selectedVariant.salePrice || item.selectedVariant.price) : (item.product.salePrice || item.product.price);
+    if (item.discountInfo) {
+      if (item.discountInfo.discountType === 'percentage') {
+        return Math.round(basePrice * (1 - item.discountInfo.discountValue / 100));
+      } else if (item.discountInfo.discountType === 'fixed') {
+        return Math.max(0, basePrice - item.discountInfo.discountValue);
+      }
+    }
+    return basePrice;
   }
 
   getVariantInfo(item: CartItem): string | null {
@@ -287,10 +297,15 @@ export class GiohangComponent implements OnInit {
       return;
     }
 
-    // Lưu thông tin discount vào localStorage để sử dụng ở checkout
-    if (this.appliedDiscount) {
-      localStorage.setItem('appliedDiscount', JSON.stringify(this.appliedDiscount));
-    }
+    // Lưu toàn bộ cartItems (bao gồm discountInfo) vào localStorage
+    localStorage.setItem('pendingOrder', JSON.stringify({
+      cartItems: this.cartItems,
+      totalPrice: this.totalPrice,
+      finalAmount: this.finalAmount,
+      discountCode: this.cartDiscountCode,
+      discountInfo: this.cartDiscountInfo,
+      orderNote: this.orderNote
+    }));
 
     this.router.navigate(['/checkout']);
   }

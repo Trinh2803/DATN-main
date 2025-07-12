@@ -36,7 +36,7 @@
           <div class="cart-item-details">
             <h3 class="product-title">{{ item.product.name }}</h3>
             <div class="product-price">
-              <span class="current-price">{{ getItemPrice(item) | number:'1.0-0' }}đ</span>
+              <span class="current-price">{{ getDiscountedItemPrice(item) | number:'1.0-0' }}đ</span>
               <span class="original-price" *ngIf="hasDiscount(item)">({{ getItemOriginalPrice(item) | number:'1.0-0' }}đ)</span>
               <!-- Hiển thị thông tin biến thể nếu có -->
               <div class="variant-info" *ngIf="getVariantInfo(item)">
@@ -64,7 +64,7 @@
             </div>
           </div>
           <div class="cart-item-total">
-            <span>{{ getItemPrice(item) * item.quantity | number:'1.0-0' }}đ</span>
+            <span>{{ getDiscountedItemPrice(item) * item.quantity | number:'1.0-0' }}đ</span>
           </div>
           <div class="cart-item-remove">
             <button class="remove-btn" (click)="removeFromCart(item.product._id, item.selectedVariant)">×</button>
@@ -80,11 +80,11 @@
       <div class="cart-summary">
         <h2 class="summary-title">Thông tin đơn hàng</h2>
         <div class="summary-row">
-          <span>Tổng tiền:</span>
-          <span class="total-price">{{ totalPrice | number:'1.0-0' }}đ</span>
+          <span>Tạm tính</span>
+          <span>{{ getDiscountedTotal() | number:'1.0-0' }}₫</span>
         </div>
         
-        <!-- Discount Code Section -->
+        <!-- Discount Code Section
         <div class="discount-section">
           <div class="discount-box">
             <input type="text" [(ngModel)]="cartDiscountCode" placeholder="Nhập mã giảm giá" />
@@ -98,7 +98,7 @@
               <small>Giảm: {{ cartDiscountInfo.discountAmount | number:'1.0-0' }}đ</small>
             </span>
           </div>
-        </div>
+        </div> -->
         
         <div class="summary-row" *ngIf="cartDiscountInfo">
           <span>Giảm giá:</span>
@@ -108,6 +108,10 @@
         <div class="summary-row final-total" *ngIf="cartDiscountInfo">
           <span>Tổng thanh toán:</span>
           <span class="final-price">{{ cartDiscountInfo.finalAmount | number:'1.0-0' }}đ</span>
+        </div>
+        <div class="summary-row total">
+          <span>Tổng cộng</span>
+          <span>VND {{ getDiscountedTotal() | number:'1.0-0' }}₫</span>
         </div>
         <button class="checkout-btn" (click)="checkout()">THANH TOÁN</button>
 

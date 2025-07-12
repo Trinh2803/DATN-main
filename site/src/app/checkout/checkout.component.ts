@@ -99,9 +99,10 @@ export class CheckoutComponent implements OnInit {
       items: this.cartItems.map(item => ({
         productId: item.product._id,
         quantity: item.quantity,
-        price: this.getItemPrice(item),
+        price: this.getItemPrice(item), // giá đã giảm
         variantId: item.selectedVariant?._id,
         variantSize: item.selectedVariant?.size,
+        discountInfo: (item as any).discountInfo || null // gửi discountInfo cho từng item
       })),
       total: this.totalPrice,
       finalAmount: this.finalAmount,

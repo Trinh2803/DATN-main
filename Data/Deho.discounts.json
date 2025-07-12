@@ -55,5 +55,68 @@
     "applicableCategories": [],
     "createdAt": "2024-06-01T00:00:00.000Z",
     "updatedAt": "2024-06-01T00:00:00.000Z"
+  },
+  {
+    "_id": "discount004",
+    "code": "SOFA15",
+    "name": "Giảm giá sofa",
+    "description": "Giảm giá 15% cho tất cả sản phẩm sofa",
+    "discountType": "percentage",
+    "discountValue": 15,
+    "minOrderValue": 300000,
+    "maxDiscount": 150000,
+    "startDate": "2024-01-01T00:00:00.000Z",
+    "endDate": "2024-12-31T23:59:59.000Z",
+    "usageLimit": 100,
+    "usedCount": 0,
+    "isActive": true,
+    "applicableProducts": [],
+    "applicableCategories": [
+      "category001"
+    ],
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "discount005",
+    "code": "BED30",
+    "name": "Giảm giá giường ngủ",
+    "description": "Giảm giá 30% cho sản phẩm giường ngủ cao cấp",
+    "discountType": "percentage",
+    "discountValue": 30,
+    "minOrderValue": 500000,
+    "maxDiscount": 300000,
+    "startDate": "2024-01-01T00:00:00.000Z",
+    "endDate": "2024-12-31T23:59:59.000Z",
+    "usageLimit": 50,
+    "usedCount": 0,
+    "isActive": true,
+    "applicableProducts": [
+      "product001",
+      "product002"
+    ],
+    "applicableCategories": [
+      "category002"
+    ],
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "code": "BAN2025",
+    "name": "Minh Tan",
+    "description": "",
+    "discountType": "percentage",
+    "discountValue": 100,
+    "minOrderValue": 0,
+    "maxDiscount": 0,
+    "startDate": "2025-07-12T07:32:00.000Z",
+    "endDate": "2025-07-24T07:32:00.000Z",
+    "usageLimit": 1,
+    "usedCount": 0,
+    "isActive": true,
+    "applicableProducts": [],
+    "applicableCategories": [],
+    "createdAt": "2025-07-12T07:32:17.495Z",
+    "_id": "1752305537495"
   }
 ]

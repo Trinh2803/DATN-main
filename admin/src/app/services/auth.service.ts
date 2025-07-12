@@ -15,8 +15,10 @@ export class AuthService {
   adminLogin(email: string, password: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/users/login`, { email, password }).pipe(
       tap((response: any) => {
-        if (response.success && response.token) {
-          localStorage.setItem('token', response.token); // Lưu token
+        // Lấy token từ response.token hoặc response.data.token
+        const token = response.token || response.data?.token;
+        if (response.success && token) {
+          localStorage.setItem('adminToken', token);
         }
       })
     );
@@ -28,7 +30,7 @@ export class AuthService {
 
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.role === 'admin';
+      return (payload.role || '').trim().toLowerCase() === 'admin';
     } catch (err) {
       console.error('Invalid token:', err);
       return false;
@@ -79,11 +81,11 @@ export class AuthService {
   }
 
   getToken(): string | null {
-    return localStorage.getItem('token');
+    return localStorage.getItem('adminToken');
   }
 
   logout(): void {
-    localStorage.removeItem('token');
+    localStorage.removeItem('adminToken');
     localStorage.removeItem('userAvatar');
   }
 }

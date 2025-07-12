@@ -50,7 +50,7 @@ export class ProductService {
     if (params.name) queryParams.set('name', params.name);
     if (queryParams.toString()) url += `?${queryParams.toString()}`;
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) return throwError(() => new Error('Thiếu token xác thực'));
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
@@ -58,7 +58,7 @@ export class ProductService {
   }
 
   getProductById(id: string): Observable<Product> {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) return throwError(() => new Error('Thiếu token xác thực'));
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
@@ -88,7 +88,7 @@ export class ProductService {
     if (product.images) product.images.forEach((file, index) => formData.append('images', file));
     if (product.variants) formData.append('variants', JSON.stringify(product.variants));
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) return throwError(() => new Error('Thiếu token xác thực'));
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
@@ -118,7 +118,7 @@ export class ProductService {
     if (product.images) product.images.forEach((file, index) => formData.append('images', file));
     if (product.variants) formData.append('variants', JSON.stringify(product.variants));
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) return throwError(() => new Error('Thiếu token xác thực'));
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
@@ -126,7 +126,7 @@ export class ProductService {
   }
 
   deleteProduct(id: string): Observable<ApiResponse<null>> {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) return throwError(() => new Error('Thiếu token xác thực'));
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 

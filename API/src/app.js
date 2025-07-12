@@ -42,7 +42,7 @@ app.use('/', indexRouter);
 app.use('/categories', categoriesRouter);
 app.use('/products', productsRouter);
 app.use('/orders', orderssRouter);
-app.use('/discounts', discountsRouter);
+app.use('/api/discounts', discountsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

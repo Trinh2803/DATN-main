@@ -9,6 +9,7 @@ export class AdminAuthGuard implements CanActivate {
   constructor(private authService: AuthService, private router: Router) {}
 
   canActivate(): boolean {
+    // Kiểm tra nếu đã đăng nhập admin thì cho phép vào, ngược lại chuyển hướng về login
     if (this.authService.isAdmin()) {
       return true;
     } else {

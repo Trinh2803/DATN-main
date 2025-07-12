@@ -338,7 +338,7 @@
   "email": "Loc@gmail.com",
   "phone": "0941627362",
   "password": "$2b$10$bcXwqOKFDYYXs3xMKVDVl.FnlaDpXe2LF3aTV4Gr97HgtToTImE1q",
-  "role": "admin\n",
+  "role": "admin",
   "avatar": null,
   "createdAt": {
     "$date": "2025-04-21T01:35:42.021Z"
@@ -352,10 +352,10 @@
   "_id": {
     "$oid": "68079f0610f4a9c1a0bceb8e"
   },
-  "name": "Nguyễn Thành",
+  "name": "Tân Võ",
   "email": "admin1@gmail.com",
   "phone": "1231231231",
-  "password": "$2b$10$oWLwZ8QmRIkiXbnBRT8eGObxqfhnUx1L/ALMWEXeURC.oXnzQLUBa",
+  "password": "admin123",
   "role": "admin",
   "avatar": null,
   "createdAt": {

@@ -41,7 +41,7 @@ export interface DiscountCheckResponse {
   providedIn: 'root'
 })
 export class DiscountService {
-  private apiUrl = 'http://localhost:3000/discounts';
+  private apiUrl = 'http://localhost:3000/api/discounts';
 
   constructor(private http: HttpClient) { }
 
