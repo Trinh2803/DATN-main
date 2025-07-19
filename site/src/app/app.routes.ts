@@ -18,7 +18,32 @@ import { ResetPasswordComponent } from './reset-password/reset-password.componen
 // import { DangkyComponent } from './dangky/dangky.component';
 // import { DangnhapComponent } from './dangnhap/dangnhap.component';
 // import { UserInfoComponent } from './user-info/user-info.component';
+import { TintucComponent } from './tintuc/tintuc.component';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
+export interface NewsItem {
+  id: number;
+  title: string;
+  image: string;
+  description: string;
+  date: string;
+  category: string;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class NewsService {
+  private apiUrl = 'http://localhost:3000/api/news'; // Đổi lại nếu API khác
+
+  constructor(private http: HttpClient) {}
+
+  getNews(): Observable<NewsItem[]> {
+    return this.http.get<NewsItem[]>(this.apiUrl);
+  }
+}
 
 
 export const routes: Routes = [
@@ -40,4 +65,5 @@ export const routes: Routes = [
     { path: 'checkout', component:CheckoutComponent},
     { path: 'donhang', component:DonhangComponent},
     { path: 'lichsudonhang', component:lichsudonhangComponent},
+    { path: 'news', component: TintucComponent },
 ];
