@@ -59,12 +59,9 @@
                 <td>
                   <div class="action-container">
                     <select class="action-select" (change)="updateOrderStatus(order._id!, $event)" [value]="order.status">
-                      <option value="Chờ xác nhận">Chờ xác nhận</option>
-                      <option value="Đang chuẩn bị">Đang chuẩn bị</option>
-                      <option value="Đang giao">Đang giao</option>
-                      <option value="Đã giao">Đã giao</option>
-                      <option value="Đã hủy">Đã hủy</option>
-                      <option value="Đã hoàn thành">Đã hoàn thành</option>
+                      <option *ngFor="let status of getAllowedStatuses(order.status)" [value]="status">
+                        {{ status }}
+                      </option>
                     </select>
                     <button class="detail-button" (click)="viewOrderDetails(order._id!)">Xem chi tiết</button>
                   </div>
