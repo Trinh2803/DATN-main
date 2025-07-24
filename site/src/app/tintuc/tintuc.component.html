@@ -1,0 +1,67 @@
+<div class="news-page-container">
+  <!-- Sidebar -->
+  <aside class="news-sidebar">
+    <section class="latest-posts">
+      <h3>BÀI VIẾT MỚI NHẤT</h3>
+      <ul>
+        <li *ngFor="let post of latestPosts">
+          <img [src]="post.image" [alt]="post.title">
+          <div>
+            <a [routerLink]="['/news', post.id]">{{ post.title }}</a>
+            <span class="category">Media</span>
+          </div>
+        </li>
+      </ul>
+    </section>
+    <section class="blog-categories">
+      <h3>DANH MỤC BLOG</h3>
+      <ul>
+        <li *ngFor="let cat of categories">
+          <a href="#">{{ cat }}</a>
+        </li>
+      </ul>
+    </section>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="news-main-content">
+    <h2>Media</h2>
+    <div class="news-list">
+      <div class="news-item" *ngFor="let news of newsItems">
+        <img [src]="news.image" [alt]="news.title">
+        <div class="news-info">
+          <a [routerLink]="['/news', news.id]" class="news-title">{{ news.title }}</a>
+          <div class="news-meta">Media</div>
+          <p class="news-desc">{{ news.description }}</p>
+        </div>
+      </div>
+    </div>
+    <!-- Pagination -->
+    <div class="pagination">
+      <a href="#" class="active">1</a>
+      <a href="#">2</a>
+      <a href="#">3</a>
+      <span>...</span>
+      <a href="#">26</a>
+    </div>
+    <!-- Footer dịch vụ -->
+    <div class="news-footer-services">
+      <div class="service-item">
+        <span class="icon">🛒</span>
+        <span>Giao Hàng & Lắp Đặt</span>
+      </div>
+      <div class="service-item">
+        <span class="icon">🔄</span>
+        <span>Đổi Trả 1 - 1</span>
+      </div>
+      <div class="service-item">
+        <span class="icon">🛠️</span>
+        <span>Bảo Hành 2 Năm</span>
+      </div>
+      <div class="service-item">
+        <span class="icon">🎨</span>
+        <span>Tư Vấn Thiết Kế</span>
+      </div>
+    </div>
+  </main>
+</div>
