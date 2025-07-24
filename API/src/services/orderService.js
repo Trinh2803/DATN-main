@@ -23,6 +23,9 @@ const updateOrderStatus = async (id, { status }) => {
   }
   const order = await Order.findById(id);
   if (!order) throw new Error('Không tìm thấy đơn hàng');
+  if (order.status === 'Đã hoàn thành' && status !== 'Đã hoàn thành') {
+    throw new Error('Đơn hàng đã hoàn thành, không thể chuyển lại trạng thái khác!');
+  }
   const validStatuses = ['Chờ xác nhận', 'Đang chuẩn bị', 'Đang giao', 'Đã giao', 'Đã hủy', 'Đã hoàn thành'];
   if (!validStatuses.includes(status)) {
     throw new Error('Trạng thái không hợp lệ');
