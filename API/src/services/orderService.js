@@ -4,36 +4,33 @@ const Product = require('../models/productModel');
 const productService = require('./productService');
 console.log('productService:', productService); // Debug
 
-const getAllOrders = async () => {
-  return await Order.find();
-};
+const ORDER_STATUS = [
+  'Chờ xác nhận',
+  'Đang chuẩn bị',
+  'Đang giao',
+  'Đã giao',
+  'Đã hoàn thành',
+  'Đã hủy'
+];
 
-const getOrderById = async (id) => {
-  if (!mongoose.isValidObjectId(id)) {
-    throw new Error('ID đơn hàng không hợp lệ');
-  }
-  const order = await Order.findById(id);
+async function updateOrderStatus(orderId, newStatus) {
+  const order = await Order.findById(orderId);
   if (!order) throw new Error('Không tìm thấy đơn hàng');
-  return order;
-};
 
-const updateOrderStatus = async (id, { status }) => {
-  if (!mongoose.isValidObjectId(id)) {
-    throw new Error('ID đơn hàng không hợp lệ');
+  const currentIndex = ORDER_STATUS.indexOf(order.status);
+  const newIndex = ORDER_STATUS.indexOf(newStatus);
+
+  // Không cho phép chuyển về trạng thái trước đó
+  if (newIndex < currentIndex) {
+    throw new Error('Không thể chuyển về trạng thái trước đó');
   }
-  const order = await Order.findById(id);
-  if (!order) throw new Error('Không tìm thấy đơn hàng');
-  if (order.status === 'Đã hoàn thành' && status !== 'Đã hoàn thành') {
-    throw new Error('Đơn hàng đã hoàn thành, không thể chuyển lại trạng thái khác!');
-  }
-  const validStatuses = ['Chờ xác nhận', 'Đang chuẩn bị', 'Đang giao', 'Đã giao', 'Đã hủy', 'Đã hoàn thành'];
-  if (!validStatuses.includes(status)) {
-    throw new Error('Trạng thái không hợp lệ');
-  }
-  order.status = status;
+
+  // Nếu muốn chỉ cho phép chuyển từng bước một, kiểm tra newIndex === currentIndex + 1
+
+  order.status = newStatus;
   await order.save();
   return order;
-};
+}
 
 // Cập nhật `sellCount` cho sản phẩm sau khi đơn hàng được tạo
 const updateSellCountForOrder = async (items) => {
