@@ -4,26 +4,35 @@
     <div class="logo">
       <span>Quản lý tài khoản</span>
     </div>
-    <div class="sidebar-menu">
-      <a
-        class="menu-item"
-        [routerLink]="['/userinfo']"
-        routerLinkActive="active"
-        >Thông tin cá nhân</a
-      >
-      <a
-        class="menu-item"
-        [routerLink]="['/order-history']"
-        routerLinkActive="active"
-        >Lịch sử đơn hàng</a
-      >
-      <a
-        class="menu-item"
-        [routerLink]="['/settings']"
-        routerLinkActive="active"
-        >Cài đặt</a
-      >
-    </div>
+    <nav class="sidebar-menu">
+      <a routerLink="/userinfo" class="menu-item active">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <rect x="3" y="3" width="7" height="7" rx="1" fill="currentColor"/>
+          <rect x="14" y="3" width="7" height="7" rx="1" fill="currentColor"/>
+          <rect x="3" y="14" width="7" height="7" rx="1" fill="currentColor"/>
+          <rect x="14" y="14" width="7" height="7" rx="1" fill="currentColor"/>
+        </svg>
+        <span>Thông tin cá nhân</span>
+      </a>
+      <a routerLink="/lichsudonhang" class="menu-item">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="8" y1="1" x2="8" y2="4" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="16" y1="1" x2="16" y2="4" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <span>Lịch sử đơn hàng</span>
+      </a>
+      <a href="#" class="menu-item">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="7" y1="14" x2="17" y2="14" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="7" y1="17" x2="13" y2="17" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <span>Cài đặt</span>
+      </a>
+    </nav>
     <div class="sidebar-footer">
       <button
         (click)="logout()"
