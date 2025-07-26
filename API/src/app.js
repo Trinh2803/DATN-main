@@ -11,6 +11,7 @@ var usersRouter = require('./routes/users');
 var categoriesRouter = require('./routes/categories');
 var productsRouter = require('./routes/products');
 var orderssRouter = require('./routes/orders');
+var commentsRouter = require('./routes/comments');
 const multer = require('multer');
 const mongoose = require('mongoose');
 
@@ -41,6 +42,7 @@ app.use('/', indexRouter);
 app.use('/categories', categoriesRouter);
 app.use('/products', require('./routes/products'), productsRouter);
 app.use('/orders', orderssRouter);
+app.use('/comments', commentsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

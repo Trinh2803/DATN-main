@@ -45,11 +45,32 @@ const createOrder = async (req, res) => {
   try {
     const orderData = {
       ...req.body,
-      userId: req.user.id, // Sửa từ req.user.userId thành req.user.id
     };
+    
+    // Chỉ thêm userId nếu user đã đăng nhập
+    if (req.user && req.user.id) {
+      orderData.userId = req.user.id;
+    }
+    
+    // Validate dữ liệu cần thiết
+    if (!orderData.customerName || !orderData.customerEmail || !orderData.customerPhone || !orderData.customerAddress) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Thông tin khách hàng không đầy đủ. Vui lòng cung cấp tên, email, số điện thoại và địa chỉ.' 
+      });
+    }
+    
+    if (!orderData.items || orderData.items.length === 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Đơn hàng phải có ít nhất một sản phẩm.' 
+      });
+    }
+    
     const order = await orderService.createOrder(orderData);
     res.status(201).json({ success: true, message: 'Tạo đơn hàng thành công', data: order });
   } catch (err) {
+    console.error('Error creating order:', err);
     res.status(500).json({ success: false, message: err.message });
   }
 };
