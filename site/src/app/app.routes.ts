@@ -19,6 +19,7 @@ import { ResetPasswordComponent } from './reset-password/reset-password.componen
 // import { DangnhapComponent } from './dangnhap/dangnhap.component';
 // import { UserInfoComponent } from './user-info/user-info.component';
 import { TintucComponent } from './tintuc/tintuc.component';
+import { WishlistComponent } from './wishlist/wishlist.component';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -66,4 +67,5 @@ export const routes: Routes = [
     { path: 'donhang', component:DonhangComponent},
     { path: 'lichsudonhang', component:lichsudonhangComponent},
     { path: 'news', component: TintucComponent },
+    { path: 'wishlist', component: WishlistComponent },
 ];

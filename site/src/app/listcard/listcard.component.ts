@@ -1,8 +1,10 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ProductInterface, Variant } from '../product-interface';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { CartService } from '../cart.service';
+import { WishlistService } from '../wishlist.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-listcard',
@@ -11,12 +13,16 @@ import { CartService } from '../cart.service';
   templateUrl: './listcard.component.html',
   styleUrls: ['./listcard.component.css']
 })
-export class ListcardComponent {
+export class ListcardComponent implements OnInit {
   @Input() product!: ProductInterface; // Sửa từ data thành product, bỏ mảng
   @Input() data: ProductInterface[] = [];
   @Input() title = '';
 
-  constructor(private router: Router, private cartService: CartService) {}
+  constructor(
+    private router: Router, 
+    private cartService: CartService,
+    private wishlistService: WishlistService
+  ) {}
 
   // Kiểm tra sản phẩm có phải sale không
   isSaleProduct(product: ProductInterface): boolean {
@@ -37,20 +43,67 @@ export class ListcardComponent {
     return Math.round(((price - salePrice) / price) * 100);
   }
 
-  // nút yêu thích
-  favoriteProductIds: Set<string> = new Set();
-
-  toggleFavorite(product: any): void {
-    const id = product._id;
-    if (this.favoriteProductIds.has(id)) {
-      this.favoriteProductIds.delete(id);
-    } else {
-      this.favoriteProductIds.add(id);
-    }
+  ngOnInit(): void {
+    // Component initialization
   }
 
-  isFavorite(product: any): boolean {
-    return this.favoriteProductIds.has(product._id);
+  // nút yêu thích
+  toggleFavorite(product: ProductInterface): void {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      Swal.fire('Thông báo', 'Vui lòng đăng nhập để sử dụng tính năng yêu thích', 'info');
+      return;
+    }
+
+    this.wishlistService.isInWishlist(product._id).subscribe({
+      next: (isInWishlist) => {
+        if (isInWishlist) {
+          // Xóa khỏi wishlist
+          this.wishlistService.removeFromWishlist(product._id).subscribe({
+            next: (response) => {
+              if (response.success) {
+                Swal.fire('Thành công', 'Đã xóa khỏi danh sách yêu thích', 'success');
+              } else {
+                Swal.fire('Lỗi', response.message || 'Lỗi khi xóa khỏi danh sách yêu thích', 'error');
+              }
+            },
+            error: (err) => {
+              console.error('Error removing from wishlist:', err);
+              Swal.fire('Lỗi', 'Lỗi khi xóa khỏi danh sách yêu thích', 'error');
+            }
+          });
+        } else {
+          // Thêm vào wishlist
+          this.wishlistService.addToWishlist(product._id).subscribe({
+            next: (response) => {
+              if (response.success) {
+                Swal.fire('Thành công', 'Đã thêm vào danh sách yêu thích', 'success');
+              } else {
+                Swal.fire('Lỗi', response.message || 'Lỗi khi thêm vào danh sách yêu thích', 'error');
+              }
+            },
+            error: (err) => {
+              console.error('Error adding to wishlist:', err);
+              Swal.fire('Lỗi', 'Lỗi khi thêm vào danh sách yêu thích', 'error');
+            }
+          });
+        }
+      },
+      error: (err) => {
+        console.error('Error checking wishlist status:', err);
+        Swal.fire('Lỗi', 'Lỗi khi kiểm tra trạng thái yêu thích', 'error');
+      }
+    });
+  }
+
+  isFavorite(product: ProductInterface): boolean {
+    let isFavorite = false;
+    this.wishlistService.isInWishlist(product._id).subscribe({
+      next: (inWishlist) => {
+        isFavorite = inWishlist;
+      }
+    });
+    return isFavorite;
   }
 
   // nút mua ngay - cập nhật để hỗ trợ biến thể

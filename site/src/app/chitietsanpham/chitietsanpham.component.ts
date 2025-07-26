@@ -4,6 +4,8 @@ import { ProductService } from '../product.service';
 import { CartService } from '../cart.service';
 import { CommonModule } from '@angular/common';
 import { ProductInterface, Variant } from '../product-interface';
+import { WishlistService } from '../wishlist.service';
+import Swal from 'sweetalert2';
 
 @Component({
   standalone: true,
@@ -23,7 +25,8 @@ export class ChiTietSanPhamComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private productService: ProductService,
-    private cartService: CartService
+    private cartService: CartService,
+    private wishlistService: WishlistService
   ) {}
 
   ngOnInit(): void {
@@ -273,5 +276,68 @@ export class ChiTietSanPhamComponent implements OnInit {
     if (img) {
       img.style.display = 'none';
     }
+  }
+
+  // Wishlist methods
+  toggleFavorite(): void {
+    if (!this.product) return;
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      Swal.fire('Thông báo', 'Vui lòng đăng nhập để sử dụng tính năng yêu thích', 'info');
+      return;
+    }
+
+    this.wishlistService.isInWishlist(this.product._id).subscribe({
+      next: (isInWishlist) => {
+        if (isInWishlist) {
+          // Xóa khỏi wishlist
+          this.wishlistService.removeFromWishlist(this.product!._id).subscribe({
+            next: (response) => {
+              if (response.success) {
+                Swal.fire('Thành công', 'Đã xóa khỏi danh sách yêu thích', 'success');
+              } else {
+                Swal.fire('Lỗi', response.message || 'Lỗi khi xóa khỏi danh sách yêu thích', 'error');
+              }
+            },
+            error: (err) => {
+              console.error('Error removing from wishlist:', err);
+              Swal.fire('Lỗi', 'Lỗi khi xóa khỏi danh sách yêu thích', 'error');
+            }
+          });
+        } else {
+          // Thêm vào wishlist
+          this.wishlistService.addToWishlist(this.product!._id).subscribe({
+            next: (response) => {
+              if (response.success) {
+                Swal.fire('Thành công', 'Đã thêm vào danh sách yêu thích', 'success');
+              } else {
+                Swal.fire('Lỗi', response.message || 'Lỗi khi thêm vào danh sách yêu thích', 'error');
+              }
+            },
+            error: (err) => {
+              console.error('Error adding to wishlist:', err);
+              Swal.fire('Lỗi', 'Lỗi khi thêm vào danh sách yêu thích', 'error');
+            }
+          });
+        }
+      },
+      error: (err) => {
+        console.error('Error checking wishlist status:', err);
+        Swal.fire('Lỗi', 'Lỗi khi kiểm tra trạng thái yêu thích', 'error');
+      }
+    });
+  }
+
+  isFavorite(): boolean {
+    if (!this.product) return false;
+    
+    let isFavorite = false;
+    this.wishlistService.isInWishlist(this.product._id).subscribe({
+      next: (inWishlist) => {
+        isFavorite = inWishlist;
+      }
+    });
+    return isFavorite;
   }
 }
