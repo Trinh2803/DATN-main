@@ -30,8 +30,16 @@ export class UserInfoComponent implements OnInit {
     this.fileInput.nativeElement.click();
   }
 
-  onFileSelected(event: any): void {
-    this.selectedFile = event.target.files[0];
+  onFileSelected(event: any): void {  // filepath: d:\Tong\DATN-main\site\src\app\userinfo\userinfo.component.ts
+    const file = event.target.files[0];
+    this.selectedFile = file;
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.user.avatar = e.target.result; // Hiển thị ảnh mới chọn
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   updateAvatar(): void {
