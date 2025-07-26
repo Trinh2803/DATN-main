@@ -123,11 +123,125 @@ const getOrdersByUserId = async (userId) => {
   if (!mongoose.isValidObjectId(userId)) {
     throw new Error('ID người dùng không hợp lệ');
   }
-  return await Order.find({ userId }).populate({
-    path: 'items.productId',
-    select: 'name thumbnail',
-    model: Product,
-  });
+  try {
+    const orders = await Order.find({ userId });
+    
+    // Populate products for each order individually to handle invalid ObjectIds
+    const populatedOrders = await Promise.all(
+      orders.map(async (order) => {
+        const populatedItems = await Promise.all(
+          order.items.map(async (item) => {
+            try {
+              if (mongoose.isValidObjectId(item.productId)) {
+                const product = await Product.findById(item.productId).select('name thumbnail');
+                return {
+                  ...item.toObject(),
+                  productId: product || item.productId
+                };
+              } else {
+                // If productId is not a valid ObjectId, return item as is
+                return item.toObject();
+              }
+            } catch (error) {
+              console.error(`Error populating product ${item.productId}:`, error);
+              return item.toObject();
+            }
+          })
+        );
+        
+        return {
+          ...order.toObject(),
+          items: populatedItems
+        };
+      })
+    );
+    
+    return populatedOrders;
+  } catch (error) {
+    console.error('Error in getOrdersByUserId:', error);
+    return await Order.find({ userId });
+  }
+};
+
+const getAllOrders = async () => {
+  try {
+    const orders = await Order.find();
+    
+    // Populate products for each order individually to handle invalid ObjectIds
+    const populatedOrders = await Promise.all(
+      orders.map(async (order) => {
+        const populatedItems = await Promise.all(
+          order.items.map(async (item) => {
+            try {
+              if (mongoose.isValidObjectId(item.productId)) {
+                const product = await Product.findById(item.productId).select('name thumbnail');
+                return {
+                  ...item.toObject(),
+                  productId: product || item.productId
+                };
+              } else {
+                // If productId is not a valid ObjectId, return item as is
+                return item.toObject();
+              }
+            } catch (error) {
+              console.error(`Error populating product ${item.productId}:`, error);
+              return item.toObject();
+            }
+          })
+        );
+        
+        return {
+          ...order.toObject(),
+          items: populatedItems
+        };
+      })
+    );
+    
+    return populatedOrders;
+  } catch (error) {
+    console.error('Error in getAllOrders:', error);
+    return await Order.find();
+  }
+};
+
+const getOrderById = async (orderId) => {
+  if (!mongoose.isValidObjectId(orderId)) {
+    throw new Error('ID đơn hàng không hợp lệ');
+  }
+  try {
+    const order = await Order.findById(orderId);
+    if (!order) {
+      throw new Error('Không tìm thấy đơn hàng');
+    }
+    
+    // Populate products for each item individually
+    const populatedItems = await Promise.all(
+      order.items.map(async (item) => {
+        try {
+          if (mongoose.isValidObjectId(item.productId)) {
+            const product = await Product.findById(item.productId).select('name thumbnail');
+            return {
+              ...item.toObject(),
+              productId: product || item.productId
+            };
+          } else {
+            return item.toObject();
+          }
+        } catch (error) {
+          console.error(`Error populating product ${item.productId}:`, error);
+          return item.toObject();
+        }
+      })
+    );
+    
+    return {
+      ...order.toObject(),
+      items: populatedItems
+    };
+  } catch (error) {
+    console.error('Error in getOrderById:', error);
+    throw error;
+  }
 };
 
 module.exports = {
@@ -137,5 +251,5 @@ module.exports = {
   createOrder,
   getPendingOrders,
   getCompletedOrders,
-getOrdersByUserId
+  getOrdersByUserId
 };
