@@ -53,6 +53,17 @@ export class UserInfoComponent implements OnInit {
           this.userService.updateUser(updatedUser);
           localStorage.setItem('user', JSON.stringify(updatedUser));
           this.user = updatedUser;
+          // Nếu server trả về đường dẫn avatar mới, cập nhật lại user.avatar để hiển thị đúng ảnh mới
+          if (updatedUser && updatedUser.avatar) {
+            // Nếu đường dẫn là tương đối, thêm base URL
+            if (!/^https?:\/\//.test(updatedUser.avatar)) {
+              // Thay đổi baseUrl theo domain backend thực tế của bạn
+              const baseUrl = 'http://localhost:3000/';
+              this.user.avatar = baseUrl + updatedUser.avatar.replace(/^\/+/, '');
+            } else {
+              this.user.avatar = updatedUser.avatar;
+            }
+          }
           alert('Cập nhật avatar thành công!');
           this.selectedFile = null; // Reset file input
         },
