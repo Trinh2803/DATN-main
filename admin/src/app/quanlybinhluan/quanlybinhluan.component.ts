@@ -502,8 +502,8 @@ export class QuanlybinhluanComponent implements OnInit, AfterViewInit {
     }
   }
 
-  formatDate(dateString: string): string {
-    if (!dateString) return 'N/A';
+  formatDate(dateString?: string): string {
+    if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleDateString('vi-VN', {
       year: 'numeric',
