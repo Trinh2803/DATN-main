@@ -27,7 +27,7 @@ const getHotProducts = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 8; // Đổi mặc định từ 10 thành 8
     const hotProducts = await productService.getHotProducts(limit);
-    res.status(200).json({ success: true, data: hotProducts });
+    res.status(200).json(hotProducts); // Trả về mảng thay vì object
   } catch (err) {
     res.status(500).json({ success: false, message: err.message || 'Lỗi khi lấy sản phẩm hot' });
   }

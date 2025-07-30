@@ -11,10 +11,10 @@ var usersRouter = require("./routes/users");
 var categoriesRouter = require("./routes/categories");
 var productsRouter = require("./routes/products");
 var orderssRouter = require("./routes/orders");
-var payRouter = require("./routes/pay");
 const multer = require("multer");
 const mongoose = require("mongoose");
 const discountsRouter = require("./routes/discounts");
+const paymentRouter = require('./routes/payment');
 
 const viewEngine = require("./config/viewEngine");
 var app = express();
@@ -44,7 +44,7 @@ app.use("/categories", categoriesRouter);
 app.use("/products", productsRouter);
 app.use("/orders", orderssRouter);
 app.use("/api/discounts", discountsRouter);
-app.use("/pay", payRouter);
+app.use('/payment', paymentRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -69,4 +69,4 @@ const messageSchema = new mongoose.Schema({
 const Message = mongoose.model("Message", messageSchema);
 
 // Export app và Message model để sử dụng trong bin/www
-module.exports = { app, Message };
+module.exports = app;

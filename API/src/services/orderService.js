@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const Order = require('../models/orderModel');
 const Product = require('../models/productModel');
 const productService = require('./productService');
+const Payment = require('../models/paymentModel');
+const crypto = require('crypto');
 console.log('productService:', productService); // Debug
 
 const ORDER_STATUS = [
@@ -96,6 +98,20 @@ const items = await Promise.all(
   await updateSellCountForOrder(order.items);
   await order.save();
 
+  // Tạo payment nếu chọn phương thức thanh toán là vnpay
+  if (orderData.paymentMethod === 'vnpay') {
+    // Tạo mã giao dịch duy nhất cho VNPAY
+    const vnp_TxnRef = crypto.randomBytes(8).toString('hex');
+    await Payment.create({
+      orderId: order._id,
+      userId: order.userId,
+      amount: order.finalAmount,
+      paymentMethod: 'vnpay',
+      paymentStatus: 'pending',
+      vnp_TxnRef
+    });
+  }
+
   // Tăng usedCount cho các mã giảm giá đã dùng
   const Discount = require('../models/discountModel');
   const usedDiscountCodes = new Set();
@@ -131,8 +147,8 @@ const getOrdersByUserId = async (userId) => {
 };
 
 module.exports = {
-  getAllOrders,
-  getOrderById,
+  //getAllOrders,
+  ///getOrderById,
   updateOrderStatus,
   createOrder,
   getPendingOrders,

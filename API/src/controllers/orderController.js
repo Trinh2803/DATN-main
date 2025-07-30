@@ -1,5 +1,6 @@
 const orderService = require('../services/orderService');
 const productService = require('../services/productService');
+const Payment = require('../models/paymentModel');
 
 const getAllOrders = async (req, res) => {
   try {
@@ -48,7 +49,16 @@ const createOrder = async (req, res) => {
       userId: req.user.id, // Sửa từ req.user.userId thành req.user.id
     };
     const order = await orderService.createOrder(orderData);
-    res.status(201).json({ success: true, message: 'Tạo đơn hàng thành công', data: order });
+    let payment = null;
+    if (orderData.paymentMethod === 'vnpay') {
+      payment = await Payment.findOne({ orderId: order._id, paymentMethod: 'vnpay' });
+    }
+    res.status(201).json({
+      success: true,
+      message: 'Tạo đơn hàng thành công',
+      data: order,
+      payment: payment ? { paymentId: payment._id, vnp_TxnRef: payment.vnp_TxnRef } : null
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
