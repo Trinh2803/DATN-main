@@ -17,6 +17,7 @@ export class ListcardComponent implements OnInit {
   @Input() product!: ProductInterface; // Sửa từ data thành product, bỏ mảng
   @Input() data: ProductInterface[] = [];
   @Input() title = '';
+  private wishlistCache = new Map<string, boolean>();
 
   constructor(
     private router: Router, 
@@ -44,66 +45,138 @@ export class ListcardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Component initialization
+    // Load wishlist status for this product only if product exists
+    if (this.product) {
+      this.loadWishlistStatus();
+    }
+  }
+
+  private loadWishlistStatus(): void {
+    if (!this.product) return;
+    
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    this.wishlistService.isInWishlist(this.product._id).subscribe({
+      next: (isInWishlist) => {
+        this.wishlistCache.set(this.product._id, isInWishlist);
+      },
+      error: (err) => {
+        console.error('Error loading wishlist status:', err);
+      }
+    });
   }
 
   // nút yêu thích
   toggleFavorite(product: ProductInterface): void {
     const token = localStorage.getItem('token');
     if (!token) {
-      Swal.fire('Thông báo', 'Vui lòng đăng nhập để sử dụng tính năng yêu thích', 'info');
+      Swal.fire({
+        title: 'Thông báo',
+        text: 'Vui lòng đăng nhập để sử dụng tính năng yêu thích',
+        icon: 'info',
+        confirmButtonText: 'OK'
+      });
       return;
     }
 
-    this.wishlistService.isInWishlist(product._id).subscribe({
-      next: (isInWishlist) => {
-        if (isInWishlist) {
-          // Xóa khỏi wishlist
-          this.wishlistService.removeFromWishlist(product._id).subscribe({
-            next: (response) => {
-              if (response.success) {
-                Swal.fire('Thành công', 'Đã xóa khỏi danh sách yêu thích', 'success');
-              } else {
-                Swal.fire('Lỗi', response.message || 'Lỗi khi xóa khỏi danh sách yêu thích', 'error');
-              }
-            },
-            error: (err) => {
-              console.error('Error removing from wishlist:', err);
-              Swal.fire('Lỗi', 'Lỗi khi xóa khỏi danh sách yêu thích', 'error');
-            }
-          });
-        } else {
-          // Thêm vào wishlist
-          this.wishlistService.addToWishlist(product._id).subscribe({
-            next: (response) => {
-              if (response.success) {
-                Swal.fire('Thành công', 'Đã thêm vào danh sách yêu thích', 'success');
-              } else {
-                Swal.fire('Lỗi', response.message || 'Lỗi khi thêm vào danh sách yêu thích', 'error');
-              }
-            },
-            error: (err) => {
-              console.error('Error adding to wishlist:', err);
-              Swal.fire('Lỗi', 'Lỗi khi thêm vào danh sách yêu thích', 'error');
-            }
-          });
+    const isCurrentlyInWishlist = this.wishlistCache.get(product._id) || false;
+
+    if (isCurrentlyInWishlist) {
+      // Xóa khỏi wishlist
+      this.wishlistService.removeFromWishlist(product._id).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.wishlistCache.set(product._id, false);
+            Swal.fire({
+              title: 'Thành công',
+              text: 'Đã xóa khỏi danh sách yêu thích',
+              icon: 'success',
+              confirmButtonText: 'OK'
+            });
+          } else {
+            Swal.fire({
+              title: 'Lỗi',
+              text: response.message || 'Lỗi khi xóa khỏi danh sách yêu thích',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+          }
+        },
+        error: (err) => {
+          console.error('Error removing from wishlist:', err);
+          // Check if token is expired
+          if (err.status === 401 || err.status === 403) {
+            Swal.fire({
+              title: 'Phiên đăng nhập hết hạn',
+              text: 'Vui lòng đăng nhập lại',
+              icon: 'warning',
+              confirmButtonText: 'OK'
+            });
+            // Clear token and redirect to login
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            this.router.navigate(['/dangnhap']);
+          } else {
+            Swal.fire({
+              title: 'Lỗi',
+              text: 'Lỗi khi xóa khỏi danh sách yêu thích',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+          }
         }
-      },
-      error: (err) => {
-        console.error('Error checking wishlist status:', err);
-        Swal.fire('Lỗi', 'Lỗi khi kiểm tra trạng thái yêu thích', 'error');
-      }
-    });
+      });
+    } else {
+      // Thêm vào wishlist
+      this.wishlistService.addToWishlist(product._id).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.wishlistCache.set(product._id, true);
+            Swal.fire({
+              title: 'Thành công',
+              text: 'Đã thêm vào danh sách yêu thích',
+              icon: 'success',
+              confirmButtonText: 'OK'
+            });
+          } else {
+            Swal.fire({
+              title: 'Lỗi',
+              text: response.message || 'Lỗi khi thêm vào danh sách yêu thích',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+          }
+        },
+        error: (err) => {
+          console.error('Error adding to wishlist:', err);
+          // Check if token is expired
+          if (err.status === 401 || err.status === 403) {
+            Swal.fire({
+              title: 'Phiên đăng nhập hết hạn',
+              text: 'Vui lòng đăng nhập lại',
+              icon: 'warning',
+              confirmButtonText: 'OK'
+            });
+            // Clear token and redirect to login
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            this.router.navigate(['/dangnhap']);
+          } else {
+            Swal.fire({
+              title: 'Lỗi',
+              text: 'Lỗi khi thêm vào danh sách yêu thích',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+          }
+        }
+      });
+    }
   }
 
   isFavorite(product: ProductInterface): boolean {
-    let isFavorite = false;
-    this.wishlistService.isInWishlist(product._id).subscribe({
-      next: (inWishlist) => {
-        isFavorite = inWishlist;
-      }
-    });
-    return isFavorite;
+    return this.wishlistCache.get(product._id) || false;
   }
 
   // nút mua ngay - cập nhật để hỗ trợ biến thể
@@ -138,59 +211,36 @@ export class ListcardComponent implements OnInit {
     // Nếu không có biến thể, thêm trực tiếp vào giỏ hàng
     const productToAdd: ProductInterface = { ...product };
     this.cartService.addToCart(productToAdd);
-
-    // Hiển thị thông báo
-    alert(`Đã thêm ${product.name} vào giỏ hàng`);
   }
 
-  // Lấy giá hiện tại (có thể là giá biến thể hoặc giá sản phẩm)
   getCurrentPrice(product: ProductInterface): number {
-    if (product.variants && product.variants.length > 0) {
-      // Nếu có biến thể, hiển thị giá thấp nhất
-      const minPrice = Math.min(...product.variants.map(v => v.salePrice || v.price));
-      return minPrice;
-    }
-    return product.salePrice || product.price;
-  }
-
-  // Lấy giá gốc (không giảm giá)
-  getOriginalPrice(product: ProductInterface): number {
-    if (product.variants && product.variants.length > 0) {
-      // Nếu có biến thể, hiển thị giá gốc thấp nhất
-      const minOriginalPrice = Math.min(...product.variants.map(v => v.price));
-      return minOriginalPrice;
+    if (product.salePrice && product.salePrice > 0) {
+      return product.salePrice;
     }
     return product.price;
   }
 
-  // Kiểm tra sản phẩm có giảm giá không (bao gồm biến thể)
+  getOriginalPrice(product: ProductInterface): number {
+    return product.price;
+  }
+
   hasDiscount(product: ProductInterface): boolean {
-    if (product.variants && product.variants.length > 0) {
-      // Kiểm tra xem có biến thể nào có giảm giá không
-      return product.variants.some(v => v.salePrice && v.salePrice < v.price);
-    }
-    return this.isSaleProduct(product);
+    return !!product.salePrice && product.salePrice > 0 && product.salePrice < product.price;
   }
 
-  // Tính % giảm giá (bao gồm biến thể)
   calculateDiscount(product: ProductInterface): number {
-    if (product.variants && product.variants.length > 0) {
-      // Tìm biến thể có % giảm giá cao nhất
-      const maxDiscount = Math.max(...product.variants.map(v => {
-        if (!v.salePrice || v.salePrice >= v.price) return 0;
-        return Math.round(((v.price - v.salePrice) / v.price) * 100);
-      }));
-      return maxDiscount;
+    if (!product.salePrice || product.salePrice >= product.price) {
+      return 0;
     }
-    return this.calculateDiscountPercentage(product.price, product.salePrice || 0);
+    return Math.round(((product.price - product.salePrice) / product.price) * 100);
   }
 
-  // Kiểm tra sản phẩm có còn hàng không
   isInStock(product: ProductInterface): boolean {
+    // Check if product has variants with stock
     if (product.variants && product.variants.length > 0) {
-      // Kiểm tra xem có biến thể nào còn hàng không
       return product.variants.some(v => v.stock > 0);
     }
-    return true; // Nếu không có biến thể, coi như còn hàng
+    // If no variants, check product stock
+    return (product.stock || 0) > 0;
   }
 }

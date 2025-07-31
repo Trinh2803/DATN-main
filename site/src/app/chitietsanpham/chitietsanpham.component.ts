@@ -20,6 +20,7 @@ export class ChiTietSanPhamComponent implements OnInit {
   quantity: number = 1;
   selectedImage: string | null = null;  //Thêm biến lưu ảnh chính
   relatedProducts: ProductInterface[] = []; // Thêm sản phẩm liên quan
+  private wishlistCache = new Map<string, boolean>();
 
   constructor(
     private route: ActivatedRoute,
@@ -40,12 +41,30 @@ export class ChiTietSanPhamComponent implements OnInit {
           console.log('Processed product data:', data);
           // Lấy sản phẩm liên quan sau khi có thông tin sản phẩm
           this.loadRelatedProducts();
+          // Load wishlist status
+          this.loadWishlistStatus();
         },
         error: (err: any) => {
           console.error('Lỗi khi lấy chi tiết sản phẩm:', err);
         },
       });
     }
+  }
+
+  private loadWishlistStatus(): void {
+    if (!this.product) return;
+    
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    this.wishlistService.isInWishlist(this.product._id).subscribe({
+      next: (isInWishlist) => {
+        this.wishlistCache.set(this.product!._id, isInWishlist);
+      },
+      error: (err) => {
+        console.error('Error loading wishlist status:', err);
+      }
+    });
   }
 
   selectImage(image: string): void {
@@ -102,10 +121,7 @@ export class ChiTietSanPhamComponent implements OnInit {
         }));
         return maxDiscount;
       }
-      if (
-        !this.product.salePrice ||
-        this.product.salePrice >= this.product.price
-      ) {
+      if (!this.product.salePrice || this.product.salePrice >= this.product.price) {
         return 0;
       }
       return Math.round(
@@ -115,7 +131,6 @@ export class ChiTietSanPhamComponent implements OnInit {
     return 0;
   }
 
-  // Thêm phương thức mới để tính phần trăm giảm giá cho biến thể
   calculateVariantDiscount(variant: Variant): number {
     if (!variant.salePrice || variant.salePrice >= variant.price) {
       return 0;
@@ -124,9 +139,7 @@ export class ChiTietSanPhamComponent implements OnInit {
   }
 
   increaseQuantity(): void {
-    if (this.selectedVariant && this.quantity < (this.selectedVariant.stock ?? Infinity)) {
-      this.quantity++;
-    } else if (!this.selectedVariant && this.product) {
+    if (this.quantity < this.getCurrentStock()) {
       this.quantity++;
     }
   }
@@ -138,60 +151,53 @@ export class ChiTietSanPhamComponent implements OnInit {
   }
 
   addToCart(): void {
-    if (this.product) {
-      if (this.product.variants && this.product.variants.length > 0 && !this.selectedVariant) {
-        alert('Vui lòng chọn một biến thể sản phẩm!');
-        return;
-      }
-      const productToAdd: ProductInterface = {
-        ...this.product,
-        selectedVariant: this.selectedVariant ?? undefined,
-      };
-      this.cartService.addToCartWithQuantity(productToAdd, this.quantity);
-      alert(
-        `Đã thêm ${this.quantity} ${this.product.name} ${
-          this.selectedVariant ? `(${this.selectedVariant.size || 'Mặc định'})` : ''
-        } vào giỏ hàng`
-      );
+    if (!this.product) return;
+
+    const productToAdd: ProductInterface = { ...this.product };
+    if (this.selectedVariant) {
+      productToAdd.selectedVariant = this.selectedVariant;
     }
+
+    this.cartService.addToCartWithQuantity(productToAdd, this.quantity);
+    Swal.fire({
+      title: 'Thành công',
+      text: `Đã thêm ${this.quantity} sản phẩm vào giỏ hàng`,
+      icon: 'success',
+      confirmButtonText: 'OK'
+    });
   }
 
   buyNow(): void {
-    if (this.product) {
-      if (this.product.variants && this.product.variants.length > 0 && !this.selectedVariant) {
-        alert('Vui lòng chọn một biến thể sản phẩm!');
-        return;
-      }
-      this.addToCart();
-      this.router.navigate(['/giohang']);
+    if (!this.product) return;
+
+    const productToAdd: ProductInterface = { ...this.product };
+    if (this.selectedVariant) {
+      productToAdd.selectedVariant = this.selectedVariant;
     }
+
+    this.cartService.addToCartWithQuantity(productToAdd, this.quantity);
+    this.router.navigate(['/checkout']);
   }
 
-  // Lấy giá hiện tại (có thể là giá biến thể hoặc giá sản phẩm)
   getCurrentPrice(): number {
     if (this.selectedVariant) {
-      // Nếu đã chọn biến thể, hiển thị giá của biến thể đó
       return this.selectedVariant.salePrice || this.selectedVariant.price;
     }
     if (this.product) {
-      // Nếu có biến thể nhưng chưa chọn, hiển thị giá thấp nhất (đồng nhất với trang chủ)
       if (this.product.variants && this.product.variants.length > 0) {
         const minPrice = Math.min(...this.product.variants.map(v => v.salePrice || v.price));
         return minPrice;
       }
-      // Nếu không có biến thể, hiển thị giá sản phẩm chính
       return this.product.salePrice || this.product.price;
     }
     return 0;
   }
 
-  // Lấy giá gốc (không giảm giá)
   getOriginalPrice(): number {
     if (this.selectedVariant) {
       return this.selectedVariant.price;
     }
     if (this.product) {
-      // Nếu có biến thể, hiển thị giá gốc thấp nhất (đồng nhất với trang chủ)
       if (this.product.variants && this.product.variants.length > 0) {
         const minOriginalPrice = Math.min(...this.product.variants.map(v => v.price));
         return minOriginalPrice;
@@ -201,47 +207,41 @@ export class ChiTietSanPhamComponent implements OnInit {
     return 0;
   }
 
-  // Kiểm tra xem biến thể có còn hàng không
   isVariantInStock(variant: Variant): boolean {
     return variant.stock > 0;
   }
 
-  // Lấy số lượng tồn kho hiện tại
   getCurrentStock(): number {
     if (this.selectedVariant) {
       return this.selectedVariant.stock;
     }
-    return Infinity; // Nếu không có biến thể, coi như không giới hạn
+    if (this.product) {
+      if (this.product.variants && this.product.variants.length > 0) {
+        return Math.max(...this.product.variants.map(v => v.stock));
+      }
+      return this.product.stock || 0;
+    }
+    return 0;
   }
 
-  // Lấy sản phẩm liên quan
   loadRelatedProducts(): void {
     if (!this.product) return;
 
-    // Lấy sản phẩm cùng danh mục
-    const categoryId = typeof this.product.categoryId === 'string'
-      ? this.product.categoryId
-      : this.product.categoryId?._id;
-
-    if (!categoryId) return;
-
-    this.productService.getProductsByCategory(categoryId).subscribe({
+    this.productService.getAllProducts().subscribe({
       next: (products: ProductInterface[]) => {
-        // Lọc bỏ sản phẩm hiện tại và lấy tối đa 4 sản phẩm
+        // Lọc sản phẩm cùng danh mục và loại bỏ sản phẩm hiện tại
         this.relatedProducts = products
-          .filter(p => p._id !== this.product?._id)
-          .slice(0, 4);
-        console.log('Related products:', this.relatedProducts);
+          .filter((p: ProductInterface) => p.categoryId === this.product!.categoryId && p._id !== this.product!._id)
+          .slice(0, 4); // Chỉ lấy 4 sản phẩm liên quan
       },
       error: (err: any) => {
-        console.error('Lỗi khi lấy sản phẩm liên quan:', err);
+        console.error('Error loading related products:', err);
       }
     });
   }
 
-  // Chuyển đến trang chi tiết sản phẩm liên quan
   goToProduct(id: string): void {
-    this.router.navigate(['/chitietsanpham', id]);
+    this.router.navigate(['/chitiet', id]);
   }
 
   // Lấy giá hiện tại của sản phẩm liên quan
@@ -284,60 +284,112 @@ export class ChiTietSanPhamComponent implements OnInit {
 
     const token = localStorage.getItem('token');
     if (!token) {
-      Swal.fire('Thông báo', 'Vui lòng đăng nhập để sử dụng tính năng yêu thích', 'info');
+      Swal.fire({
+        title: 'Thông báo',
+        text: 'Vui lòng đăng nhập để sử dụng tính năng yêu thích',
+        icon: 'info',
+        confirmButtonText: 'OK'
+      });
       return;
     }
 
-    this.wishlistService.isInWishlist(this.product._id).subscribe({
-      next: (isInWishlist) => {
-        if (isInWishlist) {
-          // Xóa khỏi wishlist
-          this.wishlistService.removeFromWishlist(this.product!._id).subscribe({
-            next: (response) => {
-              if (response.success) {
-                Swal.fire('Thành công', 'Đã xóa khỏi danh sách yêu thích', 'success');
-              } else {
-                Swal.fire('Lỗi', response.message || 'Lỗi khi xóa khỏi danh sách yêu thích', 'error');
-              }
-            },
-            error: (err) => {
-              console.error('Error removing from wishlist:', err);
-              Swal.fire('Lỗi', 'Lỗi khi xóa khỏi danh sách yêu thích', 'error');
-            }
-          });
-        } else {
-          // Thêm vào wishlist
-          this.wishlistService.addToWishlist(this.product!._id).subscribe({
-            next: (response) => {
-              if (response.success) {
-                Swal.fire('Thành công', 'Đã thêm vào danh sách yêu thích', 'success');
-              } else {
-                Swal.fire('Lỗi', response.message || 'Lỗi khi thêm vào danh sách yêu thích', 'error');
-              }
-            },
-            error: (err) => {
-              console.error('Error adding to wishlist:', err);
-              Swal.fire('Lỗi', 'Lỗi khi thêm vào danh sách yêu thích', 'error');
-            }
-          });
+    const isCurrentlyInWishlist = this.wishlistCache.get(this.product._id) || false;
+
+    if (isCurrentlyInWishlist) {
+      // Xóa khỏi wishlist
+      this.wishlistService.removeFromWishlist(this.product._id).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.wishlistCache.set(this.product!._id, false);
+            Swal.fire({
+              title: 'Thành công',
+              text: 'Đã xóa khỏi danh sách yêu thích',
+              icon: 'success',
+              confirmButtonText: 'OK'
+            });
+          } else {
+            Swal.fire({
+              title: 'Lỗi',
+              text: response.message || 'Lỗi khi xóa khỏi danh sách yêu thích',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+          }
+        },
+        error: (err) => {
+          console.error('Error removing from wishlist:', err);
+          // Check if token is expired
+          if (err.status === 401 || err.status === 403) {
+            Swal.fire({
+              title: 'Phiên đăng nhập hết hạn',
+              text: 'Vui lòng đăng nhập lại',
+              icon: 'warning',
+              confirmButtonText: 'OK'
+            });
+            // Clear token and redirect to login
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            this.router.navigate(['/dangnhap']);
+          } else {
+            Swal.fire({
+              title: 'Lỗi',
+              text: 'Lỗi khi xóa khỏi danh sách yêu thích',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+          }
         }
-      },
-      error: (err) => {
-        console.error('Error checking wishlist status:', err);
-        Swal.fire('Lỗi', 'Lỗi khi kiểm tra trạng thái yêu thích', 'error');
-      }
-    });
+      });
+    } else {
+      // Thêm vào wishlist
+      this.wishlistService.addToWishlist(this.product._id).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.wishlistCache.set(this.product!._id, true);
+            Swal.fire({
+              title: 'Thành công',
+              text: 'Đã thêm vào danh sách yêu thích',
+              icon: 'success',
+              confirmButtonText: 'OK'
+            });
+          } else {
+            Swal.fire({
+              title: 'Lỗi',
+              text: response.message || 'Lỗi khi thêm vào danh sách yêu thích',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+          }
+        },
+        error: (err) => {
+          console.error('Error adding to wishlist:', err);
+          // Check if token is expired
+          if (err.status === 401 || err.status === 403) {
+            Swal.fire({
+              title: 'Phiên đăng nhập hết hạn',
+              text: 'Vui lòng đăng nhập lại',
+              icon: 'warning',
+              confirmButtonText: 'OK'
+            });
+            // Clear token and redirect to login
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            this.router.navigate(['/dangnhap']);
+          } else {
+            Swal.fire({
+              title: 'Lỗi',
+              text: 'Lỗi khi thêm vào danh sách yêu thích',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+          }
+        }
+      });
+    }
   }
 
   isFavorite(): boolean {
     if (!this.product) return false;
-    
-    let isFavorite = false;
-    this.wishlistService.isInWishlist(this.product._id).subscribe({
-      next: (inWishlist) => {
-        isFavorite = inWishlist;
-      }
-    });
-    return isFavorite;
+    return this.wishlistCache.get(this.product._id) || false;
   }
 }

@@ -39,7 +39,16 @@ export class WishlistComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error loading wishlist:', err);
-        this.error = 'Lỗi khi tải danh sách yêu thích';
+        // Check if token is expired
+        if (err.status === 401 || err.status === 403) {
+          this.error = 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.';
+          // Clear token and redirect to login
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          this.router.navigate(['/dangnhap']);
+        } else {
+          this.error = 'Lỗi khi tải danh sách yêu thích';
+        }
         this.loading = false;
       }
     });
@@ -53,7 +62,7 @@ export class WishlistComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: 'Xóa',
       cancelButtonText: 'Hủy'
-    }).then((result) => {
+    }).then((result: any) => {
       if (result.isConfirmed) {
         this.wishlistService.removeFromWishlist(productId).subscribe({
           next: (response) => {
@@ -66,7 +75,21 @@ export class WishlistComponent implements OnInit {
           },
           error: (err) => {
             console.error('Error removing from wishlist:', err);
-            Swal.fire('Lỗi', 'Lỗi khi xóa sản phẩm', 'error');
+            // Check if token is expired
+            if (err.status === 401 || err.status === 403) {
+              Swal.fire({
+                title: 'Phiên đăng nhập hết hạn',
+                text: 'Vui lòng đăng nhập lại',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+              });
+              // Clear token and redirect to login
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              this.router.navigate(['/dangnhap']);
+            } else {
+              Swal.fire('Lỗi', 'Lỗi khi xóa sản phẩm', 'error');
+            }
           }
         });
       }
@@ -85,7 +108,7 @@ export class WishlistComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: 'Xóa tất cả',
       cancelButtonText: 'Hủy'
-    }).then((result) => {
+    }).then((result: any) => {
       if (result.isConfirmed) {
         this.wishlistService.clearWishlist().subscribe({
           next: (response) => {
@@ -98,7 +121,21 @@ export class WishlistComponent implements OnInit {
           },
           error: (err) => {
             console.error('Error clearing wishlist:', err);
-            Swal.fire('Lỗi', 'Lỗi khi xóa danh sách', 'error');
+            // Check if token is expired
+            if (err.status === 401 || err.status === 403) {
+              Swal.fire({
+                title: 'Phiên đăng nhập hết hạn',
+                text: 'Vui lòng đăng nhập lại',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+              });
+              // Clear token and redirect to login
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              this.router.navigate(['/dangnhap']);
+            } else {
+              Swal.fire('Lỗi', 'Lỗi khi xóa danh sách', 'error');
+            }
           }
         });
       }

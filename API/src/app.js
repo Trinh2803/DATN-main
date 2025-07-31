@@ -33,7 +33,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
 
-// Phục vụ file tĩnh từ thư mục public/uploads
+// Phục vụ file tĩnh từ thư mục public/images
+app.use("/images", express.static(path.join(__dirname, "public/images")));
 app.use("/uploads", express.static(path.join(__dirname, "public/images")));
 
 // Áp dụng multer cho route users
