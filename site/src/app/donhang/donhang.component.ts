@@ -67,13 +67,14 @@ export class DonhangComponent implements OnInit {
           this.order = {
             cartItems: response.data.items.map((item: any) => ({
               product: {
-                _id: item.productId._id,
-                name: item.productId.name,
+                _id: item.productId._id || item.productId,
+                name: item.productId.name || item.productName,
                 price: item.price,
                 salePrice: item.productId.salePrice,
-                thumbnail: item.productId.thumbnail,
+                thumbnail: item.productId.thumbnail || item.thumbnail,
               },
               quantity: item.quantity,
+              discountInfo: item.discountInfo || null // lấy discountInfo từ backend
             })),
             totalPrice: response.data.total,
             shippingInfo: {
@@ -97,5 +98,25 @@ export class DonhangComponent implements OnInit {
       console.warn('No orderId found in query params');
       this.router.navigate(['/giohang']);
     }
+  }
+
+  getDiscountedItemPrice(item: any): number {
+    let basePrice = item.product.salePrice || item.product.price;
+    if (item.discountInfo) {
+      if (item.discountInfo.discountType === 'percentage') {
+        return Math.round(basePrice * (1 - item.discountInfo.discountValue / 100));
+      } else if (item.discountInfo.discountType === 'fixed') {
+        return Math.max(0, basePrice - item.discountInfo.discountValue);
+      }
+    }
+    return basePrice;
+  }
+
+  getDiscountedTotal(): number {
+    if (!this.order) return 0;
+    return this.order.cartItems.reduce((total, item: any) => {
+      const price = this.getDiscountedItemPrice(item);
+      return total + price * item.quantity;
+    }, 0);
   }
 }

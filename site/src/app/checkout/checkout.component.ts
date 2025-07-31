@@ -32,6 +32,9 @@ export class CheckoutComponent implements OnInit {
   cartItems: CartItem[] = [];
   totalPrice: number = 0;
   orderNote: string = '';
+  discountCode: string = '';
+  discountInfo: any = null;
+  finalAmount: number = 0;
   shippingInfo: ShippingInfo = {
     fullName: '',
     phone: '',
@@ -66,6 +69,9 @@ export class CheckoutComponent implements OnInit {
       this.orderNote = orderData.orderNote || '';
       this.cartItems = orderData.cartItems || [];
       this.totalPrice = orderData.totalPrice || 0;
+      this.discountCode = orderData.discountCode || '';
+      this.discountInfo = orderData.discountInfo || null;
+      this.finalAmount = orderData.finalAmount || this.totalPrice;
     } else {
       this.router.navigate(['/giohang']);
     }
@@ -84,7 +90,7 @@ export class CheckoutComponent implements OnInit {
     }
 
     const orderData = {
-      userId: user.id,
+      userId: user._id,
       customerName: this.shippingInfo.fullName,
       customerPhone: this.shippingInfo.phone,
       customerAddress: this.shippingInfo.address,
@@ -93,11 +99,15 @@ export class CheckoutComponent implements OnInit {
       items: this.cartItems.map(item => ({
         productId: item.product._id,
         quantity: item.quantity,
-        price: this.getItemPrice(item),
-        variantId: item.selectedVariant?.id,
+        price: this.getItemPrice(item), // giá đã giảm
+        variantId: item.selectedVariant?._id,
         variantSize: item.selectedVariant?.size,
+        discountInfo: (item as any).discountInfo || null // gửi discountInfo cho từng item
       })),
       total: this.totalPrice,
+      finalAmount: this.finalAmount,
+      discountCode: this.discountCode,
+      discountInfo: this.discountInfo,
       status: 'Chờ xác nhận',
       adminNote: '',
     };
@@ -130,10 +140,16 @@ export class CheckoutComponent implements OnInit {
 
   // Lấy giá hiện tại cho item trong checkout
   getItemPrice(item: CartItem): number {
-    if (item.selectedVariant) {
-      return item.selectedVariant.salePrice || item.selectedVariant.price;
+    let basePrice = item.selectedVariant ? (item.selectedVariant.salePrice || item.selectedVariant.price) : (item.product.salePrice || item.product.price);
+    if ((item as any).discountInfo) {
+      const discountInfo = (item as any).discountInfo;
+      if (discountInfo.discountType === 'percent') {
+        return Math.round(basePrice * (1 - discountInfo.discountValue / 100));
+      } else if (discountInfo.discountType === 'fixed') {
+        return Math.max(0, basePrice - discountInfo.discountValue);
+      }
     }
-    return item.product.salePrice || item.product.price;
+    return basePrice;
   }
 
   // Lấy thông tin biến thể để hiển thị

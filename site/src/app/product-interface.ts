@@ -1,5 +1,5 @@
 export interface Variant {
-  id: string;
+  _id: string;
   size: string;
   price: number;
   salePrice?: number | null;
@@ -11,6 +11,7 @@ export interface ProductInterface {
   name: string;
   price: number;
   salePrice?: number | null;
+  stock?: number;
   createdAt?: string | Date;
   thumbnail: string;
   images?: string[];
@@ -28,7 +29,6 @@ export interface CategoryInterface {
   _id: string;
   name: string;
   slug: string;
-  image: string | File; // Thay đổi kiểu dữ liệu của image thành string | File
-  // createdAt?: string;
+  image: string | File;
   updatedAt?: string;
 }

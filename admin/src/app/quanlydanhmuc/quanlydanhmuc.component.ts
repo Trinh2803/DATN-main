@@ -31,7 +31,7 @@ export class QuanlydanhmucComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) {
       this.errorMessage = 'Vui lòng đăng nhập.';
       console.log('No token found, redirecting to login');

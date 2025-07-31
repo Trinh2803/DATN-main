@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "title": "Review của khách hàng về siêu thị nội thất đồ gỗ Nội Thất MOHO",
+    "date": "2024-06-01",
+    "description": "Siêu thị đồ nội thất đồ gỗ Nội Thất MOHO đã trở thành điểm đến cho nhiều khách hàng với sự tiện nghi, hiện đại và ý tưởng cho không gian sống.",
+    "image": "/images/news1.jpg",
+    "category": "Media"
+  },
+  {
+    "id": 2,
+    "title": "Các chương trình ưu đãi tại các cửa hàng Nội Thất MOHO",
+    "date": "2024-06-02",
+    "description": "Các chương trình khuyến mãi, hậu mãi lớn của SAVIMEX, mang đến cho khách hàng nhiều lựa chọn hấp dẫn.",
+    "image": "/images/news2.jpg",
+    "category": "Media"
+  },
+  {
+    "id": 3,
+    "title": "Top 5 Cửa Hàng Bán Đồ Nội Thất Uy Tín Tại TP.HCM",
+    "date": "2024-06-03",
+    "description": "Các cửa hàng bán đồ nội thất uy tín tại TP.HCM luôn là lựa chọn tin cậy cho không gian sống lý tưởng.",
+    "image": "/images/news3.jpg",
+    "category": "Media"
+  }
+] 

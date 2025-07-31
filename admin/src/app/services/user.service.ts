@@ -27,7 +27,7 @@ export class UserService {
   constructor(private http: HttpClient) {}
 
   getUsers(searchQuery?: string): Observable<ApiResponse<User[]>> {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) {
       return throwError(() => new Error('Thiếu token xác thực'));
     }
@@ -39,7 +39,7 @@ export class UserService {
   }
 
   getUserById(id: string): Observable<ApiResponse<User>> {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) {
       return throwError(() => new Error('Thiếu token xác thực'));
     }
@@ -50,7 +50,7 @@ export class UserService {
   }
 
   changeUserRole(id: string, role: 'admin' | 'customer'): Observable<ApiResponse<User>> {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) {
       return throwError(() => new Error('Thiếu token xác thực'));
     }

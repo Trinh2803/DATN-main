@@ -20,5 +20,8 @@
   "homepage": "https://github.com/Trinh2803/DATN#readme",
   "devDependencies": {
     "@angular-devkit/build-angular": "^20.0.1"
+  },
+  "dependencies": {
+    "sweetalert2": "^11.6.13"
   }
 }

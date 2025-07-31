@@ -363,6 +363,11 @@ body {
   border-top: 1px solid #eee;
 }
 
+.discount-amount {
+  color: #28a745;
+  font-weight: 600;
+}
+
 .btn-row {
   display: flex;
   justify-content: space-between;

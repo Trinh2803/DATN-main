@@ -20,13 +20,32 @@ export class QuanlydonhangComponent implements OnInit, AfterViewInit {
   errorMessage: string | undefined;
   searchQuery: string = ''; // Biến lưu từ khóa tìm kiếm
 
+  // Hàm xác định các trạng thái hợp lệ tiếp theo
+  getAllowedStatuses(currentStatus: Order['status']): Order['status'][] {
+    switch (currentStatus) {
+      case 'Chờ xác nhận':
+        return ['Chờ xác nhận', 'Đang chuẩn bị', 'Đã hủy'];
+      case 'Đang chuẩn bị':
+        return ['Đang chuẩn bị', 'Đang giao', 'Đã hủy'];
+      case 'Đang giao':
+        return ['Đang giao', 'Đã giao'];
+      case 'Đã giao':
+        return ['Đã giao', 'Đã hoàn thành'];
+      case 'Đã hủy':
+      case 'Đã hoàn thành':
+        return [currentStatus];
+      default:
+        return [currentStatus];
+    }
+  }
+
   constructor(
     private orderService: OrderService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) {
       this.errorMessage = 'Vui lòng đăng nhập.';
       Swal.fire('Lỗi', this.errorMessage, 'error');

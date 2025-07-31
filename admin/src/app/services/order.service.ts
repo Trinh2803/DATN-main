@@ -40,7 +40,7 @@ export class OrderService {
   }
 
   getOrders(): Observable<ApiResponse<Order[]>> {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) {
       return throwError(() => new Error('Thiếu token xác thực'));
     }
@@ -51,7 +51,7 @@ export class OrderService {
   }
 
   updateOrderStatus(id: string, status: Order['status']): Observable<ApiResponse<Order>> {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) {
       return throwError(() => new Error('Thiếu token xác thực'));
     }

@@ -28,7 +28,7 @@ export class QuanlynguoidungComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) {
       this.errorMessage = 'Vui lòng đăng nhập.';
       console.log('No token found, redirecting to login');
@@ -69,7 +69,7 @@ export class QuanlynguoidungComponent implements OnInit, AfterViewInit {
           ? 'Không có quyền truy cập. Vui lòng đăng nhập lại.'
           : err.error?.message || err.message || 'Lỗi khi lấy danh sách người dùng';
         if (err.status === 401 || err.status === 403) {
-          localStorage.removeItem('token');
+          localStorage.removeItem('adminToken');
           this.router.navigate(['/login']);
         }
       },
@@ -111,7 +111,7 @@ export class QuanlynguoidungComponent implements OnInit, AfterViewInit {
   }
 
   logout(): void {
-    localStorage.removeItem('token');
+    localStorage.removeItem('adminToken');
     localStorage.removeItem('userAvatar');
     console.log('Logging out');
     this.router.navigate(['/login']);

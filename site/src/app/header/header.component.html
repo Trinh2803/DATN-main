@@ -40,12 +40,20 @@
               <h3>{{ user?.name || 'Người dùng' }}</h3>
               <ul>
                 <li><a href="/userinfo"><i class="fas fa-user"></i>Thông tin cá nhân</a></li>
+                <li><a routerLink="/wishlist"><i class="fas fa-heart"></i>Danh sách yêu thích</a></li>
                 <li><a href="/orders"><i class="fas fa-shopping-bag"></i>Đơn hàng đã mua</a></li>
                 <li><a href="/settings"><i class="fas fa-cog"></i>Cài đặt</a></li>
                 <li><a (click)="logout()"><i class="fas fa-sign-out-alt"></i>Đăng xuất</a></li>
               </ul>
             </div>
           </div>
+        </div>
+        <div class="wishlist" *ngIf="isLoggedIn">
+          <a routerLink="/wishlist" class="wishlist-icon">
+            <i class="fas fa-heart"></i>
+            <span class="wishlist-count">{{ wishlistCount }}</span>
+            <span>Yêu thích</span>
+          </a>
         </div>
         <div class="cart">
           <a routerLink="/giohang" class="cart-icon">
