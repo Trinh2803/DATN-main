@@ -11,7 +11,8 @@ var usersRouter = require("./routes/users");
 var categoriesRouter = require("./routes/categories");
 var productsRouter = require("./routes/products");
 var orderssRouter = require("./routes/orders");
-var payRouter = require("./routes/pay");
+// var payRouter = require("./routes/pay"); // Comment out this line
+const paymentRouter = require("./routes/payment");
 const multer = require("multer");
 const mongoose = require("mongoose");
 const discountsRouter = require("./routes/discounts");
@@ -47,7 +48,8 @@ app.use("/products", productsRouter);
 app.use("/orders", orderssRouter);
 app.use("/api/discounts", discountsRouter);
 app.use("/wishlist", wishlistRouter);
-app.use("/pay", payRouter);
+// app.use("/pay", payRouter); // Comment out this line
+app.use("/payment", paymentRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

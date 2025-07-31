@@ -6,6 +6,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { PaymentService } from '../services/payment.service';
 
 interface CartItem {
   product: ProductInterface;
@@ -49,7 +50,8 @@ export class CheckoutComponent implements OnInit {
     private cartService: CartService,
     private userService: UserService,
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private paymentService: PaymentService
   ) {}
 
   ngOnInit(): void {
@@ -89,29 +91,46 @@ export class CheckoutComponent implements OnInit {
       return;
     }
 
-    const orderData = {
-      userId: user._id,
-      customerName: this.shippingInfo.fullName,
-      customerPhone: this.shippingInfo.phone,
-      customerAddress: this.shippingInfo.address,
-      customerNote: this.orderNote || this.shippingInfo.note,
-      customerEmail: user.email || '',
-      items: this.cartItems.map(item => ({
-        productId: item.product._id,
-        quantity: item.quantity,
-        price: this.getItemPrice(item), // giá đã giảm
-        variantId: item.selectedVariant?._id,
-        variantSize: item.selectedVariant?.size,
-        discountInfo: (item as any).discountInfo || null // gửi discountInfo cho từng item
-      })),
-      total: this.totalPrice,
-      finalAmount: this.finalAmount,
-      discountCode: this.discountCode,
-      discountInfo: this.discountInfo,
-      status: 'Chờ xác nhận',
-      adminNote: '',
+    // Nếu chọn thanh toán VNPay
+    if (this.shippingInfo.paymentMethod === 'vnpay') {
+      this.processVNPayPayment();
+      return;
+    }
+
+    // Xử lý thanh toán COD (Cash on Delivery)
+    this.processCODOrder();
+  }
+
+  private processVNPayPayment(): void {
+    const paymentData = {
+      amount: this.finalAmount,
+      bankCode: '', // Để trống để hiển thị tất cả ngân hàng
+      language: 'vn',
+      orderInfo: `Thanh toán đơn hàng MOHO - ${this.shippingInfo.fullName}`
     };
 
+    this.paymentService.createPayment(paymentData).subscribe({
+      next: (response) => {
+        if (response.code === '00') {
+          // Lưu thông tin đơn hàng để xử lý sau khi thanh toán thành công
+          const orderData = this.prepareOrderData();
+          localStorage.setItem('pendingVNPayOrder', JSON.stringify(orderData));
+          
+          // Chuyển đến trang thanh toán VNPay
+          this.paymentService.openPaymentPage(response.data);
+        } else {
+          alert('Không thể tạo URL thanh toán: ' + response.message);
+        }
+      },
+      error: (error) => {
+        alert('Lỗi kết nối thanh toán: ' + error.message);
+        console.error('VNPay payment error:', error);
+      }
+    });
+  }
+
+  private processCODOrder(): void {
+    const orderData = this.prepareOrderData();
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
@@ -131,6 +150,33 @@ export class CheckoutComponent implements OnInit {
         alert('Đặt hàng thất bại: ' + (err.error?.message || 'Vui lòng thử lại sau'));
       },
     });
+  }
+
+  private prepareOrderData(): any {
+    const user = this.userService.getCurrentUser();
+    return {
+      userId: user._id,
+      customerName: this.shippingInfo.fullName,
+      customerPhone: this.shippingInfo.phone,
+      customerAddress: this.shippingInfo.address,
+      customerNote: this.orderNote || this.shippingInfo.note,
+      customerEmail: user.email || '',
+      items: this.cartItems.map(item => ({
+        productId: item.product._id,
+        quantity: item.quantity,
+        price: this.getItemPrice(item),
+        variantId: item.selectedVariant?._id,
+        variantSize: item.selectedVariant?.size,
+        discountInfo: (item as any).discountInfo || null
+      })),
+      total: this.totalPrice,
+      finalAmount: this.finalAmount,
+      discountCode: this.discountCode,
+      discountInfo: this.discountInfo,
+      status: 'Chờ xác nhận',
+      adminNote: '',
+      paymentMethod: this.shippingInfo.paymentMethod
+    };
   }
 
   // Thêm phương thức public để quay lại giỏ hàng
