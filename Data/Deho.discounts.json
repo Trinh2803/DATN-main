@@ -11,7 +11,7 @@
     "startDate": "2024-01-01T00:00:00.000Z",
     "endDate": "2024-12-31T23:59:59.000Z",
     "usageLimit": 1000,
-    "usedCount": 0,
+    "usedCount": 1,
     "isActive": true,
     "applicableProducts": [],
     "applicableCategories": [],
