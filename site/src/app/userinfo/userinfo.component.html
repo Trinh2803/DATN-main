@@ -1,11 +1,9 @@
-<div class="all">
 <div class="dashboard-container">
   <!-- Sidebar -->
   <div class="sidebar">
     <div class="logo">
-      <!-- Có thể thêm logo nếu cần -->
+      <span>Quản lý tài khoản</span>
     </div>
-
     <nav class="sidebar-menu">
       <a routerLink="/userinfo" class="menu-item active">
         <svg viewBox="0 0 24 24" width="20" height="20">
@@ -35,64 +33,115 @@
         <span>Cài đặt</span>
       </a>
     </nav>
-
     <div class="sidebar-footer">
-      <a href="#" class="settings-link" (click)="logout()">
-        <svg viewBox="0 0 24 24" width="20" height="20">
-          <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" fill="none" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" fill="none" stroke="currentColor" stroke-width="1.5"/>
-        </svg>
-        <span>Đăng xuất</span>
-      </a>
+      <button
+        (click)="logout()"
+        class="menu-item"
+        style="background-color: var(--success-color); color: var(--text-primary)"
+      >
+        Đăng xuất
+      </button>
     </div>
   </div>
 
   <!-- Main Content -->
   <div class="main-content">
-    <!-- Header -->
     <div class="header">
       <h1>Chào, {{ user?.name || 'Người dùng' }}!</h1>
     </div>
 
     <div class="dashboard-content">
-      <!-- Tiêu đề -->
-      <h3 class="card-title">Thông tin cá nhân</h3>
-
       <div class="user-info-card">
-        <!-- Ảnh đại diện với icon cây bút -->
         <div class="avatar-wrapper">
           <img
             *ngIf="user?.avatar"
-            [src]="'http://localhost:3000' + user.avatar"
+            [src]="user.avatar"
             alt="Avatar"
             class="user-avatar"
-            id="userAvatar"
           />
-          <i *ngIf="!user?.avatar" class="far fa-user user-avatar" style="font-size: 120px;"></i>
-          <label for="avatarInput" class="edit-avatar-btn">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 20h9"></path>
-              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+          <button class="edit-avatar-btn" (click)="triggerFileInput()">
+            <svg
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 3l-9 9 2 2 9-9-2-2z"></path>
+              <path d="M9 0l3 3"></path>
             </svg>
-          </label>
+          </button>
           <input
             type="file"
-            id="avatarInput"
-            accept="image/*"
-            style="display: none;"
+            #fileInput
             (change)="onFileSelected($event)"
+            accept="image/*"
+            style="display: none"
           />
         </div>
 
-        <!-- Thông tin người dùng -->
         <div class="user-info">
-          <h4 class="user-name">Họ và tên: {{ user?.name || 'Chưa có thông tin' }}</h4>
-          <p><strong>Email:</strong> {{ user?.email || 'Chưa có thông tin' }}</p>
-          <p><strong>Số điện thoại:</strong> {{ user?.phone || 'Chưa có thông tin' }}</p>
+          <form (ngSubmit)="updateProfile()" class="space-y-4">
+            <div class="flex flex-col">
+              <label class="font-medium">Họ và tên:</label>
+              <input
+                [(ngModel)]="user.name"
+                name="name"
+                type="text"
+                class="border p-2 rounded"
+                placeholder="Nhập họ và tên"
+                required
+              />
+            </div>
+            <div class="flex flex-col">
+              <label class="font-medium">Email:</label>
+              <input
+                [(ngModel)]="user.email"
+                name="email"
+                type="email"
+                class="border p-2 rounded"
+                placeholder="Nhập email"
+                required
+              />
+            </div>
+            <div class="flex flex-col">
+              <label class="font-medium">Số điện thoại:</label>
+              <input
+                [(ngModel)]="user.phone"
+                name="phone"
+                type="tel"
+                class="border p-2 rounded"
+                placeholder="Nhập số điện thoại"
+              />
+            </div>
+            <div class="flex flex-col">
+              <label class="font-medium">Địa chỉ:</label>
+              <input
+                [(ngModel)]="user.address"
+                name="address"
+                type="text"
+                class="border p-2 rounded"
+                placeholder="Nhập địa chỉ"
+              />
+            </div>
+            <button
+              type="submit"
+              class="action-btn edit"
+            >
+              Cập nhật thông tin
+            </button>
+            <button
+              type="button"
+              (click)="updateAvatar()"
+              class="action-btn edit mt-2"
+            >
+              Cập nhật Avatar
+            </button>
+          </form>
         </div>
-        <button class="action-btn edit" (click)="updateAvatar()">Cập nhật Avatar</button>
       </div>
     </div>
   </div>
-</div>
 </div>

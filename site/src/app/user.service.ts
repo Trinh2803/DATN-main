@@ -25,16 +25,33 @@ export class UserService {
 
   // Đăng nhập
   login(credentials: { email: string; password: string }): Observable<any> {
-  return this.http.post(`${this.apiUrl}/login`, credentials).pipe(
-    tap((response: any) => {
-      if (response.success && response.token) {
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('user', JSON.stringify(response.user));
-        this.userSubject.next(response.user);
-      }
-    })
-  );
-}
+    return this.http.post(`${this.apiUrl}/login`, credentials).pipe(
+      tap((response: any) => {
+        if (response.success && response.token) {
+          localStorage.setItem('token', response.token);
+          localStorage.setItem('user', JSON.stringify(response.user));
+          this.userSubject.next(response.user);
+        }
+      })
+    );
+  }
+
+  // Cập nhật thông tin người dùng
+  updateProfile(user: any): Observable<any> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    });
+    return this.http.put(`${this.apiUrl}/profile`, user, { headers }).pipe(
+      tap((response: any) => {
+        if (response.data) {
+          this.userSubject.next(response.data);
+          localStorage.setItem('user', JSON.stringify(response.data));
+        }
+      })
+    );
+  }
 
   // Cập nhật avatar
   updateAvatar(formData: FormData): Observable<any> {
@@ -70,19 +87,17 @@ export class UserService {
     return this.http.get(`${this.apiUrlT}/orders/user`, { headers });
   }
 
-  // ✅ Bổ sung các hàm Quên mật khẩu
-
-  // 1. Gửi OTP về email
+  // Gửi OTP về email
   sendOtp(email: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/forgot-password`, { email });
   }
 
-  // 2. Xác minh mã OTP
+  // Xác minh mã OTP
   verifyOtp(email: string, otp: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/verify-otp`, { email, otp });
   }
 
-  // 3. Đặt lại mật khẩu mới
+  // Đặt lại mật khẩu mới
   resetPassword(email: string, newPassword: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/reset-password`, { email, newPassword });
   }
