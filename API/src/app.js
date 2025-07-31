@@ -14,7 +14,6 @@ var orderssRouter = require("./routes/orders");
 const multer = require("multer");
 const mongoose = require("mongoose");
 const discountsRouter = require("./routes/discounts");
-const paymentRouter = require('./routes/payment');
 
 const viewEngine = require("./config/viewEngine");
 var app = express();
@@ -32,7 +31,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
 
-// Phục vụ file tĩnh từ thư mục public/uploads
+// Phục vụ file tĩnh từ thư mục public/images
+app.use("/images", express.static(path.join(__dirname, "public/images")));
 app.use("/uploads", express.static(path.join(__dirname, "public/images")));
 
 // Áp dụng multer cho route users
@@ -44,7 +44,7 @@ app.use("/categories", categoriesRouter);
 app.use("/products", productsRouter);
 app.use("/orders", orderssRouter);
 app.use("/api/discounts", discountsRouter);
-app.use('/payment', paymentRouter);
+app.use("/pay", payRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

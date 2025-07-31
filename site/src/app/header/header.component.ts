@@ -6,6 +6,7 @@ import { RouterModule } from '@angular/router';
 import { CartService } from '../cart.service';
 import { ProductInterface } from '../product-interface';
 import { UserService } from '../user.service';
+import { WishlistService } from '../wishlist.service';
 
 interface CartItem {
   product: ProductInterface;
@@ -22,6 +23,7 @@ interface CartItem {
 export class HeaderComponent implements OnInit {
   searchQuery: string = '';
   cartItemCount: number = 0;
+  wishlistCount: number = 0;
   isLoggedIn: boolean = false;
   user: any = null;
   showMenu: boolean = false;
@@ -29,7 +31,8 @@ export class HeaderComponent implements OnInit {
   constructor(
     private router: Router,
     private cartService: CartService,
-    private userService: UserService
+    private userService: UserService,
+    private wishlistService: WishlistService
   ) {}
 
   ngOnInit(): void {
@@ -40,6 +43,11 @@ export class HeaderComponent implements OnInit {
     this.userService.user$.subscribe((user) => {
       this.user = user;
       this.isLoggedIn = !!user;
+    });
+    
+    // Subscribe to wishlist count
+    this.wishlistService.getWishlistCount().subscribe((count) => {
+      this.wishlistCount = count;
     });
   }
 

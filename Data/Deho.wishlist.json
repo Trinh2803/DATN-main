@@ -1,0 +1,42 @@
+[
+  {
+    "_id": {
+      "$oid": "67fb0351f07de8526cae34bb"
+    },
+    "userId": {
+      "$oid": "67fb0351f07de8526cae34ba"
+    },
+    "productId": {
+      "$oid": "67fb0351f07de8526cae34bb"
+    },
+    "addedAt": {
+      "$date": "2025-01-20T10:30:00.000Z"
+    },
+    "createdAt": {
+      "$date": "2025-01-20T10:30:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2025-01-20T10:30:00.000Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67fb0351f07de8526cae34bc"
+    },
+    "userId": {
+      "$oid": "67fb0351f07de8526cae34ba"
+    },
+    "productId": {
+      "$oid": "67fb0351f07de8526cae34bc"
+    },
+    "addedAt": {
+      "$date": "2025-01-21T14:15:00.000Z"
+    },
+    "createdAt": {
+      "$date": "2025-01-21T14:15:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2025-01-21T14:15:00.000Z"
+    }
+  }
+] 

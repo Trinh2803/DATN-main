@@ -11,6 +11,7 @@ export interface ProductInterface {
   name: string;
   price: number;
   salePrice?: number | null;
+  stock?: number;
   createdAt?: string | Date;
   thumbnail: string;
   images?: string[];

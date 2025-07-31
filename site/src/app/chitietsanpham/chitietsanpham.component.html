@@ -87,12 +87,17 @@
         <span class="stock-text">Còn {{ getCurrentStock() }} sản phẩm</span>
       </div>
 
-      <button class="add-to-cart" (click)="addToCart()" [disabled]="!selectedVariant && product.variants?.length">
-        {{ !selectedVariant && product.variants?.length ? 'Vui lòng chọn kích thước' : 'Thêm vào giỏ' }}
-      </button>
-      <button class="buy-now" (click)="buyNow()" [disabled]="!selectedVariant && product.variants?.length">
-        Mua ngay
-      </button>
+      <div class="action-buttons">
+        <button class="add-to-cart" (click)="addToCart()" [disabled]="!selectedVariant && product.variants?.length">
+          {{ !selectedVariant && product.variants?.length ? 'Vui lòng chọn kích thước' : 'Thêm vào giỏ' }}
+        </button>
+        <button class="buy-now" (click)="buyNow()" [disabled]="!selectedVariant && product.variants?.length">
+          Mua ngay
+        </button>
+        <button class="favorite-btn" (click)="toggleFavorite()" [class.active]="isFavorite()">
+          <i [class]="isFavorite() ? 'fas fa-heart' : 'far fa-heart'"></i>
+        </button>
+      </div>
 
       <div class="delivery-info">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

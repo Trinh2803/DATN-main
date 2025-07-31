@@ -35,7 +35,7 @@ const getUserOrders = async (req, res) => {
 };
 const updateOrderStatus = async (req, res) => {
   try {
-    const updated = await orderService.updateOrderStatus(req.params.id, req.body);
+    const updated = await orderService.updateOrderStatus(req.params.id, req.body.status);
     res.status(200).json({ success: true, message: 'Cập nhật trạng thái thành công', data: updated });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
