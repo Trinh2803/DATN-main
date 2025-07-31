@@ -7,6 +7,7 @@ import { QuanlysanphamComponent } from './quanlysanpham/quanlysanpham.component'
 import { QuanlynguoidungComponent } from './quanlynguoidung/quanlynguoidung.component';
 import { QuanlydonhangComponent } from './quanlydonhang/quanlydonhang.component';
 import { DonhangchitietComponent } from './donhangchitiet/donhangchitiet.component';
+import { QuanlybinhluanComponent } from './quanlybinhluan/quanlybinhluan.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' }, // Redirect mặc định đến /login
@@ -16,6 +17,7 @@ export const routes: Routes = [
   { path: 'quanlysanpham', component: QuanlysanphamComponent, canActivate: [AdminAuthGuard] },
   { path: 'quanlynguoidung', component: QuanlynguoidungComponent, canActivate: [AdminAuthGuard] },
   { path: 'quanlydonhang', component: QuanlydonhangComponent, canActivate: [AdminAuthGuard] },
+  { path: 'quanlybinhluan', component: QuanlybinhluanComponent, canActivate: [AdminAuthGuard] },
   { path: 'order/:id', component: DonhangchitietComponent, canActivate: [AdminAuthGuard] },
 
   { path: '**', redirectTo: '/login' }, // Fallback route

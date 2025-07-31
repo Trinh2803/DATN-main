@@ -18,7 +18,31 @@ export class QuanlydonhangComponent implements OnInit, AfterViewInit {
   filteredOrders: Order[] = [];
   userAvatar: string = '/assets/images/icon.png';
   errorMessage: string | undefined;
-  searchQuery: string = ''; // Biến lưu từ khóa tìm kiếm
+  searchQuery: string = '';
+  
+  // Phân trang
+  currentPage: number = 1;
+  itemsPerPage: number = 10;
+  totalPages: number = 0;
+  
+  // Lọc và sắp xếp
+  statusFilter: string = 'all';
+  sortBy: string = 'createdAt';
+  sortOrder: 'asc' | 'desc' = 'desc';
+  
+  // Thống kê
+  orderStats = {
+    total: 0,
+    pending: 0,
+    processing: 0,
+    shipping: 0,
+    delivered: 0,
+    cancelled: 0,
+    completed: 0
+  };
+  
+  // Loading state
+  isLoading: boolean = false;
 
   constructor(
     private orderService: OrderService,
@@ -48,12 +72,14 @@ export class QuanlydonhangComponent implements OnInit, AfterViewInit {
   }
 
   loadOrders(): void {
+    this.isLoading = true;
     console.log('Loading orders');
     this.orderService.getOrders().subscribe({
       next: (response: ApiResponse<Order[]>) => {
         if (response.success) {
           this.orders = response.data || [];
-          this.filteredOrders = this.orders; // Khởi tạo filteredOrders
+          this.calculateOrderStats();
+          this.applyFiltersAndSort();
           this.errorMessage = undefined;
           console.log('Orders loaded:', this.orders);
         } else {
@@ -61,6 +87,7 @@ export class QuanlydonhangComponent implements OnInit, AfterViewInit {
           Swal.fire('Lỗi', this.errorMessage, 'error');
           console.log('Error response from getOrders:', response.message);
         }
+        this.isLoading = false;
       },
       error: (err) => {
         console.error('Error loading orders:', err);
@@ -73,33 +100,201 @@ export class QuanlydonhangComponent implements OnInit, AfterViewInit {
           localStorage.removeItem('token');
           this.router.navigate(['/login']);
         }
+        this.isLoading = false;
       },
     });
   }
 
-  loadUserAvatar(): void {
-    const avatar = localStorage.getItem('userAvatar') || '/assets/images/icon.png';
-    this.userAvatar = avatar;
-    console.log('User avatar loaded:', this.userAvatar);
+  calculateOrderStats(): void {
+    this.orderStats = {
+      total: this.orders.length,
+      pending: this.orders.filter(o => o.status === 'Chờ xác nhận').length,
+      processing: this.orders.filter(o => o.status === 'Đang chuẩn bị').length,
+      shipping: this.orders.filter(o => o.status === 'Đang giao').length,
+      delivered: this.orders.filter(o => o.status === 'Đã giao').length,
+      cancelled: this.orders.filter(o => o.status === 'Đã hủy').length,
+      completed: this.orders.filter(o => o.status === 'Đã hoàn thành').length
+    };
+  }
+
+  applyFiltersAndSort(): void {
+    let filtered = [...this.orders];
+
+    // Lọc theo từ khóa tìm kiếm
+    if (this.searchQuery.trim()) {
+      const query = this.searchQuery.toLowerCase().trim();
+      filtered = filtered.filter((order) => {
+        const customerName = order.customerName?.toLowerCase() || '';
+        const customerEmail = order.customerEmail?.toLowerCase() || '';
+        const customerPhone = order.customerPhone?.toLowerCase() || '';
+        const status = order.status?.toLowerCase() || '';
+        return customerName.includes(query) || 
+               customerEmail.includes(query) || 
+               customerPhone.includes(query) || 
+               status.includes(query);
+      });
+    }
+
+    // Lọc theo trạng thái
+    if (this.statusFilter !== 'all') {
+      filtered = filtered.filter(order => order.status === this.statusFilter);
+    }
+
+    // Sắp xếp
+    filtered.sort((a, b) => {
+      let aValue: any, bValue: any;
+      
+      switch (this.sortBy) {
+        case 'customerName':
+          aValue = a.customerName || '';
+          bValue = b.customerName || '';
+          break;
+        case 'total':
+          aValue = a.total || 0;
+          bValue = b.total || 0;
+          break;
+        case 'status':
+          aValue = a.status || '';
+          bValue = b.status || '';
+          break;
+        case 'createdAt':
+        default:
+          aValue = new Date(a.createdAt || '').getTime();
+          bValue = new Date(b.createdAt || '').getTime();
+          break;
+      }
+
+      if (this.sortOrder === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+
+    this.filteredOrders = filtered;
+    this.calculatePagination();
+  }
+
+  calculatePagination(): void {
+    this.totalPages = Math.ceil(this.filteredOrders.length / this.itemsPerPage);
+    if (this.currentPage > this.totalPages) {
+      this.currentPage = 1;
+    }
+  }
+
+  get paginatedOrders(): Order[] {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return this.filteredOrders.slice(startIndex, endIndex);
   }
 
   search(): void {
-    const query = this.searchQuery.toLowerCase().trim();
-    if (!query) {
-      this.filteredOrders = this.orders; // Nếu không có từ khóa, hiển thị tất cả đơn hàng
-      return;
-    }
+    this.currentPage = 1;
+    this.applyFiltersAndSort();
+  }
 
-    this.filteredOrders = this.orders.filter((order) => {
-      const customerName = order.customerName?.toLowerCase() || '';
-      const status = order.status?.toLowerCase() || '';
-      return customerName.includes(query) || status.includes(query);
-    });
+  onStatusFilterChange(): void {
+    this.currentPage = 1;
+    this.applyFiltersAndSort();
+  }
+
+  onSortChange(): void {
+    this.applyFiltersAndSort();
+  }
+
+  changePage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
+  }
+
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxVisiblePages = 5;
+    
+    if (this.totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= this.totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      const start = Math.max(1, this.currentPage - 2);
+      const end = Math.min(this.totalPages, start + maxVisiblePages - 1);
+      
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+    }
+    
+    return pages;
+  }
+
+  // Helper method for template
+  get Math() {
+    return Math;
+  }
+
+  // Helper methods for template conditions
+  canShowCancelOption(status: string): boolean {
+    return status !== 'Đã giao' && status !== 'Đã hoàn thành';
+  }
+
+  canShowDropdown(status: string): boolean {
+    return status !== 'Chờ xác nhận' && status !== 'Đã hủy' && status !== 'Đã hoàn thành';
   }
 
   updateOrderStatus(orderId: string, event: Event): void {
     const selectElement = event.target as HTMLSelectElement;
     const newStatus = selectElement.value as Order['status'];
+
+    // Ngăn chặn việc quay lại trạng thái "Chờ xác nhận"
+    if (newStatus === 'Chờ xác nhận') {
+      Swal.fire('Cảnh báo', 'Không thể quay lại trạng thái "Chờ xác nhận" sau khi đã xác nhận đơn hàng.', 'warning');
+      // Reset dropdown về trạng thái hiện tại
+      setTimeout(() => {
+        const currentOrder = this.orders.find(order => order._id === orderId);
+        if (currentOrder) {
+          selectElement.value = currentOrder.status;
+        }
+      }, 100);
+      return;
+    }
+
+    // Ngăn chặn việc chuyển từ trạng thái "Đã hủy" sang trạng thái khác
+    const currentOrder = this.orders.find(order => order._id === orderId);
+    if (currentOrder && currentOrder.status === 'Đã hủy' && newStatus !== 'Đã hủy') {
+      Swal.fire('Cảnh báo', 'Đơn hàng đã hủy không thể chuyển sang trạng thái khác.', 'warning');
+      // Reset dropdown về trạng thái hiện tại
+      setTimeout(() => {
+        if (currentOrder) {
+          selectElement.value = currentOrder.status;
+        }
+      }, 100);
+      return;
+    }
+
+    // Ngăn chặn việc chuyển sang "Đã hủy" từ các trạng thái đã hoàn thành
+    if (newStatus === 'Đã hủy' && currentOrder && (currentOrder.status === 'Đã giao' || currentOrder.status === 'Đã hoàn thành')) {
+      Swal.fire('Cảnh báo', 'Đơn hàng đã giao hoặc hoàn thành không thể hủy.', 'warning');
+      // Reset dropdown về trạng thái hiện tại
+      setTimeout(() => {
+        if (currentOrder) {
+          selectElement.value = currentOrder.status;
+        }
+      }, 100);
+      return;
+    }
+
+    // Ngăn chặn việc thay đổi trạng thái đã hoàn thành
+    if (currentOrder && currentOrder.status === 'Đã hoàn thành' && newStatus !== 'Đã hoàn thành') {
+      Swal.fire('Cảnh báo', 'Đơn hàng đã hoàn thành không thể thay đổi trạng thái.', 'warning');
+      // Reset dropdown về trạng thái hiện tại
+      setTimeout(() => {
+        if (currentOrder) {
+          selectElement.value = currentOrder.status;
+        }
+      }, 100);
+      return;
+    }
 
     Swal.fire({
       title: 'Xác nhận',
@@ -130,6 +325,47 @@ export class QuanlydonhangComponent implements OnInit, AfterViewInit {
             Swal.fire('Lỗi', this.errorMessage, 'error');
           },
         });
+      } else {
+        // Reset dropdown về trạng thái hiện tại nếu user hủy
+        const currentOrder = this.orders.find(order => order._id === orderId);
+        if (currentOrder) {
+          selectElement.value = currentOrder.status;
+        }
+      }
+    });
+  }
+
+  confirmOrder(orderId: string): void {
+    Swal.fire({
+      title: 'Xác nhận đơn hàng',
+      text: 'Bạn có chắc muốn xác nhận đơn hàng này?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Xác nhận',
+      cancelButtonText: 'Hủy',
+      confirmButtonColor: '#28a745',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        console.log('Confirming order:', orderId);
+        this.orderService.updateOrderStatus(orderId, 'Đang chuẩn bị').subscribe({
+          next: (response: ApiResponse<Order>) => {
+            if (response.success) {
+              this.loadOrders();
+              this.errorMessage = undefined;
+              Swal.fire('Thành công', 'Đã xác nhận đơn hàng', 'success');
+              console.log('Order confirmed:', response.data);
+            } else {
+              this.errorMessage = response.message || 'Lỗi khi xác nhận đơn hàng.';
+              Swal.fire('Lỗi', this.errorMessage, 'error');
+              console.log('Confirm order failed:', response.message);
+            }
+          },
+          error: (err) => {
+            console.error('Error confirming order:', err);
+            this.errorMessage = err.error?.message || err.message || 'Lỗi khi xác nhận đơn hàng';
+            Swal.fire('Lỗi', this.errorMessage, 'error');
+          },
+        });
       }
     });
   }
@@ -137,6 +373,48 @@ export class QuanlydonhangComponent implements OnInit, AfterViewInit {
   viewOrderDetails(orderId: string): void {
     console.log('Navigating to order details for ID:', orderId);
     this.router.navigate(['/order', orderId]);
+  }
+
+  getStatusColor(status: string): string {
+    switch (status) {
+      case 'Chờ xác nhận': return '#ff9800';
+      case 'Đang chuẩn bị': return '#2196f3';
+      case 'Đang giao': return '#9c27b0';
+      case 'Đã giao': return '#4caf50';
+      case 'Đã hủy': return '#f44336';
+      case 'Đã hoàn thành': return '#2e7d32';
+      default: return '#757575';
+    }
+  }
+
+  getStatusBadgeClass(status: string): string {
+    switch (status) {
+      case 'Chờ xác nhận': return 'badge-warning';
+      case 'Đang chuẩn bị': return 'badge-info';
+      case 'Đang giao': return 'badge-primary';
+      case 'Đã giao': return 'badge-success';
+      case 'Đã hủy': return 'badge-danger';
+      case 'Đã hoàn thành': return 'badge-completed';
+      default: return 'badge-secondary';
+    }
+  }
+
+  formatDate(dateString: string): string {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('vi-VN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  loadUserAvatar(): void {
+    const avatar = localStorage.getItem('userAvatar') || '/assets/images/icon.png';
+    this.userAvatar = avatar;
+    console.log('User avatar loaded:', this.userAvatar);
   }
 
   logout(): void {

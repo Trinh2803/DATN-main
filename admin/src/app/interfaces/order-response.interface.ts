@@ -1,5 +1,6 @@
 export interface Order {
   _id?: string;
+  userId?: string; // Thêm userId nhưng không bắt buộc
   customerName: string;
   customerEmail: string;
   customerPhone: string;
