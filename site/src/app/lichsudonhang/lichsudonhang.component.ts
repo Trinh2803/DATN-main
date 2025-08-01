@@ -61,7 +61,7 @@ export class lichsudonhangComponent implements OnInit {
   }
 
   viewOrderDetails(orderId: number): void {
-    this.router.navigate(['/donhang', orderId]);
+    this.router.navigate(['/donhang'], { queryParams: { orderId } });
   }
 
   logout(): void {
