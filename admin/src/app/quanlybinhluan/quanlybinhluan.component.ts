@@ -5,11 +5,13 @@ import { CommonModule } from '@angular/common';
 import { CommentService } from '../services/comment.service';
 import { Comment, CommentStats, CommentFilters, ApiResponse } from '../interfaces/comment.interface';
 import Swal from 'sweetalert2';
+import { ProductService, Product } from '../services/product.service';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-quanlybinhluan',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, FormsModule, NgSelectModule],
   templateUrl: './quanlybinhluan.component.html',
   styleUrls: ['./quanlybinhluan.component.css'],
 })
@@ -30,6 +32,11 @@ export class QuanlybinhluanComponent implements OnInit, AfterViewInit {
   ratingFilter: number = 0;
   sortBy: string = 'createdAt';
   sortOrder: 'asc' | 'desc' = 'desc';
+  productFilter: string = 'all';
+  productFilterOptions: { value: string, label: string }[] = [
+    { value: 'all', label: 'Tất cả' },
+    { value: 'homepage', label: 'Trang chủ' }
+  ];
   
   // Thống kê
   commentStats: CommentStats = {
@@ -57,7 +64,8 @@ export class QuanlybinhluanComponent implements OnInit, AfterViewInit {
 
   constructor(
     private commentService: CommentService,
-    private router: Router
+    private router: Router,
+    private productService: ProductService
   ) {}
 
   ngOnInit(): void {
@@ -72,6 +80,23 @@ export class QuanlybinhluanComponent implements OnInit, AfterViewInit {
     this.loadComments();
     this.loadCommentStats();
     this.loadUserAvatar();
+    this.loadProductFilterOptions();
+  }
+
+  loadProductFilterOptions(): void {
+    this.productService.getProducts().subscribe({
+      next: (products: Product[]) => {
+        const productOptions = products.map(p => ({ value: p._id!, label: p.name }));
+        this.productFilterOptions = [
+          { value: 'all', label: 'Tất cả' },
+          { value: 'homepage', label: 'Trang chủ' },
+          ...productOptions
+        ];
+      },
+      error: () => {
+        // Nếu lỗi, giữ lại 2 option mặc định
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -93,6 +118,9 @@ export class QuanlybinhluanComponent implements OnInit, AfterViewInit {
     }
     if (this.ratingFilter > 0) {
       filters.rating = this.ratingFilter;
+    }
+    if (this.productFilter !== 'all') {
+      filters.productId = this.productFilter;
     }
 
     this.commentService.getComments(filters).subscribe({
@@ -143,6 +171,11 @@ export class QuanlybinhluanComponent implements OnInit, AfterViewInit {
 
   applyFiltersAndSort(): void {
     let filtered = [...this.comments];
+
+    // Lọc theo sản phẩm
+    if (this.productFilter !== 'all') {
+      filtered = filtered.filter(comment => comment.productId && comment.productId._id === this.productFilter);
+    }
 
     // Lọc theo từ khóa tìm kiếm
     if (this.searchQuery.trim()) {

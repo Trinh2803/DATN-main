@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ListcardComponent } from '../listcard/listcard.component';
 import { ProductInterface } from '../product-interface';
 import { ProductService } from '../product.service';
+import { CommentService } from '../comment.service';
+import { Comment, ApiResponse } from '../../admin/src/app/interfaces/comment.interface';
 
 interface Slide {
   image: string;
@@ -96,8 +98,15 @@ export class TrangchuComponent implements OnInit, OnDestroy {
 
   currentSlide: number = 0;
   private autoSlideInterval: any;
+  comments: Comment[] = [];
+  newCommentContent: string = '';
+  newCommentRating: number = 5;
+  newCommentName: string = '';
+  newCommentEmail: string = '';
+  isSubmittingComment: boolean = false;
+  commentError: string = '';
 
-  constructor(private productService: ProductService) {}
+  constructor(private productService: ProductService, private commentService: CommentService) {}
 
   ngOnInit(): void {
     // Start the banner auto-slide
@@ -158,6 +167,59 @@ export class TrangchuComponent implements OnInit, OnDestroy {
       }
     });
     */
+    this.loadComments();
+  }
+
+  loadComments(): void {
+    // Nếu muốn lấy bình luận cho trang chủ, có thể lấy tất cả hoặc theo 1 productId mặc định
+    // Ở đây lấy tất cả bình luận của 1 productId giả định (hoặc sửa lại API để lấy bình luận chung)
+    const productId = 'homepage'; // hoặc null nếu backend hỗ trợ
+    this.commentService.getCommentsByProduct(productId).subscribe({
+      next: (res: ApiResponse<Comment[]>) => {
+        if (res.success) {
+          this.comments = res.data || [];
+        } else {
+          this.comments = [];
+        }
+      },
+      error: () => {
+        this.comments = [];
+      }
+    });
+  }
+
+  submitComment(): void {
+    if (!this.newCommentName.trim() || !this.newCommentEmail.trim() || !this.newCommentContent.trim()) {
+      this.commentError = 'Vui lòng nhập đầy đủ thông tin.';
+      return;
+    }
+    this.isSubmittingComment = true;
+    this.commentError = '';
+    const productId = 'homepage'; // hoặc null nếu backend hỗ trợ
+    this.commentService.createComment({
+      productId,
+      userName: this.newCommentName,
+      userEmail: this.newCommentEmail,
+      rating: this.newCommentRating,
+      content: this.newCommentContent
+    }).subscribe({
+      next: (res: ApiResponse<Comment>) => {
+        if (res.success) {
+          this.newCommentContent = '';
+          this.newCommentRating = 5;
+          this.newCommentName = '';
+          this.newCommentEmail = '';
+          this.loadComments();
+        } else {
+          this.commentError = res.message || 'Gửi bình luận thất bại.';
+        }
+        this.isSubmittingComment = false;
+      },
+      error: () => {
+        this.commentError = 'Gửi bình luận thất bại.';
+        this.isSubmittingComment = false;
+      }
+    });
   }
 
   ngOnDestroy(): void {

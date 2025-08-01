@@ -136,6 +136,18 @@
             </select>
           </div>
           <div class="filter-group">
+            <label for="productFilter">Sản phẩm</label>
+            <ng-select
+              [items]="productFilterOptions"
+              bindLabel="label"
+              bindValue="value"
+              [(ngModel)]="productFilter"
+              (change)="onFilterChange()"
+              placeholder="Tìm kiếm hoặc chọn sản phẩm"
+              [searchable]="true">
+            </ng-select>
+          </div>
+          <div class="filter-group">
             <label for="sortBy">Sắp xếp theo</label>
             <select 
               id="sortBy"
@@ -237,12 +249,14 @@
                 <td>
                   <div class="product-info-cell">
                     <img 
-                      [src]="comment.productId.thumbnail || '/assets/images/icon.png'" 
+                      [src]="comment.productId._id === 'homepage' ? '/assets/images/icon.png' : (comment.productId.thumbnail || '/assets/images/icon.png')" 
                       alt="Product"
                       class="product-image"
                     >
                     <div class="product-details">
-                      <div class="product-name">{{ comment.productId.name }}</div>
+                      <div class="product-name">
+                        {{ comment.productId._id === 'homepage' ? 'Trang chủ' : comment.productId.name }}
+                      </div>
                       <div class="product-id">ID: {{ comment.productId._id }}</div>
                     </div>
                   </div>

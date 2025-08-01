@@ -935,3 +935,24 @@
     padding: 8px;
   }
 } 
+
+/* Tùy chỉnh giao diện ng-select cho dropdown sản phẩm */
+::ng-deep .ng-select {
+  width: 300px;
+  font-size: 15px;
+}
+
+::ng-deep .ng-select .ng-select-container {
+  border-radius: 8px;
+  border: 1.5px solid #1976d2;
+  min-height: 40px;
+}
+
+::ng-deep .ng-select .ng-select-container:hover {
+  border-color: #1565c0;
+}
+
+::ng-deep .ng-select .ng-select-container .ng-value {
+  color: #1976d2;
+  font-weight: bold;
+} 
