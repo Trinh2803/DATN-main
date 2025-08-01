@@ -20,7 +20,7 @@ export class ListcardComponent implements OnInit {
   private wishlistCache = new Map<string, boolean>();
 
   constructor(
-    private router: Router, 
+    private router: Router,
     private cartService: CartService,
     private wishlistService: WishlistService
   ) {}
@@ -53,7 +53,7 @@ export class ListcardComponent implements OnInit {
 
   private loadWishlistStatus(): void {
     if (!this.product) return;
-    
+
     const token = localStorage.getItem('token');
     if (!token) return;
 

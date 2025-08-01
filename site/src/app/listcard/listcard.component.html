@@ -5,7 +5,7 @@
       Giảm {{ calculateDiscount(product) }}%
     </span>
     <!-- Hiển thị new-tag chỉ khi không phải sản phẩm sale -->
-    <span class="new-tag" *ngIf="isNewProduct(product.createdAt)">NEW</span>
+    <span class="new-tag" *ngIf="product?.createdAt && isNewProduct(product.createdAt)">NEW</span>
     <span class="hot-star blink-hot" *ngIf="title === 'Sản phẩm hot'">🔥 HOT</span>
     <!-- Hiển thị out-of-stock tag -->
     <span class="out-of-stock-tag" *ngIf="!isInStock(product)">Hết hàng</span>
