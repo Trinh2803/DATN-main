@@ -46,6 +46,13 @@
             Thanh toán khi nhận hàng
           </label>
         </div>
+        <div class="payment-option">
+          <input type="radio" id="vnpay" name="paymentMethod" [(ngModel)]="shippingInfo.paymentMethod" value="vnpay" />
+          <label for="vnpay">
+            <img src="https://sandbox.vnpayment.vn/apis/assets/images/logo.png" width="24" height="24" alt="VNPay Icon" />
+            Thanh toán online VNPay
+          </label>
+        </div>
       </div>
     </form>
 

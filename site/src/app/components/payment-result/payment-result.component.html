@@ -1,0 +1,61 @@
+<div class="payment-result-container">
+  <div class="result-card">
+    <div *ngIf="isLoading" class="loading">
+      <div class="spinner"></div>
+      <p>Đang xử lý kết quả thanh toán...</p>
+    </div>
+
+    <div *ngIf="!isLoading && errorMessage" class="error-result">
+      <div class="result-icon error-icon">❌</div>
+      <h2>Lỗi xử lý</h2>
+      <p>{{ errorMessage }}</p>
+      <div class="result-actions">
+        <button class="btn btn-primary" (click)="goToHome()">Về trang chủ</button>
+        <button class="btn btn-secondary" (click)="retryPayment()">Thử lại</button>
+      </div>
+    </div>
+
+    <div *ngIf="!isLoading && paymentResult" class="payment-result">
+      <div class="result-icon" [class.success-icon]="isPaymentSuccessful()" [class.error-icon]="!isPaymentSuccessful()">
+        {{ isPaymentSuccessful() ? '✅' : '❌' }}
+      </div>
+      
+      <h2>{{ isPaymentSuccessful() ? 'Thanh toán thành công!' : 'Thanh toán thất bại' }}</h2>
+      
+      <p class="result-message">{{ getPaymentMessage() }}</p>
+
+      <div class="payment-details" *ngIf="getPaymentDetails()">
+        <h3>Chi tiết giao dịch</h3>
+        <div class="detail-item">
+          <span class="detail-label">Mã giao dịch:</span>
+          <span class="detail-value">{{ getPaymentDetails().vnp_TxnRef || 'N/A' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Số tiền:</span>
+          <span class="detail-value">{{ formatCurrency(getPaymentDetails().vnp_Amount) }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Ngân hàng:</span>
+          <span class="detail-value">{{ getPaymentDetails().vnp_BankCode || 'N/A' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Thời gian:</span>
+          <span class="detail-value">{{ getPaymentDetails().vnp_PayDate || 'N/A' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Mã phản hồi:</span>
+          <span class="detail-value">{{ getPaymentDetails().vnp_ResponseCode || 'N/A' }}</span>
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn btn-primary" (click)="goToHome()">
+          {{ isPaymentSuccessful() ? 'Về trang chủ' : 'Thử lại' }}
+        </button>
+        <button *ngIf="!isPaymentSuccessful()" class="btn btn-secondary" (click)="retryPayment()">
+          Thanh toán lại
+        </button>
+      </div>
+    </div>
+  </div>
+</div> 
