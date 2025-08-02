@@ -22,6 +22,7 @@ import { TintucComponent } from './tintuc/tintuc.component';
 import { WishlistComponent } from './wishlist/wishlist.component';
 import { PaymentComponent } from './components/payment/payment.component';
 import { PaymentResultComponent } from './components/payment-result/payment-result.component';
+import { InvoiceComponent } from './components/invoice/invoice.component';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -73,4 +74,5 @@ export const routes: Routes = [
     { path: 'wishlist', component: WishlistComponent },
     { path: 'payment', component: PaymentComponent },
     { path: 'payment-result', component: PaymentResultComponent },
+    { path: 'invoice', component: InvoiceComponent },
 ];

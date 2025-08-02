@@ -34,22 +34,20 @@ export class PaymentResultComponent implements OnInit {
   }
 
   private handlePaymentReturn(params: any): void {
-    this.paymentService.handlePaymentReturn(params).subscribe({
-      next: (response) => {
-        this.isLoading = false;
-        this.paymentResult = response;
-        
-        // Nếu thanh toán thành công, tạo đơn hàng
-        if (this.isPaymentSuccessful()) {
-          this.createOrderAfterPayment();
-        }
-      },
-      error: (error) => {
-        this.isLoading = false;
-        this.errorMessage = 'Không thể xử lý kết quả thanh toán';
-        console.error('Payment return error:', error);
-      }
-    });
+    // Xử lý trực tiếp query params từ VNPay thay vì gọi API
+    this.isLoading = false;
+    
+    // Tạo response object từ params
+    this.paymentResult = {
+      code: params.vnp_ResponseCode || '99',
+      message: params.vnp_ResponseCode === '00' ? 'Transaction successful' : 'Transaction failed',
+      data: params
+    };
+    
+    // Nếu thanh toán thành công, tạo đơn hàng
+    if (this.isPaymentSuccessful()) {
+      this.createOrderAfterPayment();
+    }
   }
 
   private createOrderAfterPayment(): void {

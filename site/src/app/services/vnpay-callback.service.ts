@@ -26,19 +26,29 @@ export class VNPayCallbackService {
 
     const orderData = JSON.parse(pendingOrder);
     
-    // Cập nhật trạng thái đơn hàng
-    orderData.status = 'Đã thanh toán';
-    orderData.paymentTransactionId = paymentData.vnp_TxnRef;
-    orderData.paymentAmount = paymentData.vnp_Amount;
-    orderData.paymentBankCode = paymentData.vnp_BankCode;
-    orderData.paymentDate = paymentData.vnp_PayDate;
+    // Chuẩn bị dữ liệu để gửi đến endpoint mới
+    const requestData = {
+      orderData: orderData,
+      vnpayData: paymentData
+    };
 
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
 
-    return this.http.post('http://localhost:3000/orders', orderData, { headers });
+    // Sử dụng endpoint mới để tạo đơn hàng sau thanh toán VNPay
+    return this.http.post('http://localhost:3000/payment/create_order_after_payment', requestData, { headers });
+  }
+
+  // Lấy thông tin hóa đơn
+  getInvoice(orderId: string): Observable<any> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    return this.http.get(`http://localhost:3000/payment/invoice/${orderId}`, { headers });
   }
 
   // Xử lý sau khi tạo đơn hàng thành công
@@ -50,8 +60,8 @@ export class VNPayCallbackService {
     // Xóa giỏ hàng
     this.cartService.clearCart();
     
-    // Chuyển đến trang đơn hàng
-    this.router.navigate(['/donhang'], {
+    // Chuyển đến trang hóa đơn để hiển thị thông tin chi tiết
+    this.router.navigate(['/invoice'], {
       queryParams: { orderId }
     });
   }
