@@ -1,0 +1,473 @@
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="logo">
+      <span class="logo-text"><img src="/images/logo.png" width="100px"></span>
+    </div>
+    <nav class="sidebar-menu">
+      <a class="menu-item" [routerLink]="['/thongke']"><span class="icon menu-dashboard"></span> Bảng điều khiển</a>
+      <a class="menu-item" [routerLink]="['/quanlydanhmuc']"><span class="icon menu-list"></span> Danh mục</a>
+      <a class="menu-item" [routerLink]="['/quanlysanpham']"><span class="icon menu-product"></span> Sản phẩm</a>
+      <a class="menu-item" [routerLink]="['/quanlynguoidung']"><span class="icon menu-customer"></span> Khách hàng</a>
+      <a class="menu-item" [routerLink]="['/quanlydonhang']"><span class="icon menu-order"></span> Đơn hàng</a>
+      <a class="menu-item active" [routerLink]="['/quanlybinhluan']"><span class="icon menu-comment"></span> Bình luận</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <a class="logout" (click)="logout()"><span class="icon logout-icon"></span> Đăng xuất</a>
+    </div>
+  </aside>
+
+  <div class="main-container">
+    <header class="main-header">
+      <div class="header-left">
+        <div class="page-title">Quản lý bình luận</div>
+        <div class="breadcrumb">Home / Bình luận</div>
+      </div>
+      <div class="header-right">
+        <div class="search-box">
+          <span class="icon search-icon"></span>
+          <input type="text" placeholder="Tìm kiếm bình luận..." [(ngModel)]="searchQuery" (input)="search()" />
+        </div>
+        <img class="avatar" [src]="userAvatar" alt="avatar">
+      </div>
+    </header>
+
+    <main class="dashboard-content">
+      <!-- Header -->
+      <div class="header-section">
+        <div class="header-content">
+          <h2 class="page-title">
+            <i class="fas fa-comments"></i>
+            Quản lý bình luận
+          </h2>
+          <div class="user-info">
+            <img [src]="userAvatar" alt="User Avatar" class="user-avatar">
+            <button class="logout-btn" (click)="logout()">
+              <i class="fas fa-sign-out-alt"></i>
+              Đăng xuất
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Statistics Cards -->
+      <div class="stats-section">
+        <div class="stat-card total">
+          <div class="stat-content">
+            <div class="stat-number">{{ commentStats.total }}</div>
+            <div class="stat-label">Tổng bình luận</div>
+          </div>
+          <div class="stat-icon">
+            <i class="fas fa-comments"></i>
+          </div>
+        </div>
+        <div class="stat-card pending">
+          <div class="stat-content">
+            <div class="stat-number">{{ commentStats.pending }}</div>
+            <div class="stat-label">Chờ duyệt</div>
+          </div>
+          <div class="stat-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+        </div>
+        <div class="stat-card approved">
+          <div class="stat-content">
+            <div class="stat-number">{{ commentStats.approved }}</div>
+            <div class="stat-label">Đã duyệt</div>
+          </div>
+          <div class="stat-icon">
+            <i class="fas fa-check-circle"></i>
+          </div>
+        </div>
+        <div class="stat-card rejected">
+          <div class="stat-content">
+            <div class="stat-number">{{ commentStats.rejected }}</div>
+            <div class="stat-label">Từ chối</div>
+          </div>
+          <div class="stat-icon">
+            <i class="fas fa-times-circle"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters and Search -->
+      <div class="filters-section">
+        <div class="filters-container">
+          <div class="filter-group">
+            <label for="searchInput">Tìm kiếm</label>
+            <div class="search-input-group">
+              <input 
+                type="text" 
+                id="searchInput"
+                [(ngModel)]="searchQuery"
+                placeholder="Tìm theo tên, email, nội dung, sản phẩm..."
+                (keyup.enter)="search()"
+              >
+              <button type="button" (click)="search()">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+          </div>
+          <div class="filter-group">
+            <label for="statusFilter">Trạng thái</label>
+            <select 
+              id="statusFilter"
+              [(ngModel)]="statusFilter"
+              (change)="onFilterChange()"
+            >
+              <option value="all">Tất cả</option>
+              <option value="pending">Chờ duyệt</option>
+              <option value="approved">Đã duyệt</option>
+              <option value="rejected">Từ chối</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="ratingFilter">Đánh giá</label>
+            <select 
+              id="ratingFilter"
+              [(ngModel)]="ratingFilter"
+              (change)="onFilterChange()"
+            >
+              <option value="0">Tất cả</option>
+              <option value="1">1 sao</option>
+              <option value="2">2 sao</option>
+              <option value="3">3 sao</option>
+              <option value="4">4 sao</option>
+              <option value="5">5 sao</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="productFilter">Sản phẩm</label>
+            <ng-select
+              [items]="productFilterOptions"
+              bindLabel="label"
+              bindValue="value"
+              [(ngModel)]="productFilter"
+              (change)="onFilterChange()"
+              placeholder="Tìm kiếm hoặc chọn sản phẩm"
+              [searchable]="true">
+            </ng-select>
+          </div>
+          <div class="filter-group">
+            <label for="sortBy">Sắp xếp theo</label>
+            <select 
+              id="sortBy"
+              [(ngModel)]="sortBy"
+              (change)="onSortChange()"
+            >
+              <option value="createdAt">Ngày tạo</option>
+              <option value="userName">Tên người dùng</option>
+              <option value="rating">Đánh giá</option>
+              <option value="status">Trạng thái</option>
+              <option value="productName">Tên sản phẩm</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="sortOrder">Thứ tự</label>
+            <select 
+              id="sortOrder"
+              [(ngModel)]="sortOrder"
+              (change)="onSortChange()"
+            >
+              <option value="desc">Giảm dần</option>
+              <option value="asc">Tăng dần</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bulk Actions -->
+      <div class="bulk-actions" *ngIf="selectedComments.length > 0">
+        <div class="bulk-info">
+          <span>Đã chọn {{ selectedComments.length }} bình luận</span>
+        </div>
+        <div class="bulk-buttons">
+          <button class="btn-success" (click)="bulkUpdateStatus('approved')">
+            <i class="fas fa-check"></i>
+            Duyệt tất cả
+          </button>
+          <button class="btn-danger" (click)="bulkUpdateStatus('rejected')">
+            <i class="fas fa-times"></i>
+            Từ chối tất cả
+          </button>
+        </div>
+      </div>
+
+      <!-- Comments Table -->
+      <div class="table-section">
+        <div class="table-container">
+          <table class="comments-table">
+            <thead>
+              <tr>
+                <th width="50">
+                  <input 
+                    type="checkbox" 
+                    [(ngModel)]="selectAll"
+                    (change)="toggleSelectAll()"
+                  >
+                </th>
+                <th>Người dùng</th>
+                <th>Sản phẩm</th>
+                <th>Nội dung</th>
+                <th>Đánh giá</th>
+                <th>Trạng thái</th>
+                <th>Ngày tạo</th>
+                <th width="200">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="isLoading">
+                <td colspan="8" class="loading-cell">
+                  <div class="loading-spinner"></div>
+                  <span>Đang tải...</span>
+                </td>
+              </tr>
+              <tr *ngIf="!isLoading && paginatedComments.length === 0">
+                <td colspan="8" class="empty-cell">
+                  <i class="fas fa-inbox"></i>
+                  <p>Không có bình luận nào</p>
+                </td>
+              </tr>
+              <tr *ngFor="let comment of paginatedComments">
+                <td>
+                  <input 
+                    type="checkbox" 
+                    [checked]="selectedComments.includes(comment._id!)"
+                    (change)="toggleCommentSelection(comment._id!)"
+                  >
+                </td>
+                <td>
+                  <div class="user-info-cell">
+                    <div class="avatar-placeholder">
+                      <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-details">
+                      <div class="user-name">{{ comment.userName }}</div>
+                      <div class="user-email">{{ comment.userEmail }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="product-info-cell">
+                    <img 
+                      [src]="comment.productId._id === 'homepage' ? '/assets/images/icon.png' : (comment.productId.thumbnail || '/assets/images/icon.png')" 
+                      alt="Product"
+                      class="product-image"
+                    >
+                    <div class="product-details">
+                      <div class="product-name">
+                        {{ comment.productId._id === 'homepage' ? 'Trang chủ' : comment.productId.name }}
+                      </div>
+                      <div class="product-id">ID: {{ comment.productId._id }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="comment-content">
+                    <p class="comment-text">{{ comment.content }}</p>
+                    <div *ngIf="comment.adminReply" class="admin-reply">
+                      <small class="reply-label">
+                        <i class="fas fa-reply"></i>
+                        Trả lời của admin:
+                      </small>
+                      <p class="reply-content">{{ comment.adminReply.content }}</p>
+                      <small class="reply-info">
+                        {{ comment.adminReply.adminId.name }} - {{ formatDate(comment.adminReply.repliedAt) }}
+                      </small>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="rating-cell">
+                    <span class="rating-stars">{{ getRatingStars(comment.rating) }}</span>
+                    <small class="rating-text">({{ comment.rating }}/5)</small>
+                  </div>
+                </td>
+                <td>
+                  <span 
+                    class="status-badge"
+                    [ngClass]="getStatusBadgeClass(comment.status)"
+                    [style.background-color]="getStatusColor(comment.status)"
+                  >
+                    {{ getStatusText(comment.status) }}
+                  </span>
+                </td>
+                <td>
+                  <div class="date-cell">
+                    <div class="date">{{ formatDate(comment.createdAt) }}</div>
+                    <small class="edited-info" *ngIf="comment.isEdited">
+                      <i class="fas fa-edit"></i>
+                      Đã chỉnh sửa
+                    </small>
+                  </div>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button 
+                      class="btn-reply" 
+                      title="Trả lời"
+                      (click)="openReplyModal(comment)"
+                      *ngIf="comment.status === 'approved'"
+                    >
+                      <i class="fas fa-reply"></i>
+                    </button>
+                    <button 
+                      class="btn-edit" 
+                      title="Chỉnh sửa"
+                      (click)="openEditModal(comment)"
+                    >
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <div class="dropdown">
+                      <button class="btn-status dropdown-toggle" title="Thay đổi trạng thái">
+                        <i class="fas fa-cog"></i>
+                      </button>
+                      <div class="dropdown-menu">
+                        <a class="dropdown-item" (click)="updateCommentStatus(comment._id!, 'approved')">
+                          <i class="fas fa-check"></i>
+                          Duyệt
+                        </a>
+                        <a class="dropdown-item" (click)="updateCommentStatus(comment._id!, 'rejected')">
+                          <i class="fas fa-times"></i>
+                          Từ chối
+                        </a>
+                      </div>
+                    </div>
+                    <button 
+                      class="btn-delete" 
+                      title="Xóa"
+                      (click)="deleteComment(comment._id!)"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-section">
+          <div class="pagination-info">
+            Hiển thị {{ (currentPage - 1) * itemsPerPage + 1 }} - 
+            {{ getEndIndex() }} 
+            trong tổng số {{ filteredComments.length }} bình luận
+          </div>
+          <nav class="pagination" *ngIf="totalPages > 1">
+            <button 
+              class="page-btn" 
+              [disabled]="currentPage === 1"
+              (click)="changePage(currentPage - 1)"
+            >
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <button 
+              *ngFor="let page of getPageNumbers()"
+              class="page-btn"
+              [class.active]="page === currentPage"
+              (click)="changePage(page)"
+            >
+              {{ page }}
+            </button>
+            <button 
+              class="page-btn" 
+              [disabled]="currentPage === totalPages"
+              (click)="changePage(currentPage + 1)"
+            >
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </nav>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Reply Modal -->
+<div class="modal" [class.show]="showReplyModal" *ngIf="showReplyModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-reply"></i>
+          Trả lời bình luận
+        </h5>
+        <button type="button" class="modal-close" (click)="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="selectedComment" class="comment-preview">
+          <h6>Bình luận của {{ selectedComment.userName }}:</h6>
+          <div class="comment-box">
+            <div class="rating-preview">
+              <span class="rating-stars">{{ getRatingStars(selectedComment.rating) }}</span>
+              <small>({{ selectedComment.rating }}/5)</small>
+            </div>
+            <p>{{ selectedComment.content }}</p>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="replyContent">Nội dung trả lời:</label>
+          <textarea 
+            id="replyContent"
+            rows="4"
+            [(ngModel)]="replyContent"
+            placeholder="Nhập nội dung trả lời..."
+          ></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="closeModal()">Hủy</button>
+        <button type="button" class="btn-primary" (click)="submitReply()">
+          <i class="fas fa-paper-plane"></i>
+          Gửi trả lời
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal" [class.show]="showEditModal" *ngIf="showEditModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-edit"></i>
+          Chỉnh sửa bình luận
+        </h5>
+        <button type="button" class="modal-close" (click)="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="editRating">Đánh giá:</label>
+          <select id="editRating" [(ngModel)]="editRating">
+            <option value="1">1 sao</option>
+            <option value="2">2 sao</option>
+            <option value="3">3 sao</option>
+            <option value="4">4 sao</option>
+            <option value="5">5 sao</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="editContent">Nội dung:</label>
+          <textarea 
+            id="editContent"
+            rows="4"
+            [(ngModel)]="editContent"
+            placeholder="Nhập nội dung bình luận..."
+          ></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="closeModal()">Hủy</button>
+        <button type="button" class="btn-primary" (click)="submitEdit()">
+          <i class="fas fa-save"></i>
+          Lưu thay đổi
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Backdrop -->
+<div class="modal-backdrop" *ngIf="showReplyModal || showEditModal"></div> 
