@@ -10,8 +10,8 @@ exports.createPayment = async (req, res) => {
         const date = new Date();
         const createDate = moment(date).format('YYYYMMDDHHmmss');
         const ipAddr = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || '127.0.0.1';
-        const orderId = moment(date).format('YYYYMMDDHHmmss') + String(Math.floor(Math.random() * 100000)).padStart(5, '0');
-        const { amount, bankCode, language, orderInfo } = req.body;
+         const orderId = moment(date).format('YYYYMMDDHHmmss') + String(Math.floor(Math.random() * 100000)).padStart(5, '0');
+        const { amount, bankCode, language } = req.body;
 
         // Kiểm tra amount hợp lệ
         if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
@@ -30,7 +30,7 @@ exports.createPayment = async (req, res) => {
             vnp_Locale: locale,
             vnp_CurrCode: currCode,
             vnp_TxnRef: orderId,
-            vnp_OrderInfo: orderInfo || `Thanh toán cho mã GD: ${orderId}`,
+            vnp_OrderInfo: `Thanh toán cho mã GD: ${orderId}`,
             vnp_OrderType: 'other',
             vnp_Amount: amountInVND,
             vnp_ReturnUrl: vnp_ReturnUrl,
@@ -44,18 +44,12 @@ exports.createPayment = async (req, res) => {
 
         // Sắp xếp tham số và tạo chữ ký
         vnp_Params = sortObject(vnp_Params);
-        const signData = querystring.stringify(vnp_Params, { encode: false }); 
+       const signData = querystring.stringify(vnp_Params, { encode: false }); 
         const hmac = crypto.createHmac('sha512', vnp_HashSecret);
         vnp_Params['vnp_SecureHash'] = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
 
-        const paymentUrl = `${vnp_Url}?${querystring.stringify(vnp_Params, { encode: false })}`;
-        res.status(200).json({ 
-            code: '00', 
-            message: 'Success', 
-            data: paymentUrl,
-            orderId: orderId,
-            amount: amountInVND
-        });
+          const paymentUrl = `${vnp_Url}?${querystring.stringify(vnp_Params, { encode: false })}`;
+        res.status(200).json({ code: '00', message: 'Success', data: paymentUrl });
     } catch (err) {
         console.error('Error creating payment:', err.message);
         res.status(500).json({ code: '99', message: 'Internal server error' });
@@ -75,8 +69,7 @@ exports.paymentReturn = (req, res) => {
         // Sắp xếp tham số và tạo chữ ký để so sánh
         vnp_Params = sortObject(vnp_Params);
         const signData = querystring.stringify(vnp_Params, { encode: false }); 
-        const hmac = crypto.createHmac('sha512', vnp_HashSecret);
-        const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
+        const hmac = crypto.createHmac('sha512', vnp_HashSecret);const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
 
         if (secureHash === signed) {
             const responseCode = vnp_Params['vnp_ResponseCode'];
@@ -114,4 +107,5 @@ function sortObject(obj) {
         sorted[key] = encodeURIComponent(obj[key]).replace(/%20/g, '+');
     });
     return sorted;
-} 
+}
+

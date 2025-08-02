@@ -8,4 +8,4 @@ router.post('/create_payment_url', paymentController.createPayment);
 // Nhận phản hồi từ VNPay
 router.get('/vnpay_return', paymentController.paymentReturn);
 
-module.exports = router; 
+module.exports = router;
