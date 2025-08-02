@@ -68,13 +68,27 @@ export class SanphamComponent implements OnInit {
   private loadProducts(): void {
     this.productService.getAllProducts().subscribe({
       next: (products: ProductInterface[]) => {
+        console.log('API trả về:', products);
+        if (!products || !Array.isArray(products)) {
+          this.errorMessage = 'API trả về dữ liệu không hợp lệ.';
+          this.allProducts = [];
+          this.filteredProducts = [];
+          this.displayedProducts = [];
+          return;
+        }
         this.allProducts = products;
         this.filteredProducts = [...products];
         this.updatePagination();
-        this.errorMessage = products.length === 0 ? 'Không có sản phẩm nào để hiển thị.' : '';
+        if (products.length === 0) {
+          this.errorMessage = 'Không có sản phẩm nào để hiển thị.';
+        } else if (this.displayedProducts.length === 0) {
+          this.errorMessage = 'Không có sản phẩm nào hợp lệ để hiển thị.';
+        } else {
+          this.errorMessage = '';
+        }
       },
       error: (error) => {
-        console.error('Error fetching products:', error);
+        console.error('Lỗi API:', error);
         this.allProducts = [];
         this.filteredProducts = [];
         this.displayedProducts = [];
@@ -156,10 +170,14 @@ export class SanphamComponent implements OnInit {
   }
 
   updatePagination(): void {
-    this.totalPages = Math.ceil(this.filteredProducts.length / this.productsPerPage);
+    // Hiển thị tất cả sản phẩm, không lọc theo stock
+    const validProducts = this.filteredProducts.filter((p: any) =>
+      p && typeof p === 'object' && p._id
+    );
+    this.totalPages = Math.ceil(validProducts.length / this.productsPerPage);
     const startIndex = (this.currentPage - 1) * this.productsPerPage;
     const endIndex = startIndex + this.productsPerPage;
-    this.displayedProducts = this.filteredProducts.slice(startIndex, endIndex);
+    this.displayedProducts = validProducts.slice(startIndex, endIndex);
   }
 
   goToPage(page: number): void {

@@ -53,7 +53,7 @@ export class ChiTietSanPhamComponent implements OnInit {
 
   private loadWishlistStatus(): void {
     if (!this.product) return;
-    
+
     const token = localStorage.getItem('token');
     if (!token) return;
 
@@ -229,9 +229,20 @@ export class ChiTietSanPhamComponent implements OnInit {
 
     this.productService.getAllProducts().subscribe({
       next: (products: ProductInterface[]) => {
-        // Lọc sản phẩm cùng danh mục và loại bỏ sản phẩm hiện tại
+        // Lọc sản phẩm cùng danh mục, loại bỏ sản phẩm hiện tại và chỉ lấy sản phẩm còn hàng
         this.relatedProducts = products
-          .filter((p: ProductInterface) => p.categoryId === this.product!.categoryId && p._id !== this.product!._id)
+          .filter((p: ProductInterface) => {
+            if (p.categoryId !== this.product!.categoryId || p._id === this.product!._id) return false;
+            // Nếu không có trường stock thì vẫn hiển thị
+            if (typeof p.stock !== 'number' && !p.variants) return true;
+            // Nếu có stock thì kiểm tra còn hàng
+            if (typeof p.stock === 'number' && p.stock > 0) return true;
+            // Nếu có variants thì kiểm tra từng variant
+            if (p.variants && Array.isArray(p.variants)) {
+              return p.variants.some((v: any) => typeof v.stock !== 'number' || v.stock > 0);
+            }
+            return false;
+          })
           .slice(0, 4); // Chỉ lấy 4 sản phẩm liên quan
       },
       error: (err: any) => {

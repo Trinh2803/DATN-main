@@ -176,6 +176,7 @@ export class ListcardComponent implements OnInit {
   }
 
   isFavorite(product: ProductInterface): boolean {
+    if (!product || !product._id) return false;
     return this.wishlistCache.get(product._id) || false;
   }
 
@@ -225,6 +226,7 @@ export class ListcardComponent implements OnInit {
   }
 
   hasDiscount(product: ProductInterface): boolean {
+    if (!product || typeof product.price === 'undefined') return false;
     return !!product.salePrice && product.salePrice > 0 && product.salePrice < product.price;
   }
 
@@ -236,11 +238,10 @@ export class ListcardComponent implements OnInit {
   }
 
   isInStock(product: ProductInterface): boolean {
-    // Check if product has variants with stock
-    if (product.variants && product.variants.length > 0) {
-      return product.variants.some(v => v.stock > 0);
+    if (!product) return false;
+    if (product.variants && Array.isArray(product.variants) && product.variants.length > 0) {
+      return product.variants.some(v => v && v.stock > 0);
     }
-    // If no variants, check product stock
     return (product.stock || 0) > 0;
   }
 }

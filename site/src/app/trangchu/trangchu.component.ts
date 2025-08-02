@@ -32,6 +32,7 @@ interface NewsItem {
   styleUrls: ['./trangchu.component.css']
 })
 export class TrangchuComponent implements OnInit, OnDestroy {
+  allProducts: ProductInterface[] = [];
   newProducts: ProductInterface[] = [];
   saleProducts: ProductInterface[] = [];
   hotProducts: ProductInterface[] = [];
@@ -100,46 +101,51 @@ export class TrangchuComponent implements OnInit, OnDestroy {
   constructor(private productService: ProductService) {}
 
   ngOnInit(): void {
+    // Gọi API lấy tất cả sản phẩm
+    this.productService.getAllProducts().subscribe({
+      next: (data: any) => {
+        const arr = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
+        this.allProducts = arr.filter((p: any) => p && typeof p === 'object' && p._id);
+      },
+      error: (error) => {
+        this.allProducts = [];
+      }
+    });
     // Start the banner auto-slide
     this.startAutoSlide();
 
     // Fetch new products
     this.productService.getNewProducts().subscribe({
       next: (data: any) => {
-        console.log('Raw New Products:', data);
-        console.log('Is array?', Array.isArray(data));
-        this.newProducts = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
-        console.log('Assigned New Products:', this.newProducts);
+        const arr = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
+        this.newProducts = arr.filter((p: any) => p && typeof p === 'object' && p._id);
       },
       error: (error) => {
-        console.error('Error fetching new products:', error);
         this.newProducts = [];
       }
     });
 
-    // Fetch sale products
     this.productService.getSaleProducts().subscribe({
       next: (data: any) => {
-        console.log('Raw Sale Products:', data);
-        console.log('Is array?', Array.isArray(data));
-        this.saleProducts = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
-        console.log('Assigned Sale Products:', this.saleProducts);
+        const arr = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
+        this.saleProducts = arr.filter((p: any) => p && typeof p === 'object' && p._id);
       },
       error: (error) => {
-        console.error('Error fetching sale products:', error);
         this.saleProducts = [];
       }
     });
 
-    // Fetch hot products
     this.productService.getHotProducts().subscribe({
       next: (data: any) => {
-        console.log('Raw Hot Products:', data);
-        this.hotProducts = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
-        console.log('Assigned Hot Products:', this.hotProducts);
+        console.log('API hotProducts trả về:', data);
+        const arr = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
+        this.hotProducts = arr.filter((p: any) => p && typeof p === 'object' && p._id);
+        if (this.hotProducts.length === 0) {
+          console.warn('Không có sản phẩm hot nào để hiển thị!');
+        }
       },
       error: (error) => {
-        console.error('Error fetching hot products:', error);
+        console.error('Lỗi API hotProducts:', error);
         this.hotProducts = [];
       }
     });

@@ -1,4 +1,26 @@
 /* Reset CSS */
+/* Grid 4 sản phẩm mỗi hàng */
+.product-list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  justify-items: center;
+  align-items: stretch;
+}
+
+.product-card {
+  width: 100%;
+  max-width: 300px;
+  min-width: 220px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+.product-card {
+  /* Giữ nguyên các style cũ nếu có */
+}
 * {
     margin: 0;
     padding: 0;
@@ -428,10 +450,15 @@ a {
 }
 
 .product-image {
-    position: relative;
-    width: 100%;
-    height: 230px;
-    overflow: hidden;
+  position: relative;
+  width: 100%;
+  height: 220px;
+  max-width: 300px;
+  min-width: 220px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .product-image img {
@@ -537,27 +564,24 @@ a {
 }
 
 .product-info {
-    padding: 15px;
+  padding: 10px 8px 0 8px;
+  width: 100%;
 }
 
 .product-title {
-    font-size: 14px;
-    font-weight: 500;
-    margin-bottom: 10px;
-    line-height: 1.4;
-    height: 40px;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    color: #333;
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  line-height: 1.4;
+  height: 38px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  color: #333;
+  text-align: center;
 }
-.product-title a {
-    text-decoration: none;
-    list-style: none;
-    color:black
 
-}
 .product-price {
     display: flex;
     align-items: center;
