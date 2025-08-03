@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 var createError = require("http-errors");
 var express = require("express");
 var path = require("path");
@@ -16,6 +17,24 @@ const multer = require("multer");
 const mongoose = require("mongoose");
 const discountsRouter = require("./routes/discounts");
 const wishlistRouter = require("./routes/wishlist");
+=======
+var createError = require('http-errors');
+var express = require('express');
+var path = require('path');
+var cookieParser = require('cookie-parser');
+var logger = require('morgan');
+const connectDB = require('./config/db');
+const cors = require('cors');
+const searchRoutes = require('./routes/index');
+var indexRouter = require('./routes/index');
+var usersRouter = require('./routes/users');
+var categoriesRouter = require('./routes/categories');
+var productsRouter = require('./routes/products');
+var orderssRouter = require('./routes/orders');
+var commentsRouter = require('./routes/comments');
+const multer = require('multer');
+const mongoose = require('mongoose');
+>>>>>>> 1cffa053ea773e328a32b56188c9855d7a18249e
 
 const viewEngine = require("./config/viewEngine");
 var app = express();
@@ -40,6 +59,7 @@ app.use("/uploads", express.static(path.join(__dirname, "public/images")));
 // Áp dụng multer cho route users
 app.use("/users", usersRouter);
 
+<<<<<<< HEAD
 app.use("/", searchRoutes);
 app.use("/", indexRouter);
 app.use("/categories", categoriesRouter);
@@ -48,6 +68,14 @@ app.use("/orders", orderssRouter);
 app.use("/api/discounts", discountsRouter);
 app.use("/wishlist", wishlistRouter);
 app.use("/pay", payRouter);
+=======
+app.use('/', searchRoutes);
+app.use('/', indexRouter);
+app.use('/categories', categoriesRouter);
+app.use('/products', require('./routes/products'), productsRouter);
+app.use('/orders', orderssRouter);
+app.use('/comments', commentsRouter);
+>>>>>>> 1cffa053ea773e328a32b56188c9855d7a18249e
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

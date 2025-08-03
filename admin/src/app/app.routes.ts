@@ -7,7 +7,11 @@ import { QuanlysanphamComponent } from './quanlysanpham/quanlysanpham.component'
 import { QuanlynguoidungComponent } from './quanlynguoidung/quanlynguoidung.component';
 import { QuanlydonhangComponent } from './quanlydonhang/quanlydonhang.component';
 import { DonhangchitietComponent } from './donhangchitiet/donhangchitiet.component';
+<<<<<<< HEAD
 import { QuanlygiamgiaComponent } from './quanlygiamgia/quanlygiamgia.component';
+=======
+import { QuanlybinhluanComponent } from './quanlybinhluan/quanlybinhluan.component';
+>>>>>>> 1cffa053ea773e328a32b56188c9855d7a18249e
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' }, // Redirect mặc định đến /login
@@ -17,7 +21,11 @@ export const routes: Routes = [
   { path: 'quanlysanpham', component: QuanlysanphamComponent, canActivate: [AdminAuthGuard] },
   { path: 'quanlynguoidung', component: QuanlynguoidungComponent, canActivate: [AdminAuthGuard] },
   { path: 'quanlydonhang', component: QuanlydonhangComponent, canActivate: [AdminAuthGuard] },
+<<<<<<< HEAD
   { path: 'quanlygiamgia', component: QuanlygiamgiaComponent, canActivate: [AdminAuthGuard] },
+=======
+  { path: 'quanlybinhluan', component: QuanlybinhluanComponent, canActivate: [AdminAuthGuard] },
+>>>>>>> 1cffa053ea773e328a32b56188c9855d7a18249e
   { path: 'order/:id', component: DonhangchitietComponent, canActivate: [AdminAuthGuard] },
 
   { path: '**', redirectTo: '/login' }, // Fallback route

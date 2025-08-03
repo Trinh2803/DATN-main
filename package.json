@@ -22,6 +22,11 @@
     "@angular-devkit/build-angular": "^20.0.1"
   },
   "dependencies": {
+<<<<<<< HEAD
     "sweetalert2": "^11.6.13"
+=======
+    "bootstrap": "^5.3.7",
+    "bootstrap-icons": "^1.13.1"
+>>>>>>> 1cffa053ea773e328a32b56188c9855d7a18249e
   }
 }

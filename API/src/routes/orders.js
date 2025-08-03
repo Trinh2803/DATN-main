@@ -20,6 +20,7 @@ router.get('/user', verifyToken, getUserOrders);
 router.get('/', verifyToken, verifyAdmin, getAllOrders);
 router.get('/:id', verifyToken, getOrderById);
 router.put('/:id', verifyToken, verifyAdmin, updateOrderStatus);
-router.post('/', verifyToken, createOrder);
+router.post('/', createOrder); // Bỏ verifyToken để cho phép tạo đơn hàng không cần đăng nhập
+router.post('/auth', verifyToken, createOrder); // Route cho user đã đăng nhập
 
 module.exports = router;

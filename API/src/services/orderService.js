@@ -24,10 +24,42 @@ async function updateOrderStatus(orderId, newStatus) {
   if (newIndex < currentIndex) {
     throw new Error('Không thể chuyển về trạng thái trước đó');
   }
+<<<<<<< HEAD
 
   // Nếu muốn chỉ cho phép chuyển từng bước một, kiểm tra newIndex === currentIndex + 1
 
   order.status = newStatus;
+=======
+  const order = await Order.findById(id);
+  if (!order) throw new Error('Không tìm thấy đơn hàng');
+  
+  const validStatuses = ['Chờ xác nhận', 'Đang chuẩn bị', 'Đang giao', 'Đã giao', 'Đã hủy', 'Đã hoàn thành'];
+  if (!validStatuses.includes(status)) {
+    throw new Error('Trạng thái không hợp lệ');
+  }
+  
+  // Ngăn chặn việc quay lại trạng thái "Chờ xác nhận"
+  if (status === 'Chờ xác nhận' && order.status !== 'Chờ xác nhận') {
+    throw new Error('Không thể quay lại trạng thái "Chờ xác nhận" sau khi đã xác nhận đơn hàng');
+  }
+  
+  // Ngăn chặn việc chuyển từ trạng thái "Đã hủy" sang trạng thái khác
+  if (order.status === 'Đã hủy' && status !== 'Đã hủy') {
+    throw new Error('Đơn hàng đã hủy không thể chuyển sang trạng thái khác');
+  }
+  
+  // Ngăn chặn việc chuyển sang "Đã hủy" từ các trạng thái đã hoàn thành
+  if (status === 'Đã hủy' && (order.status === 'Đã giao' || order.status === 'Đã hoàn thành')) {
+    throw new Error('Đơn hàng đã giao hoặc hoàn thành không thể hủy');
+  }
+  
+  // Ngăn chặn việc thay đổi trạng thái đã hoàn thành
+  if (order.status === 'Đã hoàn thành' && status !== 'Đã hoàn thành') {
+    throw new Error('Đơn hàng đã hoàn thành không thể thay đổi trạng thái');
+  }
+  
+  order.status = status;
+>>>>>>> 1cffa053ea773e328a32b56188c9855d7a18249e
   await order.save();
   return order;
 }
@@ -84,15 +116,28 @@ const items = await Promise.all(
     })
   );
 
-  const order = new Order({
+  // Tạo order data với userId (nếu có)
+  const orderDataToSave = {
     ...orderData,
     customerAddress,
     items,
+<<<<<<< HEAD
     total: orderData.total || items.reduce((sum, item) => sum + item.quantity * item.price, 0),
     finalAmount: orderData.finalAmount || orderData.total || items.reduce((sum, item) => sum + item.quantity * item.price, 0),
     discountCode: orderData.discountCode || null,
     discountInfo: orderData.discountInfo || null
   });
+=======
+    total: items.reduce((sum, item) => sum + item.quantity * item.price, 0)
+  };
+
+  // Chỉ thêm userId nếu có
+  if (orderData.userId) {
+    orderDataToSave.userId = orderData.userId;
+  }
+
+  const order = new Order(orderDataToSave);
+>>>>>>> 1cffa053ea773e328a32b56188c9855d7a18249e
   await updateSellCountForOrder(order.items);
   await order.save();
 
@@ -120,9 +165,14 @@ const getCompletedOrders = async () => {
   return await Order.find({ status: 'Đã hoàn thành' });
 };
 const getOrdersByUserId = async (userId) => {
+  if (!userId) {
+    throw new Error('ID người dùng không được cung cấp');
+  }
+  
   if (!mongoose.isValidObjectId(userId)) {
     throw new Error('ID người dùng không hợp lệ');
   }
+<<<<<<< HEAD
   try {
     const orders = await Order.find({ userId });
     
@@ -242,6 +292,14 @@ const getOrderById = async (orderId) => {
     console.error('Error in getOrderById:', error);
     throw error;
   }
+=======
+  
+  return await Order.find({ userId }).populate({
+    path: 'items.productId',
+    select: 'name thumbnail',
+    model: Product,
+  });
+>>>>>>> 1cffa053ea773e328a32b56188c9855d7a18249e
 };
 
 module.exports = {
