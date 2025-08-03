@@ -83,6 +83,78 @@
         <div class="qty-btn" (click)="increaseQuantity()">+</div>
       </div>
 
+      <!-- Coupon Section -->
+      <div class="coupon-section">
+        <div class="coupon-header">
+          <i class="fas fa-tags"></i>
+          <span class="coupon-title">Mã giảm giá</span>
+        </div>
+        
+        <div class="coupon-input-container">
+          <div class="coupon-input-wrapper">
+            <input 
+              type="text" 
+              class="coupon-input" 
+              [(ngModel)]="couponCode"
+              placeholder="Nhập mã giảm giá"
+              [disabled]="isApplyingCoupon">
+            <button 
+              class="apply-coupon-btn" 
+              (click)="applyCoupon()"
+              [disabled]="!couponCode || isApplyingCoupon">
+              <i class="fas fa-spinner fa-spin" *ngIf="isApplyingCoupon"></i>
+              <i class="fas fa-check" *ngIf="!isApplyingCoupon"></i>
+              {{ isApplyingCoupon ? 'Đang áp dụng...' : 'Áp dụng' }}
+            </button>
+          </div>
+          
+          <!-- Applied Coupon Display -->
+          <div class="applied-coupon" *ngIf="appliedCoupon">
+            <div class="coupon-info">
+              <i class="fas fa-check-circle"></i>
+              <span class="coupon-name">{{ appliedCoupon.name }}</span>
+              <span class="coupon-discount">-{{ formatDiscount(appliedCoupon) }}</span>
+            </div>
+            <button class="remove-coupon-btn" (click)="removeCoupon()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          
+          <!-- Coupon Error -->
+          <div class="coupon-error" *ngIf="couponError">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>{{ couponError }}</span>
+          </div>
+        </div>
+        
+        <!-- Available Coupons -->
+        <div class="available-coupons" *ngIf="availableCoupons.length > 0 && !appliedCoupon">
+          <div class="coupons-title">
+            <i class="fas fa-gift"></i>
+            <span>Mã giảm giá có sẵn</span>
+          </div>
+          <div class="coupons-list">
+            <div class="coupon-item" 
+                 *ngFor="let coupon of availableCoupons" 
+                 (click)="selectCoupon(coupon.code)">
+              <div class="coupon-badge">
+                <div class="coupon-value">{{ formatDiscount(coupon) }}</div>
+                <div class="coupon-type">OFF</div>
+              </div>
+              <div class="coupon-details">
+                <div class="coupon-name">{{ coupon.name }}</div>
+                <div class="coupon-description">{{ coupon.description }}</div>
+                <div class="coupon-expiry">HSD: {{ formatDate(coupon.expiryDate) }}</div>
+              </div>
+              <div class="coupon-action">
+                <span class="use-coupon-text">Sử dụng</span>
+                <i class="fas fa-chevron-right"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="stock-info" *ngIf="selectedVariant">
         <span class="stock-text">Còn {{ getCurrentStock() }} sản phẩm</span>
       </div>

@@ -38,6 +38,13 @@ export class ChiTietSanPhamComponent implements OnInit {
     content: ''
   };
 
+  // Coupon properties
+  couponCode: string = '';
+  appliedCoupon: any = null;
+  availableCoupons: any[] = [];
+  couponError: string = '';
+  isApplyingCoupon: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -62,6 +69,8 @@ export class ChiTietSanPhamComponent implements OnInit {
           this.loadWishlistStatus();
           // Load comments
           this.loadComments();
+          // Load available coupons
+          this.loadAvailableCoupons();
         },
         error: (err: any) => {
           console.error('Lỗi khi lấy chi tiết sản phẩm:', err);
@@ -537,5 +546,132 @@ export class ChiTietSanPhamComponent implements OnInit {
       month: 'long',
       day: 'numeric'
     });
+  }
+
+  // Coupon methods
+  loadAvailableCoupons(): void {
+    // Mock data - trong thực tế sẽ gọi API để lấy mã giảm giá có sẵn
+    this.availableCoupons = [
+      {
+        id: '1',
+        code: 'WELCOME10',
+        name: 'Chào mừng khách hàng mới',
+        description: 'Giảm 10% cho đơn hàng đầu tiên',
+        discountType: 'percentage',
+        discountValue: 10,
+        minOrderValue: 500000,
+        expiryDate: '2024-12-31',
+        isActive: true
+      },
+      {
+        id: '2',
+        code: 'SAVE50K',
+        name: 'Tiết kiệm 50K',
+        description: 'Giảm 50,000đ cho đơn hàng từ 1,000,000đ',
+        discountType: 'fixed',
+        discountValue: 50000,
+        minOrderValue: 1000000,
+        expiryDate: '2024-11-30',
+        isActive: true
+      },
+      {
+        id: '3',
+        code: 'FREESHIP',
+        name: 'Miễn phí vận chuyển',
+        description: 'Miễn phí ship cho đơn hàng từ 300,000đ',
+        discountType: 'shipping',
+        discountValue: 0,
+        minOrderValue: 300000,
+        expiryDate: '2024-12-15',
+        isActive: true
+      }
+    ];
+  }
+
+  applyCoupon(): void {
+    if (!this.couponCode.trim()) {
+      this.couponError = 'Vui lòng nhập mã giảm giá';
+      return;
+    }
+
+    this.isApplyingCoupon = true;
+    this.couponError = '';
+
+    // Simulate API call
+    setTimeout(() => {
+      const coupon = this.availableCoupons.find(c => 
+        c.code.toLowerCase() === this.couponCode.toLowerCase() && c.isActive
+      );
+
+      if (coupon) {
+        // Check minimum order value
+        const currentPrice = this.getCurrentPrice();
+        if (currentPrice < coupon.minOrderValue) {
+          this.couponError = `Đơn hàng tối thiểu ${coupon.minOrderValue.toLocaleString('vi-VN')}đ để áp dụng mã này`;
+        } else {
+          this.appliedCoupon = coupon;
+          this.couponCode = '';
+          this.couponError = '';
+          Swal.fire({
+            title: 'Thành công!',
+            text: `Đã áp dụng mã giảm giá ${coupon.name}`,
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false
+          });
+        }
+      } else {
+        this.couponError = 'Mã giảm giá không hợp lệ hoặc đã hết hạn';
+      }
+      
+      this.isApplyingCoupon = false;
+    }, 1000);
+  }
+
+  removeCoupon(): void {
+    this.appliedCoupon = null;
+    this.couponError = '';
+    Swal.fire({
+      title: 'Đã xóa mã giảm giá',
+      icon: 'info',
+      timer: 1500,
+      showConfirmButton: false
+    });
+  }
+
+  selectCoupon(code: string): void {
+    this.couponCode = code;
+    this.applyCoupon();
+  }
+
+  formatDiscount(coupon: any): string {
+    if (coupon.discountType === 'percentage') {
+      return `${coupon.discountValue}%`;
+    } else if (coupon.discountType === 'fixed') {
+      return `${coupon.discountValue.toLocaleString('vi-VN')}đ`;
+    } else if (coupon.discountType === 'shipping') {
+      return 'Miễn phí ship';
+    }
+    return '';
+  }
+
+  getDiscountAmount(): number {
+    if (!this.appliedCoupon) return 0;
+    
+    const currentPrice = this.getCurrentPrice();
+    
+    if (this.appliedCoupon.discountType === 'percentage') {
+      return (currentPrice * this.appliedCoupon.discountValue) / 100;
+    } else if (this.appliedCoupon.discountType === 'fixed') {
+      return Math.min(this.appliedCoupon.discountValue, currentPrice);
+    }
+    
+    return 0;
+  }
+
+  getFinalPrice(): number {
+    const originalPrice = this.getCurrentPrice();
+    const discountAmount = this.getDiscountAmount();
+    return Math.max(0, originalPrice - discountAmount);
   }
 }
