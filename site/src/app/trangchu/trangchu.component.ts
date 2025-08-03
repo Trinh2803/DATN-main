@@ -1,10 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ListcardComponent } from '../listcard/listcard.component';
 import { ProductInterface } from '../product-interface';
 import { ProductService } from '../product.service';
 import { CommentService } from '../comment.service';
-import { Comment, ApiResponse } from '../../admin/src/app/interfaces/comment.interface';
+import { Comment, ApiResponse } from '../interfaces/comment.interface';
 
 interface Slide {
   image: string;
@@ -29,7 +30,7 @@ interface NewsItem {
 @Component({
   selector: 'app-trangchu',
   standalone: true,
-  imports: [CommonModule, ListcardComponent],
+  imports: [CommonModule, ListcardComponent, FormsModule],
   templateUrl: './trangchu.component.html',
   styleUrls: ['./trangchu.component.css']
 })

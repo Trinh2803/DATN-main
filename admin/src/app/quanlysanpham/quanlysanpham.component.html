@@ -167,7 +167,7 @@
                 <div class="variant-item" *ngFor="let variant of currentProduct.variants; let i = index; trackBy: trackByVariantId">
                   <!-- Debug info -->
                   <div style="background: yellow; padding: 5px; margin: 5px;">
-                    Debug: Variant {{i}} - ID: {{variant.id}} - Size: {{variant.size}}
+                    Debug: Variant {{i}} - ID: {{variant._id}} - Size: {{variant.size}}
                   </div>
                   <div class="variant-header">
                     <h4>Biến thể {{ i + 1 }}</h4>

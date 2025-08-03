@@ -212,7 +212,7 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
       this.currentProduct.variants = [];
     }
     const newVariant = {
-      id: this.generateId(),
+      _id: this.generateId(),
       size: '',
       price: 0,
       salePrice: undefined,
@@ -407,6 +407,6 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
   }
 
   trackByVariantId(index: number, variant: Variant): string {
-    return variant.id;
+    return variant._id;
   }
 }

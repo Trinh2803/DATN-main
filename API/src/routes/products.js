@@ -17,7 +17,7 @@ const {
 // Tạo instance multer với thư mục 'products'
 const productUpload = upload('products');
 
-router.post('/check-discount', checkProductDiscount); // Đặt lên trên
+// router.post('/check-discount', checkProductDiscount); // Đặt lên trên
 router.get('/new', getNewProducts);
 router.get('/sale', getSaleProducts);
 router.get('/hot', getHotProducts);
