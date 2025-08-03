@@ -3,13 +3,16 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../product.service';
 import { CartService } from '../cart.service';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ProductInterface, Variant } from '../product-interface';
 import { WishlistService } from '../wishlist.service';
+import { CommentService } from '../comment.service';
+import { Comment } from '../interfaces/comment.interface';
 import Swal from 'sweetalert2';
 
 @Component({
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   selector: 'app-chitietsanpham',
   templateUrl: './chitietsanpham.component.html',
   styleUrls: ['./chitietsanpham.component.css'],
@@ -22,12 +25,26 @@ export class ChiTietSanPhamComponent implements OnInit {
   relatedProducts: ProductInterface[] = []; // Thêm sản phẩm liên quan
   private wishlistCache = new Map<string, boolean>();
 
+  // Comment properties
+  comments: Comment[] = [];
+  averageRating: number = 0;
+  commentFilter: string | number = 'all';
+  hoverRating: number = 0;
+  isSubmitting: boolean = false;
+  newComment = {
+    userName: '',
+    userEmail: '',
+    rating: 0,
+    content: ''
+  };
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private productService: ProductService,
     private cartService: CartService,
-    private wishlistService: WishlistService
+    private wishlistService: WishlistService,
+    private commentService: CommentService
   ) {}
 
   ngOnInit(): void {
@@ -43,6 +60,8 @@ export class ChiTietSanPhamComponent implements OnInit {
           this.loadRelatedProducts();
           // Load wishlist status
           this.loadWishlistStatus();
+          // Load comments
+          this.loadComments();
         },
         error: (err: any) => {
           console.error('Lỗi khi lấy chi tiết sản phẩm:', err);
@@ -402,5 +421,121 @@ export class ChiTietSanPhamComponent implements OnInit {
   isFavorite(): boolean {
     if (!this.product) return false;
     return this.wishlistCache.get(this.product._id) || false;
+  }
+
+  // Comment methods
+  loadComments(): void {
+    if (this.product?._id) {
+      this.commentService.getCommentsByProduct(this.product._id).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.comments = response.data.filter(comment => comment.status === 'approved');
+            this.calculateAverageRating();
+          }
+        },
+        error: (err) => {
+          console.error('Lỗi khi tải bình luận:', err);
+        }
+      });
+    }
+  }
+
+  calculateAverageRating(): void {
+    if (this.comments.length > 0) {
+      const totalRating = this.comments.reduce((sum, comment) => sum + comment.rating, 0);
+      this.averageRating = totalRating / this.comments.length;
+    } else {
+      this.averageRating = 0;
+    }
+  }
+
+  setRating(rating: number): void {
+    this.newComment.rating = rating;
+  }
+
+  getRatingText(rating: number): string {
+    const ratingTexts = {
+      1: 'Rất tệ',
+      2: 'Tệ', 
+      3: 'Bình thường',
+      4: 'Tốt',
+      5: 'Rất tốt'
+    };
+    return ratingTexts[rating as keyof typeof ratingTexts] || '';
+  }
+
+  submitComment(): void {
+    if (!this.product?._id) return;
+
+    this.isSubmitting = true;
+    const commentData = {
+      productId: this.product._id,
+      userName: this.newComment.userName,
+      userEmail: this.newComment.userEmail,
+      rating: this.newComment.rating,
+      content: this.newComment.content
+    };
+
+    this.commentService.createComment(commentData).subscribe({
+      next: (response) => {
+        if (response.success) {
+          Swal.fire({
+            title: 'Thành công!',
+            text: 'Đánh giá của bạn đã được gửi và đang chờ duyệt',
+            icon: 'success',
+            confirmButtonText: 'OK'
+          });
+          // Reset form
+          this.newComment = {
+            userName: '',
+            userEmail: '',
+            rating: 0,
+            content: ''
+          };
+        }
+      },
+      error: (err) => {
+        console.error('Lỗi khi gửi bình luận:', err);
+        Swal.fire({
+          title: 'Lỗi!',
+          text: 'Có lỗi xảy ra khi gửi đánh giá',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+      },
+      complete: () => {
+        this.isSubmitting = false;
+      }
+    });
+  }
+
+  getRatingCount(rating: number): number {
+    return this.comments.filter(comment => comment.rating === rating).length;
+  }
+
+  getRatingPercentage(rating: number): number {
+    if (this.comments.length === 0) return 0;
+    return (this.getRatingCount(rating) / this.comments.length) * 100;
+  }
+
+  setCommentFilter(filter: string | number): void {
+    this.commentFilter = filter;
+  }
+
+  getFilteredComments(): Comment[] {
+    if (this.commentFilter === 'all') {
+      return this.comments;
+    }
+    return this.comments.filter(comment => comment.rating === this.commentFilter);
+  }
+
+  formatDate(dateString: string | undefined): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('vi-VN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   }
 }

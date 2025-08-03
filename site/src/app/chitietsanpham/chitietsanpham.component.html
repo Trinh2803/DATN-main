@@ -163,5 +163,163 @@
       </div>
     </div>
   </div>
+
+  <!-- Comments Section -->
+  <div class="comments-section" *ngIf="product">
+    <div class="comments-header">
+      <h2 class="comments-title">
+        <i class="fas fa-comments"></i>
+        Đánh giá sản phẩm
+        <span class="comments-count" *ngIf="comments.length > 0">({{ comments.length }})</span>
+      </h2>
+      
+      <!-- Rating Summary -->
+      <div class="rating-summary" *ngIf="comments.length > 0">
+        <div class="average-rating">
+          <div class="rating-number">{{ averageRating | number:'1.1-1' }}</div>
+          <div class="rating-stars">
+            <i *ngFor="let star of [1,2,3,4,5]" 
+               [class]="star <= averageRating ? 'fas fa-star' : 'far fa-star'"></i>
+          </div>
+          <div class="rating-text">{{ comments.length }} đánh giá</div>
+        </div>
+        
+        <div class="rating-breakdown">
+          <div class="rating-bar" *ngFor="let rating of [5,4,3,2,1]">
+            <span class="rating-label">{{ rating }} sao</span>
+            <div class="bar-container">
+              <div class="bar-fill" [style.width.%]="getRatingPercentage(rating)"></div>
+            </div>
+            <span class="rating-count">{{ getRatingCount(rating) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comment Form -->
+    <div class="comment-form-container">
+      <h3 class="form-title">Viết đánh giá của bạn</h3>
+      <form class="comment-form" (ngSubmit)="submitComment()" #commentForm="ngForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="userName">Họ tên *</label>
+            <input 
+              type="text" 
+              id="userName" 
+              name="userName"
+              [(ngModel)]="newComment.userName" 
+              required
+              placeholder="Nhập họ tên của bạn"
+              class="form-input">
+          </div>
+          <div class="form-group">
+            <label for="userEmail">Email *</label>
+            <input 
+              type="email" 
+              id="userEmail" 
+              name="userEmail"
+              [(ngModel)]="newComment.userEmail" 
+              required
+              placeholder="Nhập email của bạn"
+              class="form-input">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Đánh giá *</label>
+          <div class="rating-input">
+            <i *ngFor="let star of [1,2,3,4,5]; let i = index" 
+               [class]="i < newComment.rating ? 'fas fa-star active' : 'far fa-star'"
+               (click)="setRating(i + 1)"
+               (mouseover)="hoverRating = i + 1"
+               (mouseleave)="hoverRating = 0"></i>
+            <span class="rating-text">{{ getRatingText(newComment.rating) }}</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="content">Nội dung đánh giá *</label>
+          <textarea 
+            id="content" 
+            name="content"
+            [(ngModel)]="newComment.content" 
+            required
+            placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..."
+            class="form-textarea"
+            rows="4"></textarea>
+        </div>
+        
+        <button type="submit" 
+                class="submit-btn" 
+                [disabled]="!commentForm.valid || isSubmitting">
+          <i class="fas fa-paper-plane" *ngIf="!isSubmitting"></i>
+          <i class="fas fa-spinner fa-spin" *ngIf="isSubmitting"></i>
+          {{ isSubmitting ? 'Đang gửi...' : 'Gửi đánh giá' }}
+        </button>
+      </form>
+    </div>
+
+    <!-- Comments List -->
+    <div class="comments-list">
+      <div class="comments-filter">
+        <button class="filter-btn" 
+                [class.active]="commentFilter === 'all'"
+                (click)="setCommentFilter('all')">
+          Tất cả ({{ comments.length }})
+        </button>
+        <button class="filter-btn" 
+                *ngFor="let rating of [5,4,3,2,1]"
+                [class.active]="commentFilter === rating"
+                (click)="setCommentFilter(rating)">
+          {{ rating }} sao ({{ getRatingCount(rating) }})
+        </button>
+      </div>
+      
+      <div class="comment-item" *ngFor="let comment of getFilteredComments()">
+        <div class="comment-header">
+          <div class="user-info">
+            <div class="user-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <div class="user-details">
+              <div class="user-name">{{ comment.userName }}</div>
+              <div class="comment-date">{{ formatDate(comment.createdAt) }}</div>
+            </div>
+          </div>
+          <div class="comment-rating">
+            <i *ngFor="let star of [1,2,3,4,5]" 
+               [class]="star <= comment.rating ? 'fas fa-star' : 'far fa-star'"></i>
+          </div>
+        </div>
+        
+        <div class="comment-content">
+          {{ comment.content }}
+        </div>
+        
+        <!-- Admin Reply -->
+        <div class="admin-reply" *ngIf="comment.adminReply">
+          <div class="reply-header">
+            <i class="fas fa-reply"></i>
+            <span class="reply-label">Phản hồi từ Shop</span>
+            <span class="reply-date">{{ formatDate(comment.adminReply.repliedAt) }}</span>
+          </div>
+          <div class="reply-content">
+            {{ comment.adminReply.content }}
+          </div>
+        </div>
+        
+        <div class="comment-status" *ngIf="comment.status === 'pending'">
+          <i class="fas fa-clock"></i>
+          <span>Đang chờ duyệt</span>
+        </div>
+      </div>
+      
+      <div class="no-comments" *ngIf="getFilteredComments().length === 0">
+        <i class="fas fa-comment-slash"></i>
+        <p>{{ commentFilter === 'all' ? 'Chưa có đánh giá nào cho sản phẩm này' : 'Không có đánh giá nào với số sao đã chọn' }}</p>
+      </div>
+    </div>
+  </div>
+
 </div>
 
