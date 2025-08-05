@@ -14,6 +14,7 @@ import { lichsudonhangComponent } from './lichsudonhang/lichsudonhang.component'
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { VerifyOtpComponent } from './verify-otp/verify-otp.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { DanhsachyeuthichComponent } from './danhsachyeuthich/danhsachyeuthich.component';
 // import { TimkiemComponent } from './timkiem/timkiem.component';
 // import { DangkyComponent } from './dangky/dangky.component';
 // import { DangnhapComponent } from './dangnhap/dangnhap.component';
@@ -31,6 +32,7 @@ export const routes: Routes = [
     { path: 'forgot-password', component: ForgotPasswordComponent },
     { path: 'verify-otp', component: VerifyOtpComponent },
     { path: 'reset-password', component: ResetPasswordComponent },
+    {path: 'danhsachyeuthich', component : DanhsachyeuthichComponent},
     // { path: 'lienhe', component: LienheComponent},
     // { path: 'gioithieu', component: GioithieuComponent},
     // { path: 'timkiem', component: TimkiemComponent},

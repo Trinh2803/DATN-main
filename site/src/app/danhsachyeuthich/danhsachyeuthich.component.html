@@ -1,0 +1,19 @@
+<div class="favorite-page">
+  <h2>❤️ Danh sách yêu thích của bạn</h2>
+
+  <div class="form-group">
+    <input [(ngModel)]="newItem" placeholder="Nhập tên mục yêu thích..." />
+    <button (click)="addItem()">➕ Thêm</button>
+  </div>
+
+  <div *ngIf="favoriteItems.length === 0" class="empty-message">
+    Bạn chưa thêm mục yêu thích nào.
+  </div>
+
+  <ul class="favorite-list" *ngIf="favoriteItems.length > 0">
+    <li *ngFor="let item of favoriteItems; let i = index">
+      <span>{{ item }}</span>
+      <button class="remove-btn" (click)="removeItem(i)">🗑 Xóa</button>
+    </li>
+  </ul>
+</div>
