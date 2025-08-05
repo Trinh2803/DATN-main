@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ListcardComponent } from '../listcard/listcard.component';
 import { ProductInterface } from '../product-interface';
 import { ProductService } from '../product.service';
@@ -29,7 +30,7 @@ interface NewsItem {
 @Component({
   selector: 'app-trangchu',
   standalone: true,
-  imports: [CommonModule, ListcardComponent],
+  imports: [CommonModule, FormsModule, ListcardComponent],
   templateUrl: './trangchu.component.html',
   styleUrls: ['./trangchu.component.css']
 })
