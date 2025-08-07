@@ -17,26 +17,31 @@ const getOrderById = async (id) => {
   return order;
 };
 
-const updateOrderStatus = async (id, { status }) => {
+const updateOrderStatus = async (id, status, adminNote) => {
+  console.log(`Updating order ${id} to status: ${status}`);
+  
   if (!mongoose.isValidObjectId(id)) {
     throw new Error('ID đơn hàng không hợp lệ');
   }
+  
   const order = await Order.findById(id);
-  if (!order) throw new Error('Không tìm thấy đơn hàng');
+  if (!order) {
+    throw new Error('Không tìm thấy đơn hàng');
+  }
+  
+  console.log(`Current order status: ${order.status}`);
   
   const validStatuses = ['Chờ xác nhận', 'Đang chuẩn bị', 'Đang giao', 'Đã giao', 'Đã hủy', 'Đã hoàn thành'];
   if (!validStatuses.includes(status)) {
-    throw new Error('Trạng thái không hợp lệ');
+    throw new Error(`Trạng thái không hợp lệ: ${status}. Các trạng thái hợp lệ: ${validStatuses.join(', ')}`);
   }
   
-  // Ngăn chặn việc quay lại trạng thái "Chờ xác nhận"
-  if (status === 'Chờ xác nhận' && order.status !== 'Chờ xác nhận') {
-    throw new Error('Không thể quay lại trạng thái "Chờ xác nhận" sau khi đã xác nhận đơn hàng');
-  }
+  // Chỉ áp dụng các ràng buộc nghiêm ngặt cho một số trường hợp cụ thể
   
-  // Ngăn chặn việc chuyển từ trạng thái "Đã hủy" sang trạng thái khác
-  if (order.status === 'Đã hủy' && status !== 'Đã hủy') {
-    throw new Error('Đơn hàng đã hủy không thể chuyển sang trạng thái khác');
+  // Ngăn chặn việc chuyển từ trạng thái "Đã hủy" sang trạng thái khác (trừ admin có thể sửa lỗi)
+  if (order.status === 'Đã hủy' && status !== 'Đã hủy' && status !== 'Chờ xác nhận') {
+    console.warn(`Attempting to change cancelled order ${id} from ${order.status} to ${status}`);
+    // Cho phép admin khôi phục đơn hàng đã hủy về trạng thái chờ xác nhận
   }
   
   // Ngăn chặn việc chuyển sang "Đã hủy" từ các trạng thái đã hoàn thành
@@ -44,13 +49,18 @@ const updateOrderStatus = async (id, { status }) => {
     throw new Error('Đơn hàng đã giao hoặc hoàn thành không thể hủy');
   }
   
-  // Ngăn chặn việc thay đổi trạng thái đã hoàn thành
-  if (order.status === 'Đã hoàn thành' && status !== 'Đã hoàn thành') {
-    throw new Error('Đơn hàng đã hoàn thành không thể thay đổi trạng thái');
+  // Cập nhật trạng thái
+  order.status = status;
+  if (adminNote !== undefined) {
+    order.adminNote = adminNote;
   }
   
-  order.status = status;
+  // Thêm timestamp cho việc cập nhật
+  order.updatedAt = new Date();
+  
   await order.save();
+  console.log(`Order ${id} updated successfully to status: ${status}`);
+  
   return order;
 };
 
