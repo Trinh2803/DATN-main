@@ -115,7 +115,7 @@ export class CheckoutComponent implements OnInit {
           // Lưu thông tin đơn hàng để xử lý sau khi thanh toán thành công
           const orderData = this.prepareOrderData();
           localStorage.setItem('pendingVNPayOrder', JSON.stringify(orderData));
-          
+
           // Chuyển đến trang thanh toán VNPay
           this.paymentService.openPaymentPage(response.data);
         } else {
