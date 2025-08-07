@@ -691,12 +691,12 @@ tbody tr:hover {
   .stats-grid {
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   }
-  
+
   .filters-container {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .filter-group {
     min-width: auto;
   }
@@ -707,45 +707,45 @@ tbody tr:hover {
     padding-left: 12px;
     padding-right: 12px;
   }
-  
+
   .sidebar {
     width: 60px;
     min-width: 60px;
   }
-  
+
   .logo-text, .sidebar-menu a span:not(.icon) {
     display: none;
   }
-  
+
   .sidebar {
     padding: 0;
   }
-  
+
   .stats-grid {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 15px;
   }
-  
+
   .stat-card {
     padding: 15px;
   }
-  
+
   .stat-number {
     font-size: 24px;
   }
-  
+
   .table-wrapper {
     overflow-x: auto;
   }
-  
+
   table {
     min-width: 800px;
   }
-  
+
   .action-container {
     min-width: 150px;
   }
-  
+
   .pagination-container {
     flex-direction: column;
     gap: 15px;
@@ -758,30 +758,30 @@ tbody tr:hover {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .filters-container {
     padding: 15px;
   }
-  
+
   .filter-group {
     min-width: 100%;
   }
-  
+
   .action-container {
     flex-direction: column;
     gap: 6px;
   }
-  
+
   .action-select,
   .detail-button {
     width: 100%;
     text-align: center;
   }
-  
+
   .pagination {
     flex-wrap: wrap;
     justify-content: center;
@@ -792,21 +792,21 @@ tbody tr:hover {
   .stats-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .stat-card {
     padding: 12px;
   }
-  
+
   .stat-icon {
     width: 40px;
     height: 40px;
     font-size: 20px;
   }
-  
+
   .stat-number {
     font-size: 20px;
   }
-  
+
   .page-btn {
     padding: 6px 8px;
     font-size: 12px;
