@@ -17,6 +17,7 @@ const multer = require("multer");
 const mongoose = require("mongoose");
 const discountsRouter = require("./routes/discounts");
 const wishlistRouter = require("./routes/wishlist");
+const commentsRouter = require("./routes/comments");
 
 const viewEngine = require("./config/viewEngine");
 var app = express();
@@ -48,6 +49,7 @@ app.use("/products", productsRouter);
 app.use("/orders", orderssRouter);
 app.use("/api/discounts", discountsRouter);
 app.use("/wishlist", wishlistRouter);
+app.use("/comments", commentsRouter);
 // app.use("/pay", payRouter); // Comment out this line
 app.use("/payment", paymentRouter);
 
