@@ -69,7 +69,7 @@ export class QuanlybinhluanComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) {
       this.errorMessage = 'Vui lòng đăng nhập.';
       Swal.fire('Lỗi', this.errorMessage, 'error');
@@ -145,7 +145,7 @@ export class QuanlybinhluanComponent implements OnInit, AfterViewInit {
             : err.error?.message || err.message || 'Lỗi khi lấy danh sách bình luận';
         Swal.fire('Lỗi', this.errorMessage, 'error');
         if (err.status === 401 || err.status === 403) {
-          localStorage.removeItem('token');
+          localStorage.removeItem('adminToken');
           this.router.navigate(['/login']);
         }
         this.isLoading = false;

@@ -46,7 +46,7 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
   }
 
     private checkAuthAndLoadData(): void {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) {
       this.errorMessage = 'Vui lòng đăng nhập.';
       this.router.navigate(['/login']);
@@ -60,7 +60,7 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
 
   private handleAuthError(): void {
     this.errorMessage = 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.';
-    localStorage.removeItem('token');
+    localStorage.removeItem('adminToken');
     localStorage.removeItem('userAvatar');
     this.router.navigate(['/login']);
   }
@@ -333,7 +333,7 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
   }
 
   logout(): void {
-    localStorage.removeItem('token');
+    localStorage.removeItem('adminToken');
     localStorage.removeItem('userAvatar');
     this.errorMessage = null;
     this.router.navigate(['/login']);
