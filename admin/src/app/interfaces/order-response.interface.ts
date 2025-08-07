@@ -16,6 +16,21 @@ export interface Order {
   status: 'Chờ xác nhận' | 'Đang chuẩn bị' | 'Đang giao' | 'Đã giao' | 'Đã hủy' | 'Đã hoàn thành';
   adminNote?: string;
   createdAt?: string; // Thay đổi kiểu dữ liệu thành string
+  
+  // Thêm các trường cho tích hợp VNPay
+  paymentMethod?: 'cod' | 'vnpay';
+  paymentStatus?: 'pending' | 'completed' | 'failed';
+  vnpayInfo?: {
+    vnp_TxnRef: string;
+    vnp_TransactionNo?: string;
+    vnp_Amount: number;
+    vnp_OrderInfo: string;
+    vnp_ResponseCode: string;
+    vnp_TransactionStatus: string;
+    vnp_PayDate?: string;
+    vnp_BankCode?: string;
+    vnp_CardType?: string;
+  };
 }
 
 export interface ApiResponse<T> {
