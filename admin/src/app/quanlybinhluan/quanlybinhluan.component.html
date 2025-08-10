@@ -1,7 +1,7 @@
 <div class="app-container">
   <aside class="sidebar">
     <div class="logo">
-      <span class="logo-text"><img src="/images/logo.png" width="100px"></span>
+      <span class="logo-text"><img src="assets/images/logo.png" width="100px"></span>
     </div>
     <nav class="sidebar-menu">
       <a class="menu-item" [routerLink]="['/thongke']"><span class="icon menu-dashboard"></span> Bảng điều khiển</a>
@@ -247,13 +247,7 @@
                   </div>
                 </td>
                 <td>
-                  <div class="product-info-cell">
-                    <img
-                      [src]="comment.productId?._id === 'homepage' ? '/assets/images/icon.png' : (comment.productId?.thumbnail || '/assets/images/icon.png')"
-                      alt="Product"
-                      class="product-image"
-                    >
-                    <div class="product-details">
+                  <div class="product-info-cell"> <div class="product-details">
                       <div class="product-name">
                         {{ comment.productId?._id === 'homepage' ? 'Trang chủ' : (comment.productId?.name || 'Không xác định') }}
                       </div>
@@ -288,7 +282,7 @@
                   <div class="date-cell">
                     <div class="date">{{ formatDate(comment.createdAt) }}</div>
                     <small class="edited-info" *ngIf="comment.isEdited">
-                      <i class="fas fa-edit"></i>
+                      <span class="icon">✏️</span>
                       Đã chỉnh sửa
                     </small>
                   </div>
@@ -301,18 +295,18 @@
                       (click)="openReplyModal(comment)"
                       *ngIf="comment.status === 'approved'"
                     >
-                      <i class="fas fa-reply"></i>
+                      <span class="icon">✅</span>
                     </button>
                     <button
                       class="btn-edit"
                       title="Chỉnh sửa"
                       (click)="openEditModal(comment)"
                     >
-                      <i class="fas fa-edit"></i>
+                      <span class="icon">✏️</span>
                     </button>
                     <div class="dropdown">
                       <button class="btn-status dropdown-toggle" title="Thay đổi trạng thái">
-                        <i class="fas fa-cog"></i>
+                        <span class="icon">⚙️</span>
                       </button>
                       <div class="dropdown-menu">
                         <a class="dropdown-item" (click)="updateCommentStatus(comment._id!, 'approved')">
@@ -330,7 +324,7 @@
                       title="Xóa"
                       (click)="deleteComment(comment._id!)"
                     >
-                      <i class="fas fa-trash"></i>
+                      <span class="icon">🗑️</span>
                     </button>
                   </div>
                 </td>
@@ -382,7 +376,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">
-          <i class="fas fa-reply"></i>
+          <span class="icon">✅</span>
           Trả lời bình luận
         </h5>
         <button type="button" class="modal-close" (click)="closeModal()">×</button>
@@ -425,7 +419,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">
-          <i class="fas fa-edit"></i>
+          <span class="icon">✏️</span>
           Chỉnh sửa bình luận
         </h5>
         <button type="button" class="modal-close" (click)="closeModal()">×</button>

@@ -637,6 +637,43 @@
   text-align: center;
   min-width: 100px;
 }
+.badge-warning {
+  background: #fff3cd;
+  color: #856404;
+}
+.badge-info {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+.badge-primary {
+  background: #cce5ff;
+  color: #004085;
+}
+.badge-success {
+  background: #d4edda;
+  color: #155724;
+}
+.badge-danger {
+  background: #f8d7da;
+  color: #721c24;
+}
+.badge-completed {
+  background: #d1f2eb;
+  color: #0e6655;
+}
+.badge-secondary {
+  background: #e2e3e5;
+  color: #383d41;
+}
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  min-width: 100px;
+}
 
 .status-badge.approved {
   background: #d4edda;
@@ -1184,4 +1221,73 @@
     font-size: 12px;
     min-width: 35px;
   }
+}
+
+/* Căn giữa và bo tròn ảnh sản phẩm */
+.product-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid #ddd;
+  background-color: #fff;
+}
+
+/* Logo hiển thị rõ hơn */
+.logo-text img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Hover vào hàng bình luận đổi màu nhẹ */
+.comments-table tbody tr:hover {
+  background: #eef3ff;
+}
+
+/* Action buttons styled like order management */
+.action-buttons button {
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  border: none;
+}
+
+.btn-reply {
+  background: #2e6cff;
+  color: white;
+}
+.btn-reply:hover {
+  background: #1e5cd4;
+}
+
+.btn-edit {
+  background: #ffc107;
+  color: white;
+}
+.btn-edit:hover {
+  background: #e0a800;
+}
+
+.btn-status {
+  background: #28a745;
+  color: white;
+}
+.btn-status:hover {
+  background: #218838;
+}
+
+.btn-delete {
+  background: #dc3545;
+  color: white;
+}
+.btn-delete:hover {
+  background: #c82333;
 }

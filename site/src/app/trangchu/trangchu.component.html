@@ -103,21 +103,4 @@
   </div>
 </section>
 
-<!-- Comment Section -->
-<section class="comment-section">
-  <div class="container">
-    <h2>Bình luận</h2>
-    <div *ngIf="comments.length === 0" class="no-comments">Chưa có bình luận nào.</div>
-    <div class="comment-list">
-      <div class="comment-item" *ngFor="let cmt of comments">
-        <div class="comment-header">
-          <strong>{{ cmt.userName }}</strong> <span class="comment-email">({{ cmt.userEmail }})</span>
-          <span class="comment-rating">- Đánh giá: {{ cmt.rating }}/5</span>
-        </div>
-        <div class="comment-content">{{ cmt.content }}</div>
-        <div class="comment-date">{{ cmt.createdAt ? (cmt.createdAt | date:'dd/MM/yyyy HH:mm') : '' }}</div>
-      </div>
-    </div>
-    
-  </div>
-</section>
+
