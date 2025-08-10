@@ -66,6 +66,8 @@
   </div>
 
   <div class="right-section">
+    
+
     <div class="cart-items">
       <div class="cart-item" *ngFor="let item of cartItems; let i = index">
         <div class="cart-item-image">
@@ -85,12 +87,7 @@
     <div class="cart-summary">
       <div class="summary-row">
         <span>Tạm tính</span>
-        <span>{{ totalPrice | number:'1.0-0' }}₫</span>
-      </div>
-      
-      <div class="summary-row" *ngIf="discountInfo">
-        <span>Giảm giá ({{ discountInfo.code }})</span>
-        <span class="discount-amount">-{{ discountInfo.discountAmount | number:'1.0-0' }}₫</span>
+        <span>{{ getDiscountedSubtotal() | number:'1.0-0' }}₫</span>
       </div>
       
       <div class="summary-row">
@@ -100,7 +97,7 @@
       
       <div class="summary-row total">
         <span>Tổng cộng</span>
-        <span>VND {{ finalAmount | number:'1.0-0' }}₫</span>
+        <span>VND {{ getDiscountedTotal() | number:'1.0-0' }}₫</span>
       </div>
     </div>
   </div>

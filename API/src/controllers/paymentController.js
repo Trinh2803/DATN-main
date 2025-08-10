@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const querystring = require('qs');
 const { vnp_TmnCode, vnp_HashSecret, vnp_Url, vnp_ReturnUrl } = require('../config/vnpayConfig');
 const orderService = require('../services/orderService');
+const Discount = require('../models/discountModel');
 
 // Tạo URL thanh toán
 exports.createPayment = async (req, res) => {
@@ -131,15 +132,50 @@ exports.createOrderAfterPayment = async (req, res) => {
 
         // Tạo đơn hàng trong database
         const order = await orderService.createOrder(updatedOrderData);
-        
-        res.status(201).json({
+
+        // Tăng bộ đếm sử dụng mã giảm giá (nếu có)
+        try {
+            const discountId = updatedOrderData?.discountInfo?._id;
+            if (discountId) {
+                const discount = Discount.getDiscountById(discountId);
+                if (discount && discount.isActive) {
+                    const now = new Date();
+                    const withinTime = (!discount.startDate || now >= new Date(discount.startDate)) && (!discount.endDate || now <= new Date(discount.endDate));
+                    const underGlobalLimit = !discount.usageLimit || (discount.usedCount || 0) < discount.usageLimit;
+                    if (withinTime && underGlobalLimit) {
+                        const userId = req.user?.id || req.user?._id || updatedOrderData.userId;
+                        if (discount.usageLimitPerUser) {
+                            if (userId) {
+                                const usedBy = discount.usedBy || {};
+                                const userUsed = usedBy[userId] || 0;
+                                if (userUsed < discount.usageLimitPerUser) {
+                                    usedBy[userId] = userUsed + 1;
+                                    Discount.updateDiscount(discountId, {
+                                        usedCount: (discount.usedCount || 0) + 1,
+                                        usedBy
+                                    });
+                                }
+                            }
+                        } else {
+                            Discount.updateDiscount(discountId, {
+                                usedCount: (discount.usedCount || 0) + 1
+                            });
+                        }
+                    }
+                }
+            }
+        } catch (incErr) {
+            console.warn('Không thể tăng bộ đếm mã giảm giá sau VNPay:', incErr?.message || incErr);
+        }
+
+        return res.status(201).json({
             success: true,
             message: 'Đơn hàng đã được tạo thành công sau thanh toán VNPay',
             data: order
         });
     } catch (error) {
         console.error('Error creating order after VNPay payment:', error);
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: 'Lỗi khi tạo đơn hàng sau thanh toán',
             error: error.message
@@ -221,6 +257,41 @@ exports.createOrderAfterPayment = async (req, res) => {
         // Tạo đơn hàng trong database
         const order = await orderService.createOrder(updatedOrderData);
         
+        // Tăng bộ đếm sử dụng mã giảm giá (nếu có)
+        try {
+            const discountId = updatedOrderData?.discountInfo?._id;
+            if (discountId) {
+                const discount = Discount.getDiscountById(discountId);
+                if (discount && discount.isActive) {
+                    const now = new Date();
+                    const withinTime = (!discount.startDate || now >= new Date(discount.startDate)) && (!discount.endDate || now <= new Date(discount.endDate));
+                    const underGlobalLimit = !discount.usageLimit || (discount.usedCount || 0) < discount.usageLimit;
+                    if (withinTime && underGlobalLimit) {
+                        const userId = req.user?.id || req.user?._id || updatedOrderData.userId;
+                        if (discount.usageLimitPerUser) {
+                            if (userId) {
+                                const usedBy = discount.usedBy || {};
+                                const userUsed = usedBy[userId] || 0;
+                                if (userUsed < discount.usageLimitPerUser) {
+                                    usedBy[userId] = userUsed + 1;
+                                    Discount.updateDiscount(discountId, {
+                                        usedCount: (discount.usedCount || 0) + 1,
+                                        usedBy
+                                    });
+                                }
+                            }
+                        } else {
+                            Discount.updateDiscount(discountId, {
+                                usedCount: (discount.usedCount || 0) + 1
+                            });
+                        }
+                    }
+                }
+            }
+        } catch (incErr) {
+            console.warn('Không thể tăng bộ đếm mã giảm giá sau VNPay:', incErr?.message || incErr);
+        }
+
         res.status(201).json({
             success: true,
             message: 'Đơn hàng đã được tạo thành công sau thanh toán VNPay',
