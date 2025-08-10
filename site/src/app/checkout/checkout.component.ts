@@ -141,9 +141,14 @@ export class CheckoutComponent implements OnInit {
         this.cartService.clearCart();
         localStorage.removeItem('pendingOrder');
         const orderId = response.data._id;
-        console.log('Order created with ID:', orderId);
+        console.log('COD Order created with ID:', orderId);
+        
+        // Hiển thị thông báo thành công
+        alert('Đơn hàng COD đã được tạo thành công! Đang chuyển đến trang đơn hàng...');
+        
+        // Chuyển đến trang đơn hàng để hiển thị thông tin chi tiết
         this.router.navigate(['/donhang'], {
-          queryParams: { orderId },
+          queryParams: { orderId }
         });
       },
       error: (err) => {

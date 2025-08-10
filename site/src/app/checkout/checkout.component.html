@@ -49,15 +49,18 @@
         <div class="payment-option">
           <input type="radio" id="vnpay" name="paymentMethod" [(ngModel)]="shippingInfo.paymentMethod" value="vnpay" />
           <label for="vnpay">
-            <img src="https://sandbox.vnpayment.vn/apis/assets/images/logo.png" width="24" height="24" alt="VNPay Icon" />
-            Thanh toán online VNPay
+            <div class="vnpay-css-icon"></div>
+            <span class="payment-text">
+              <strong>Thanh toán online VNPay</strong>
+              <small>Thẻ ATM, Visa, MasterCard, QR Code</small>
+            </span>
           </label>
         </div>
       </div>
     </form>
 
     <div class="btn-row">
-<button class="btn btn-outline" (click)="goToCart()">Quay lại giỏ hàng</button>
+      <button class="btn btn-outline" (click)="goToCart()">Quay lại giỏ hàng</button>
       <button class="btn btn-primary" (click)="onCheckout()">Hoàn tất đơn hàng</button>
     </div>
   </div>

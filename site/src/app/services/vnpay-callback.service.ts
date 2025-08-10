@@ -53,6 +53,8 @@ export class VNPayCallbackService {
 
   // Xử lý sau khi tạo đơn hàng thành công
   onOrderCreated(orderId: string): void {
+    console.log('onOrderCreated called with orderId:', orderId);
+    
     // Xóa thông tin đơn hàng tạm
     localStorage.removeItem('pendingVNPayOrder');
     localStorage.removeItem('pendingOrder');
@@ -60,9 +62,22 @@ export class VNPayCallbackService {
     // Xóa giỏ hàng
     this.cartService.clearCart();
     
-    // Chuyển đến trang hóa đơn để hiển thị thông tin chi tiết
+    console.log('Navigating to invoice page with orderId:', orderId);
+    
+    // Chuyển đến trang hóa đơn điện tử để hiển thị thông tin chi tiết
     this.router.navigate(['/invoice'], {
       queryParams: { orderId }
+    }).then(success => {
+      console.log('Navigation to invoice page success:', success);
+      if (!success) {
+        console.error('Navigation failed, trying alternative method');
+        // Fallback: sử dụng window.location
+        window.location.href = `/invoice?orderId=${orderId}`;
+      }
+    }).catch(error => {
+      console.error('Navigation error:', error);
+      // Fallback: sử dụng window.location
+      window.location.href = `/invoice?orderId=${orderId}`;
     });
   }
 
