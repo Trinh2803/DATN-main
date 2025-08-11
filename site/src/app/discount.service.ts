@@ -45,14 +45,6 @@ export class DiscountService {
 
   constructor(private http: HttpClient) { }
 
-  // Get applicable discounts for a product/category
-  getApplicable(productId?: string, categoryId?: string): Observable<{ success: boolean; data: Discount[] }>{
-    const params: any = {};
-    if (productId) params.productId = productId;
-    if (categoryId) params.categoryId = categoryId;
-    return this.http.get<{ success: boolean; data: Discount[] }>(`${this.apiUrl}/applicable`, { params });
-  }
-
   // Check discount code validity
   checkDiscountCode(code: string, totalAmount: number, productIds: string[]): Observable<DiscountCheckResponse> {
     return this.http.post<DiscountCheckResponse>(`${this.apiUrl}/check`, {
@@ -66,4 +58,4 @@ export class DiscountService {
   applyDiscount(discountId: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/apply`, { discountId });
   }
-}
+} 

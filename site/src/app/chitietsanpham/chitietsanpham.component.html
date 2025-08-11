@@ -29,21 +29,11 @@
       <h1 class="product-title">{{ product.name }}</h1>
 
       <div class="product-price">
-        <!-- Trường hợp đã áp dụng mã giảm giá -->
-        <ng-container *ngIf="appliedCoupon; else noCouponBlock">
-          <span class="current-price">{{ getFinalPrice() | currency:'VND':'symbol' }}</span>
-          <span class="old-price">{{ getCurrentPrice() | currency:'VND':'symbol' }}</span>
-        </ng-container>
-
-        <!-- Trường hợp chưa áp dụng mã giảm giá -->
-        <ng-template #noCouponBlock>
-          <span class="discount-badge" *ngIf="isSaleProduct()">
-            Giảm {{ calculateDiscountPercentage() }}%
-          </span>
-          <span class="current-price">{{ getCurrentPrice() | currency:'VND':'symbol' }}</span>
-          <span class="old-price" *ngIf="isSaleProduct()">{{ getOriginalPrice() | currency:'VND':'symbol' }}</span>
-        </ng-template>
-
+        <span class="discount-badge" *ngIf="isSaleProduct()">
+          Giảm {{ calculateDiscountPercentage() }}%
+        </span>
+        <span class="current-price">{{ getCurrentPrice() | currency:'VND':'symbol' }}</span>
+        <span class="old-price" *ngIf="isSaleProduct()">{{ getOriginalPrice() | currency:'VND':'symbol' }}</span>
         <!-- Hiển thị thông tin giá khi có biến thể nhưng chưa chọn -->
         <div class="price-info" *ngIf="product.variants && product.variants.length > 0 && !selectedVariant">
           <small class="price-note">Giá từ - Vui lòng chọn kích thước để xem giá cụ thể</small>
@@ -124,7 +114,6 @@
               <i class="fas fa-check-circle"></i>
               <span class="coupon-name">{{ appliedCoupon.name }}</span>
               <span class="coupon-discount">-{{ formatDiscount(appliedCoupon) }}</span>
-              <span class="coupon-expiry">HSD: {{ formatDate(appliedCoupon.endDate) }}</span>
             </div>
             <button class="remove-coupon-btn" (click)="removeCoupon()">
               <i class="fas fa-times"></i>
@@ -155,7 +144,7 @@
               <div class="coupon-details">
                 <div class="coupon-name">{{ coupon.name }}</div>
                 <div class="coupon-description">{{ coupon.description }}</div>
-                <div class="coupon-expiry">HSD: {{ formatDate(coupon.endDate) }}</div>
+                <div class="coupon-expiry">HSD: {{ formatDate(coupon.expiryDate) }}</div>
               </div>
               <div class="coupon-action">
                 <span class="use-coupon-text">Sử dụng</span>
