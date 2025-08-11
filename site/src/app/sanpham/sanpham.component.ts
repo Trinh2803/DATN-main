@@ -120,10 +120,29 @@ export class SanphamComponent implements OnInit {
     }
   }
 
-  onSortChange(order: 'asc' | 'desc' | ''): void {
-    this.sortOrder = order;
-    this.currentPage = 1;
-    if (order) {
+onSortChange(order: 'asc' | 'desc' | ''): void {
+  this.sortOrder = order;
+  this.currentPage = 1;
+
+  if (order) {
+    if (this.selectedCategory) {
+      // Nếu có danh mục được chọn, gọi API với danh mục và sắp xếp giá
+      this.productService.getProductsByCategoryAndPriceSort(this.selectedCategory, order).subscribe({
+        next: (products) => {
+          this.allProducts = products;
+          this.filteredProducts = [...products];
+          this.updatePagination();
+          this.errorMessage = products.length === 0 ? 'Không có sản phẩm nào trong danh mục này.' : '';
+        },
+        error: (error) => {
+          console.error('Error fetching products by category and sort:', error);
+          this.filteredProducts = [];
+          this.displayedProducts = [];
+          this.errorMessage = 'Không thể tải sản phẩm theo danh mục và sắp xếp.';
+        },
+      });
+    } else {
+      // Nếu không có danh mục được chọn, chỉ sắp xếp theo giá
       this.productService.getProductsByPriceSort(order).subscribe({
         next: (products) => {
           this.allProducts = products;
@@ -138,10 +157,16 @@ export class SanphamComponent implements OnInit {
           this.errorMessage = 'Không thể sắp xếp sản phẩm.';
         },
       });
+    }
+  } else {
+    // Nếu chọn "Mặc định", tải lại sản phẩm theo danh mục (nếu có) hoặc tất cả sản phẩm
+    if (this.selectedCategory) {
+      this.onCategoryChange(this.selectedCategory);
     } else {
       this.loadProducts();
     }
   }
+}
 
   onSearchChange(): void {
     this.searchSubject.next(this.searchQuery);
