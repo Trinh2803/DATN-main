@@ -100,11 +100,11 @@ export class WishlistService {
   }
 
   // Tải danh sách yêu thích và cập nhật trạng thái
-  private loadWishlist(): void {
+// wishlist.service.ts
+private loadWishlist(): void {
   const token = localStorage.getItem('token');
   if (!token) {
-    this.wishlistSubject.next([]);
-    Swal.fire('Lỗi', 'Vui lòng đăng nhập để xem danh sách yêu thích', 'warning');
+    this.wishlistSubject.next([]); // Đặt danh sách trống mà không hiển thị thông báo
     return;
   }
   this.getUserWishlist().subscribe({
@@ -114,13 +114,11 @@ export class WishlistService {
       } else {
         console.error('Lỗi khi tải danh sách yêu thích:', response.message);
         this.wishlistSubject.next([]);
-        Swal.fire('Lỗi', 'Không thể tải danh sách yêu thích. Vui lòng thử lại.', 'error');
       }
     },
     error: (error) => {
       console.error('Lỗi khi tải danh sách yêu thích:', error);
       this.wishlistSubject.next([]);
-      Swal.fire('Lỗi', 'Không thể tải danh sách yêu thích. Vui lòng thử lại.', 'error');
     }
   });
 }
