@@ -138,13 +138,17 @@ export class CheckoutComponent implements OnInit {
         this.cartService.clearCart();
         localStorage.removeItem('pendingOrder');
         const orderId = response.data._id;
+<<<<<<< HEAD
         console.log('COD Order created with ID:', orderId);
         
         // Success message
         alert('Đơn hàng COD đã được tạo thành công! Đang chuyển đến trang đơn hàng...');
         // Navigate to order detail
+=======
+        console.log('Order created with ID:', orderId);
+>>>>>>> parent of b669bafe (fix vnpay)
         this.router.navigate(['/donhang'], {
-          queryParams: { orderId }
+          queryParams: { orderId },
         });
       },
       error: (err) => {
