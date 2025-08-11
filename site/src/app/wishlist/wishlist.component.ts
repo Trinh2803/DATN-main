@@ -17,14 +17,43 @@ export class WishlistComponent implements OnInit {
   error: string | null = null;
 
   constructor(
-    private router: Router,
-    private wishlistService: WishlistService
+    private wishlistService: WishlistService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.loadWishlist();
   }
 
+<<<<<<< HEAD
+  loadWishlist(): void {
+    this.loading = true;
+    this.wishlistService.getUserWishlist().subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.wishlistItems = response.data;
+          this.error = null;
+        } else {
+          this.error = response.message || 'Lỗi khi tải danh sách yêu thích';
+        }
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error loading wishlist:', err);
+        // Check if token is expired
+        if (err.status === 401 || err.status === 403) {
+          this.error = 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.';
+          // Clear token and redirect to login
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          this.router.navigate(['/dangnhap']);
+        } else {
+          this.error = 'Lỗi khi tải danh sách yêu thích';
+        }
+        this.loading = false;
+      }
+    });
+=======
   private handleAuthError(): void {
     Swal.fire({
       title: 'Phiên đăng nhập hết hạn',
@@ -45,6 +74,7 @@ loadWishlist(): void {
     this.wishlistItems = []; // Đặt danh sách trống
     this.loading = false;
     return; // Không hiển thị thông báo, chỉ tải giao diện trống
+>>>>>>> Trinh
   }
   this.wishlistService.getUserWishlist().subscribe({
     next: (response) => {
@@ -88,9 +118,19 @@ loadWishlist(): void {
             }
           },
           error: (err) => {
-            console.error('Lỗi khi xóa khỏi danh sách yêu thích:', err);
+            console.error('Error removing from wishlist:', err);
+            // Check if token is expired
             if (err.status === 401 || err.status === 403) {
-              this.handleAuthError();
+              Swal.fire({
+                title: 'Phiên đăng nhập hết hạn',
+                text: 'Vui lòng đăng nhập lại',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+              });
+              // Clear token and redirect to login
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              this.router.navigate(['/dangnhap']);
             } else {
               Swal.fire('Lỗi', 'Lỗi khi xóa sản phẩm', 'error');
             }
@@ -124,9 +164,19 @@ loadWishlist(): void {
             }
           },
           error: (err) => {
-            console.error('Lỗi khi xóa danh sách yêu thích:', err);
+            console.error('Error clearing wishlist:', err);
+            // Check if token is expired
             if (err.status === 401 || err.status === 403) {
-              this.handleAuthError();
+              Swal.fire({
+                title: 'Phiên đăng nhập hết hạn',
+                text: 'Vui lòng đăng nhập lại',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+              });
+              // Clear token and redirect to login
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              this.router.navigate(['/dangnhap']);
             } else {
               Swal.fire('Lỗi', 'Lỗi khi xóa danh sách', 'error');
             }
@@ -138,10 +188,6 @@ loadWishlist(): void {
 
   viewProduct(productId: string): void {
     this.router.navigate(['/product', productId]);
-  }
-
-  navigateToShop(): void {
-    this.router.navigate(['/shop']);
   }
 
   getDiscountedPrice(price: number, discountPercent?: number): number {
@@ -157,14 +203,4 @@ loadWishlist(): void {
       currency: 'VND'
     }).format(price);
   }
-
-  getImageUrl(thumbnail: string | undefined): string {
-    const baseUrl = 'http://localhost:3000';
-    return thumbnail ? `${baseUrl}${thumbnail}` : 'assets/images/default-product.jpg';
-  }
-
-  handleImageError(event: Event): void {
-    const imgElement = event.target as HTMLImageElement;
-    imgElement.src = 'assets/images/default-product.jpg';
-  }
-}
+} 
