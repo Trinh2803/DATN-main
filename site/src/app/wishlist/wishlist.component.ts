@@ -25,6 +25,7 @@ export class WishlistComponent implements OnInit {
     this.loadWishlist();
   }
 
+<<<<<<< HEAD
   loadWishlist(): void {
     this.loading = true;
     this.wishlistService.getUserWishlist().subscribe({
@@ -52,7 +53,50 @@ export class WishlistComponent implements OnInit {
         this.loading = false;
       }
     });
+=======
+  private handleAuthError(): void {
+    Swal.fire({
+      title: 'Phiên đăng nhập hết hạn',
+      text: 'Vui lòng đăng nhập lại',
+      icon: 'warning',
+      confirmButtonText: 'OK'
+    }).then(() => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      this.router.navigate(['/dangnhap']);
+    });
   }
+
+loadWishlist(): void {
+  this.loading = true;
+  const token = localStorage.getItem('token');
+  if (!token) {
+    this.wishlistItems = []; // Đặt danh sách trống
+    this.loading = false;
+    return; // Không hiển thị thông báo, chỉ tải giao diện trống
+>>>>>>> Trinh
+  }
+  this.wishlistService.getUserWishlist().subscribe({
+    next: (response) => {
+      if (response.success) {
+        this.wishlistItems = response.data;
+        this.error = null;
+      } else {
+        this.error = response.message || 'Lỗi khi tải danh sách yêu thích';
+      }
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error('Lỗi khi tải danh sách yêu thích:', err);
+      if (err.status === 401 || err.status === 403) {
+        this.handleAuthError(); // Giữ lại xử lý lỗi xác thực
+      } else {
+        this.error = 'Lỗi khi tải danh sách yêu thích';
+        this.loading = false;
+      }
+    }
+  });
+}
 
   removeFromWishlist(productId: string): void {
     Swal.fire({

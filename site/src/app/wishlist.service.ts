@@ -88,6 +88,7 @@ export class WishlistService {
     );
   }
 
+<<<<<<< HEAD
   private loadWishlist(): void {
     const token = localStorage.getItem('token');
     if (token) {
@@ -102,6 +103,28 @@ export class WishlistService {
           this.wishlistSubject.next([]);
         }
       });
+=======
+  // Tải danh sách yêu thích và cập nhật trạng thái
+// wishlist.service.ts
+private loadWishlist(): void {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    this.wishlistSubject.next([]); // Đặt danh sách trống mà không hiển thị thông báo
+    return;
+  }
+  this.getUserWishlist().subscribe({
+    next: (response) => {
+      if (response.success) {
+        this.wishlistSubject.next(response.data);
+      } else {
+        console.error('Lỗi khi tải danh sách yêu thích:', response.message);
+        this.wishlistSubject.next([]);
+      }
+    },
+    error: (error) => {
+      console.error('Lỗi khi tải danh sách yêu thích:', error);
+      this.wishlistSubject.next([]);
+>>>>>>> Trinh
     }
   }
 
