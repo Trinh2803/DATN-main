@@ -2,50 +2,73 @@
   <div class="wishlist-header">
     <h1>Danh sách yêu thích</h1>
     <div class="wishlist-actions">
-      <button class="btn-clear-all" (click)="clearWishlist()" [disabled]="wishlistItems.length === 0">Xóa tất cả</button>
+      <button 
+        *ngIf="wishlistItems.length > 0" 
+        class="btn-clear-all" 
+        (click)="clearWishlist()">
+        Xóa tất cả
+      </button>
     </div>
   </div>
 
-  <div class="loading" *ngIf="loading">
-    <div class="spinner"></div>
-    <p>Đang tải danh sách yêu thích...</p>
-  </div>
+  <div class="wishlist-content">
+    <!-- Loading state -->
+    <div *ngIf="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Đang tải danh sách yêu thích...</p>
+    </div>
 
-  <div class="error-message" *ngIf="error && !loading">
-    <p>{{ error }}</p>
-    <button class="btn-retry" (click)="loadWishlist()">Thử lại</button>
-  </div>
+    <!-- Error state -->
+    <div *ngIf="error && !loading" class="error-message">
+      <p>{{ error }}</p>
+      <button (click)="loadWishlist()" class="btn-retry">Thử lại</button>
+    </div>
 
-  <div class="empty-wishlist" *ngIf="!loading && !error && wishlistItems.length === 0">
-    <div class="empty-icon">❤️</div>
-    <h2>Danh sách yêu thích trống</h2>
-    <p>Bạn chưa có sản phẩm nào trong danh sách yêu thích.</p>
-    <button class="btn-shop-now" (click)="navigateToShop()">Mua sắm ngay</button>
-  </div>
+    <!-- Empty state -->
+    <div *ngIf="!loading && !error && wishlistItems.length === 0" class="empty-wishlist">
+      <div class="empty-icon">❤️</div>
+      <h2>Danh sách yêu thích trống</h2>
+      <p>Bạn chưa có sản phẩm nào trong danh sách yêu thích.</p>
+      <button routerLink="/products" class="btn-shop-now">Mua sắm ngay</button>
+    </div>
 
-  <div class="wishlist-grid" *ngIf="!loading && !error && wishlistItems.length > 0">
-    <div class="wishlist-item" *ngFor="let item of wishlistItems">
-      <div class="product-image">
-        <img [src]="getImageUrl(item.productId.thumbnail)" (error)="handleImageError($event)" alt="{{ item.productId.name }}" />
-      </div>
-      <div class="product-info">
-        <h3 class="product-name" (click)="viewProduct(item.productId._id)">{{ item.productId.name }}</h3>
-        <div class="product-price">
-          <span class="original-price">{{ formatPrice(item.productId.price) }}</span>
-          <span class="current-price" *ngIf="item.productId.discountPercent && item.productId.discountPercent > 0">
-            {{ formatPrice(getDiscountedPrice(item.productId.price, item.productId.discountPercent)) }}
-          </span>
-          <span class="discount-badge" *ngIf="item.productId.discountPercent && item.productId.discountPercent > 0">
-            -{{ item.productId.discountPercent }}%
-          </span>
-        </div>
-        <div class="product-actions">
-          <button class="btn-view" (click)="viewProduct(item.productId._id)">Xem chi tiết</button>
-          <button class="btn-remove" (click)="removeFromWishlist(item.productId._id)">
-            <i class="fas fa-trash"></i> Xóa
-          </button>
+    <!-- Wishlist items -->
+    <div *ngIf="!loading && !error && wishlistItems.length > 0" class="wishlist-items">
+      <div class="wishlist-grid">
+        <div *ngFor="let item of wishlistItems" class="wishlist-item">
+          <div class="product-image">
+            <img [src]="item.productId.thumbnail" [alt]="item.productId.name" (click)="viewProduct(item.productId._id)">
+          </div>
+          
+          <div class="product-info">
+            <h3 class="product-name" (click)="viewProduct(item.productId._id)">
+              {{ item.productId.name }}
+            </h3>
+            
+            <div class="product-price">
+              <span *ngIf="item.productId.discountPercent && item.productId.discountPercent > 0" class="original-price">
+                {{ formatPrice(item.productId.price) }}
+              </span>
+              <span class="current-price">
+                {{ formatPrice(getDiscountedPrice(item.productId.price, item.productId.discountPercent)) }}
+              </span>
+              <span *ngIf="item.productId.discountPercent && item.productId.discountPercent > 0" class="discount-badge">
+                -{{ item.productId.discountPercent }}%
+              </span>
+            </div>
+
+            <div class="product-actions">
+              <button class="btn-view" (click)="viewProduct(item.productId._id)">
+                Xem chi tiết
+              </button>
+              <button class="btn-remove" (click)="removeFromWishlist(item.productId._id)">
+                <i class="fas fa-heart-broken"></i>
+                Xóa
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
+</div> 

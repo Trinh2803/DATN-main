@@ -1,7 +1,7 @@
 <div class="app-container">
   <aside class="sidebar">
     <div class="logo">
-      <span class="logo-text"><img src="assets/images/logo.png" width="100px"></span>
+      <span class="logo-text"><img src="/images/logo.png" width="100px"></span>
     </div>
     <nav class="sidebar-menu">
       <a class="menu-item" [routerLink]="['/thongke']"><span class="icon menu-dashboard"></span> Bảng điều khiển</a>
@@ -95,8 +95,8 @@
           <div class="filter-group">
             <label for="searchInput">Tìm kiếm</label>
             <div class="search-input-group">
-              <input
-                type="text"
+              <input 
+                type="text" 
                 id="searchInput"
                 [(ngModel)]="searchQuery"
                 placeholder="Tìm theo tên, email, nội dung, sản phẩm..."
@@ -109,7 +109,7 @@
           </div>
           <div class="filter-group">
             <label for="statusFilter">Trạng thái</label>
-            <select
+            <select 
               id="statusFilter"
               [(ngModel)]="statusFilter"
               (change)="onFilterChange()"
@@ -122,7 +122,7 @@
           </div>
           <div class="filter-group">
             <label for="ratingFilter">Đánh giá</label>
-            <select
+            <select 
               id="ratingFilter"
               [(ngModel)]="ratingFilter"
               (change)="onFilterChange()"
@@ -149,7 +149,7 @@
           </div>
           <div class="filter-group">
             <label for="sortBy">Sắp xếp theo</label>
-            <select
+            <select 
               id="sortBy"
               [(ngModel)]="sortBy"
               (change)="onSortChange()"
@@ -163,7 +163,7 @@
           </div>
           <div class="filter-group">
             <label for="sortOrder">Thứ tự</label>
-            <select
+            <select 
               id="sortOrder"
               [(ngModel)]="sortOrder"
               (change)="onSortChange()"
@@ -199,8 +199,8 @@
             <thead>
               <tr>
                 <th width="50">
-                  <input
-                    type="checkbox"
+                  <input 
+                    type="checkbox" 
                     [(ngModel)]="selectAll"
                     (change)="toggleSelectAll()"
                   >
@@ -229,8 +229,8 @@
               </tr>
               <tr *ngFor="let comment of paginatedComments">
                 <td>
-                  <input
-                    type="checkbox"
+                  <input 
+                    type="checkbox" 
                     [checked]="selectedComments.includes(comment._id!)"
                     (change)="toggleCommentSelection(comment._id!)"
                   >
@@ -247,20 +247,33 @@
                   </div>
                 </td>
                 <td>
-                  <div class="product-info-cell"> <div class="product-details">
+                  <div class="product-info-cell">
+                    <img 
+                      [src]="comment.productId._id === 'homepage' ? '/assets/images/icon.png' : (comment.productId.thumbnail || '/assets/images/icon.png')" 
+                      alt="Product"
+                      class="product-image"
+                    >
+                    <div class="product-details">
                       <div class="product-name">
-                        {{ comment.productId?._id === 'homepage' ? 'Trang chủ' : (comment.productId?.name || 'Không xác định') }}
+                        {{ comment.productId._id === 'homepage' ? 'Trang chủ' : comment.productId.name }}
                       </div>
-                      <div class="product-id">ID: {{ comment.productId?._id || 'Không xác định' }}</div>
+                      <div class="product-id">ID: {{ comment.productId._id }}</div>
                     </div>
                   </div>
                 </td>
                 <td>
-                  {{ comment.content }}
-                  <div *ngIf="comment.adminReply" class="admin-reply">
-                    <strong>Trả lời của admin:</strong>
-                    {{ comment.adminReply.content }}
-                    <small>{{ comment.adminReply.adminId.name || 'Admin không xác định' }} - {{ formatDate(comment.adminReply.repliedAt) }}</small>
+                  <div class="comment-content">
+                    <p class="comment-text">{{ comment.content }}</p>
+                    <div *ngIf="comment.adminReply" class="admin-reply">
+                      <small class="reply-label">
+                        <i class="fas fa-reply"></i>
+                        Trả lời của admin:
+                      </small>
+                      <p class="reply-content">{{ comment.adminReply.content }}</p>
+                      <small class="reply-info">
+                        {{ comment.adminReply.adminId.name }} - {{ formatDate(comment.adminReply.repliedAt) }}
+                      </small>
+                    </div>
                   </div>
                 </td>
                 <td>
@@ -270,7 +283,7 @@
                   </div>
                 </td>
                 <td>
-                  <span
+                  <span 
                     class="status-badge"
                     [ngClass]="getStatusBadgeClass(comment.status)"
                     [style.background-color]="getStatusColor(comment.status)"
@@ -282,31 +295,31 @@
                   <div class="date-cell">
                     <div class="date">{{ formatDate(comment.createdAt) }}</div>
                     <small class="edited-info" *ngIf="comment.isEdited">
-                      <span class="icon">✏️</span>
+                      <i class="fas fa-edit"></i>
                       Đã chỉnh sửa
                     </small>
                   </div>
                 </td>
                 <td>
                   <div class="action-buttons">
-                    <button
-                      class="btn-reply"
+                    <button 
+                      class="btn-reply" 
                       title="Trả lời"
                       (click)="openReplyModal(comment)"
                       *ngIf="comment.status === 'approved'"
                     >
-                      <span class="icon">✅</span>
+                      <i class="fas fa-reply"></i>
                     </button>
-                    <button
-                      class="btn-edit"
+                    <button 
+                      class="btn-edit" 
                       title="Chỉnh sửa"
                       (click)="openEditModal(comment)"
                     >
-                      <span class="icon">✏️</span>
+                      <i class="fas fa-edit"></i>
                     </button>
                     <div class="dropdown">
                       <button class="btn-status dropdown-toggle" title="Thay đổi trạng thái">
-                        <span class="icon">⚙️</span>
+                        <i class="fas fa-cog"></i>
                       </button>
                       <div class="dropdown-menu">
                         <a class="dropdown-item" (click)="updateCommentStatus(comment._id!, 'approved')">
@@ -319,12 +332,12 @@
                         </a>
                       </div>
                     </div>
-                    <button
-                      class="btn-delete"
+                    <button 
+                      class="btn-delete" 
                       title="Xóa"
                       (click)="deleteComment(comment._id!)"
                     >
-                      <span class="icon">🗑️</span>
+                      <i class="fas fa-trash"></i>
                     </button>
                   </div>
                 </td>
@@ -336,19 +349,19 @@
         <!-- Pagination -->
         <div class="pagination-section">
           <div class="pagination-info">
-            Hiển thị {{ (currentPage - 1) * itemsPerPage + 1 }} -
-            {{ getEndIndex() }}
+            Hiển thị {{ (currentPage - 1) * itemsPerPage + 1 }} - 
+            {{ getEndIndex() }} 
             trong tổng số {{ filteredComments.length }} bình luận
           </div>
           <nav class="pagination" *ngIf="totalPages > 1">
-            <button
-              class="page-btn"
+            <button 
+              class="page-btn" 
               [disabled]="currentPage === 1"
               (click)="changePage(currentPage - 1)"
             >
               <i class="fas fa-chevron-left"></i>
             </button>
-            <button
+            <button 
               *ngFor="let page of getPageNumbers()"
               class="page-btn"
               [class.active]="page === currentPage"
@@ -356,8 +369,8 @@
             >
               {{ page }}
             </button>
-            <button
-              class="page-btn"
+            <button 
+              class="page-btn" 
               [disabled]="currentPage === totalPages"
               (click)="changePage(currentPage + 1)"
             >
@@ -376,7 +389,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">
-          <span class="icon">✅</span>
+          <i class="fas fa-reply"></i>
           Trả lời bình luận
         </h5>
         <button type="button" class="modal-close" (click)="closeModal()">×</button>
@@ -394,7 +407,7 @@
         </div>
         <div class="form-group">
           <label for="replyContent">Nội dung trả lời:</label>
-          <textarea
+          <textarea 
             id="replyContent"
             rows="4"
             [(ngModel)]="replyContent"
@@ -419,7 +432,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">
-          <span class="icon">✏️</span>
+          <i class="fas fa-edit"></i>
           Chỉnh sửa bình luận
         </h5>
         <button type="button" class="modal-close" (click)="closeModal()">×</button>
@@ -437,7 +450,7 @@
         </div>
         <div class="form-group">
           <label for="editContent">Nội dung:</label>
-          <textarea
+          <textarea 
             id="editContent"
             rows="4"
             [(ngModel)]="editContent"
@@ -457,4 +470,4 @@
 </div>
 
 <!-- Modal Backdrop -->
-<div class="modal-backdrop" *ngIf="showReplyModal || showEditModal"></div>
+<div class="modal-backdrop" *ngIf="showReplyModal || showEditModal"></div> 

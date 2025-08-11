@@ -465,7 +465,7 @@ export class ChiTietSanPhamComponent implements OnInit {
   getRatingText(rating: number): string {
     const ratingTexts = {
       1: 'Rất tệ',
-      2: 'Tệ',
+      2: 'Tệ', 
       3: 'Bình thường',
       4: 'Tốt',
       5: 'Rất tốt'
@@ -599,7 +599,7 @@ export class ChiTietSanPhamComponent implements OnInit {
 
     // Simulate API call
     setTimeout(() => {
-      const coupon = this.availableCoupons.find(c =>
+      const coupon = this.availableCoupons.find(c => 
         c.code.toLowerCase() === this.couponCode.toLowerCase() && c.isActive
       );
 
@@ -623,7 +623,7 @@ export class ChiTietSanPhamComponent implements OnInit {
       } else {
         this.couponError = 'Mã giảm giá không hợp lệ hoặc đã hết hạn';
       }
-
+      
       this.isApplyingCoupon = false;
     }, 1000);
   }
@@ -657,15 +657,15 @@ export class ChiTietSanPhamComponent implements OnInit {
 
   getDiscountAmount(): number {
     if (!this.appliedCoupon) return 0;
-
+    
     const currentPrice = this.getCurrentPrice();
-
+    
     if (this.appliedCoupon.discountType === 'percentage') {
       return (currentPrice * this.appliedCoupon.discountValue) / 100;
     } else if (this.appliedCoupon.discountType === 'fixed') {
       return Math.min(this.appliedCoupon.discountValue, currentPrice);
     }
-
+    
     return 0;
   }
 
