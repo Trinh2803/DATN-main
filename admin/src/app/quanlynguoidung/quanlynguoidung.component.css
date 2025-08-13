@@ -89,8 +89,6 @@
   justify-content: space-between;
   padding: 26px 52px 10px 38px;
 }
-.header-left {
-}
 .page-title {
   font-size: 22px;
   font-weight: bold;
@@ -165,8 +163,6 @@ table {
   border-collapse: separate;
   border-spacing: 0;
   font-size: 14px;
-}
-thead tr {
 }
 thead th {
   color: #8a94b8;

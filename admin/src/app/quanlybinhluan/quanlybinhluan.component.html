@@ -138,15 +138,13 @@
           </div>
           <div class="filter-group">
             <label for="productFilter">Sản phẩm</label>
-            <ng-select
-              [items]="productFilterOptions"
-              bindLabel="label"
-              bindValue="value"
+            <select
+              id="productFilter"
               [(ngModel)]="productFilter"
               (change)="onFilterChange()"
-              placeholder="Tìm kiếm hoặc chọn sản phẩm"
-              [searchable]="true">
-            </ng-select>
+            >
+              <option *ngFor="let option of productFilterOptions" [value]="option.value">{{ option.label }}</option>
+            </select>
           </div>
           <div class="filter-group">
             <label for="sortBy">Sắp xếp theo</label>
