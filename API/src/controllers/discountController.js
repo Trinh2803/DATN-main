@@ -308,6 +308,11 @@ exports.applyDiscount = async (req, res) => {
 
     // Kiểm tra giới hạn tổng số lượt dùng
     if (discount.usageLimit && discount.usedCount >= discount.usageLimit) {
+      // Tự động vô hiệu hóa mã nếu đạt giới hạn
+      if (discount.isActive) {
+        const updated = Discount.updateDiscount(discountId, { isActive: false });
+        console.log('Auto-disabled discount:', updated);
+      }
       return res.status(400).json({ message: 'Mã giảm giá đã hết lượt sử dụng' });
     }
 
@@ -325,16 +330,25 @@ exports.applyDiscount = async (req, res) => {
       }
 
       // Cập nhật cả bộ đếm tổng và theo user
+      const newUsedCount = (discount.usedCount || 0) + 1;
       usedBy[userId] = userUsedCount + 1;
-      Discount.updateDiscount(discountId, {
-        usedCount: (discount.usedCount || 0) + 1,
-        usedBy
-      });
+      
+      // Nếu đạt giới hạn sử dụng sau lần này thì vô hiệu hóa mã
+      const updateData = {
+        usedCount: 1, // Chỉ cần truyền số lượng tăng thêm
+        usedBy: { [userId]: 1 } // Chỉ cần truyền user hiện tại
+      };
+      
+      const updatedDiscount = Discount.updateDiscount(discountId, updateData);
+      console.log('Updated discount with user limit:', updatedDiscount);
     } else {
-      // Chỉ cập nhật bộ đếm tổng
-      Discount.updateDiscount(discountId, {
-        usedCount: (discount.usedCount || 0) + 1
-      });
+      // Cập nhật bộ đếm tổng
+      const updateData = {
+        usedCount: 1 // Chỉ cần truyền số lượng tăng thêm
+      };
+      
+      const updatedDiscount = Discount.updateDiscount(discountId, updateData);
+      console.log('Updated discount without user limit:', updatedDiscount);
     }
 
     res.json({ message: 'Áp dụng mã giảm giá thành công' });

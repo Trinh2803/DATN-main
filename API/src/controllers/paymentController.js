@@ -8,12 +8,46 @@ const Discount = require('../models/discountModel');
 // Tạo URL thanh toán
 exports.createPayment = async (req, res) => {
     try {
+        const { amount, bankCode, language, orderData } = req.body;
+        
+        // Kiểm tra và áp dụng mã giảm giá nếu có
+        if (orderData?.discountInfo?._id) {
+            try {
+                // Gọi API applyDiscount để kiểm tra và cập nhật số lần sử dụng
+                const response = await fetch('http://localhost:3000/api/discounts/apply', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': req.headers.authorization || ''
+                    },
+                    body: JSON.stringify({
+                        discountId: orderData.discountInfo._id,
+                        userId: orderData.userId || (req.user?.id)
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    return res.status(response.status).json({
+                        success: false,
+                        message: result.message || 'Lỗi khi áp dụng mã giảm giá'
+                    });
+                }
+            } catch (error) {
+                console.error('Error applying discount:', error);
+                return res.status(500).json({
+                    success: false,
+                    message: 'Lỗi khi xử lý mã giảm giá'
+                });
+            }
+        }
+        
         process.env.TZ = 'Asia/Ho_Chi_Minh'; // Thiết lập múi giờ
         const date = new Date();
         const createDate = moment(date).format('YYYYMMDDHHmmss');
         const ipAddr = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || '127.0.0.1';
-         const orderId = moment(date).format('YYYYMMDDHHmmss') + String(Math.floor(Math.random() * 100000)).padStart(5, '0');
-        const { amount, bankCode, language } = req.body;
+        const orderId = moment(date).format('YYYYMMDDHHmmss') + String(Math.floor(Math.random() * 100000)).padStart(5, '0');
 
         // Kiểm tra amount hợp lệ
         if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
