@@ -1,0 +1,208 @@
+{
+  "info": {
+    "name": "VNPay API Test",
+    "description": "Collection để test API thanh toán VNPay",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Payment URL",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 1480000,\n  \"bankCode\": \"NCB\",\n  \"language\": \"vn\",\n  \"orderInfo\": \"Thanh toán đơn hàng MOHO\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/payment/create_payment_url",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["payment", "create_payment_url"]
+        }
+      }
+    },
+    {
+      "name": "Create Payment URL - No Bank",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 500000,\n  \"bankCode\": \"\",\n  \"language\": \"vn\",\n  \"orderInfo\": \"Test thanh toán\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/payment/create_payment_url",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["payment", "create_payment_url"]
+        }
+      }
+    },
+    {
+      "name": "Create Payment URL - English",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 1000000,\n  \"bankCode\": \"VIETCOMBANK\",\n  \"language\": \"en\",\n  \"orderInfo\": \"Payment for MOHO order\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/payment/create_payment_url",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["payment", "create_payment_url"]
+        }
+      }
+    },
+    {
+      "name": "Payment Return - Success",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/payment/vnpay_return?vnp_ResponseCode=00&vnp_TxnRef=2025073116452372936&vnp_Amount=148000000&vnp_BankCode=NCB&vnp_PayDate=20250731164523&vnp_TransactionNo=12345678&vnp_TransactionStatus=00&vnp_SecureHash=abc123",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["payment", "vnpay_return"],
+          "query": [
+            {
+              "key": "vnp_ResponseCode",
+              "value": "00"
+            },
+            {
+              "key": "vnp_TxnRef",
+              "value": "2025073116452372936"
+            },
+            {
+              "key": "vnp_Amount",
+              "value": "148000000"
+            },
+            {
+              "key": "vnp_BankCode",
+              "value": "NCB"
+            },
+            {
+              "key": "vnp_PayDate",
+              "value": "20250731164523"
+            },
+            {
+              "key": "vnp_TransactionNo",
+              "value": "12345678"
+            },
+            {
+              "key": "vnp_TransactionStatus",
+              "value": "00"
+            },
+            {
+              "key": "vnp_SecureHash",
+              "value": "abc123"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Payment Return - Failed",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/payment/vnpay_return?vnp_ResponseCode=24&vnp_TxnRef=2025073116452372936&vnp_Amount=148000000&vnp_BankCode=NCB&vnp_SecureHash=abc123",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["payment", "vnpay_return"],
+          "query": [
+            {
+              "key": "vnp_ResponseCode",
+              "value": "24"
+            },
+            {
+              "key": "vnp_TxnRef",
+              "value": "2025073116452372936"
+            },
+            {
+              "key": "vnp_Amount",
+              "value": "148000000"
+            },
+            {
+              "key": "vnp_BankCode",
+              "value": "NCB"
+            },
+            {
+              "key": "vnp_SecureHash",
+              "value": "abc123"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Validation Error - Zero Amount",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 0,\n  \"bankCode\": \"NCB\",\n  \"language\": \"vn\",\n  \"orderInfo\": \"Test\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/payment/create_payment_url",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["payment", "create_payment_url"]
+        }
+      }
+    },
+    {
+      "name": "Validation Error - Negative Amount",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": -1000,\n  \"bankCode\": \"NCB\",\n  \"language\": \"vn\",\n  \"orderInfo\": \"Test\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/payment/create_payment_url",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["payment", "create_payment_url"]
+        }
+      }
+    }
+  ]
+} 

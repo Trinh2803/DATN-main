@@ -34,10 +34,62 @@ const getUserOrders = async (req, res) => {
 };
 const updateOrderStatus = async (req, res) => {
   try {
-    const updated = await orderService.updateOrderStatus(req.params.id, req.body.status);
-    res.status(200).json({ success: true, message: 'Cập nhật trạng thái thành công', data: updated });
+    console.log('updateOrderStatus called with:', {
+      orderId: req.params.id,
+      body: req.body,
+      user: req.user
+    });
+    
+    const { status, adminNote } = req.body;
+    
+    // Validate input
+    if (!status) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Trạng thái không được để trống' 
+      });
+    }
+    
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Thông tin người dùng không hợp lệ' 
+      });
+    }
+    
+    const updated = await orderService.updateOrderStatus(req.params.id, status, adminNote);
+    
+    console.log('Order status updated successfully:', {
+      orderId: req.params.id,
+      newStatus: status,
+      adminId: req.user.id
+    });
+    
+    res.status(200).json({ 
+      success: true, 
+      message: 'Cập nhật trạng thái thành công', 
+      data: updated 
+    });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    console.error('Error updating order status:', {
+      orderId: req.params.id,
+      error: err.message,
+      stack: err.stack
+    });
+    
+    // Xử lý các loại lỗi khác nhau
+    if (err.message.includes('không hợp lệ') || err.message.includes('không tìm thấy')) {
+      return res.status(400).json({ success: false, message: err.message });
+    }
+    
+    if (err.message.includes('không thể') || err.message.includes('không được phép')) {
+      return res.status(403).json({ success: false, message: err.message });
+    }
+    
+    res.status(500).json({ 
+      success: false, 
+      message: 'Lỗi server khi cập nhật trạng thái đơn hàng: ' + err.message 
+    });
   }
 };
 

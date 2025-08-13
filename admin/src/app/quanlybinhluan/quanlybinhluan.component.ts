@@ -5,11 +5,13 @@ import { CommonModule } from '@angular/common';
 import { CommentService } from '../services/comment.service';
 import { Comment, CommentStats, CommentFilters, ApiResponse } from '../interfaces/comment.interface';
 import Swal from 'sweetalert2';
+import { ProductService, Product } from '../services/product.service';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-quanlybinhluan',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, FormsModule, NgSelectModule],
   templateUrl: './quanlybinhluan.component.html',
   styleUrls: ['./quanlybinhluan.component.css'],
 })
@@ -19,18 +21,23 @@ export class QuanlybinhluanComponent implements OnInit, AfterViewInit {
   userAvatar: string = '/assets/images/icon.png';
   errorMessage: string | undefined;
   searchQuery: string = '';
-  
+
   // Phân trang
   currentPage: number = 1;
   itemsPerPage: number = 10;
   totalPages: number = 0;
-  
+
   // Lọc và sắp xếp
   statusFilter: string = 'all';
   ratingFilter: number = 0;
   sortBy: string = 'createdAt';
   sortOrder: 'asc' | 'desc' = 'desc';
-  
+  productFilter: string = 'all';
+  productFilterOptions: { value: string, label: string }[] = [
+    { value: 'all', label: 'Tất cả' },
+    { value: 'homepage', label: 'Trang chủ' }
+  ];
+
   // Thống kê
   commentStats: CommentStats = {
     total: 0,
@@ -39,10 +46,10 @@ export class QuanlybinhluanComponent implements OnInit, AfterViewInit {
     rejected: 0,
     stats: []
   };
-  
+
   // Loading state
   isLoading: boolean = false;
-  
+
   // Modal states
   showReplyModal: boolean = false;
   showEditModal: boolean = false;
@@ -50,18 +57,19 @@ export class QuanlybinhluanComponent implements OnInit, AfterViewInit {
   replyContent: string = '';
   editContent: string = '';
   editRating: number = 5;
-  
+
   // Bulk actions
   selectedComments: string[] = [];
   selectAll: boolean = false;
 
   constructor(
     private commentService: CommentService,
-    private router: Router
+    private router: Router,
+    private productService: ProductService
   ) {}
 
   ngOnInit(): void {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) {
       this.errorMessage = 'Vui lòng đăng nhập.';
       Swal.fire('Lỗi', this.errorMessage, 'error');
@@ -72,6 +80,23 @@ export class QuanlybinhluanComponent implements OnInit, AfterViewInit {
     this.loadComments();
     this.loadCommentStats();
     this.loadUserAvatar();
+    this.loadProductFilterOptions();
+  }
+
+  loadProductFilterOptions(): void {
+    this.productService.getProducts().subscribe({
+      next: (products: Product[]) => {
+        const productOptions = products.map(p => ({ value: p._id!, label: p.name }));
+        this.productFilterOptions = [
+          { value: 'all', label: 'Tất cả' },
+          { value: 'homepage', label: 'Trang chủ' },
+          ...productOptions
+        ];
+      },
+      error: () => {
+        // Nếu lỗi, giữ lại 2 option mặc định
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -84,45 +109,52 @@ export class QuanlybinhluanComponent implements OnInit, AfterViewInit {
   }
 
   loadComments(): void {
-    this.isLoading = true;
-    console.log('Loading comments');
-    
-    const filters: CommentFilters = {};
-    if (this.statusFilter !== 'all') {
-      filters.status = this.statusFilter as Comment['status'];
-    }
-    if (this.ratingFilter > 0) {
-      filters.rating = this.ratingFilter;
-    }
+  this.isLoading = true;
+  console.log('Loading comments');
 
-    this.commentService.getComments(filters).subscribe({
-      next: (response: ApiResponse<Comment[]>) => {
-        if (response.success) {
-          this.comments = response.data || [];
-          this.applyFiltersAndSort();
-          this.errorMessage = undefined;
-          console.log('Comments loaded:', this.comments);
-        } else {
-          this.errorMessage = response.message || 'Lỗi khi lấy danh sách bình luận.';
-          Swal.fire('Lỗi', this.errorMessage, 'error');
-          console.log('Error response from getComments:', response.message);
-        }
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Error loading comments:', err);
-        this.errorMessage =
-          err.status === 401 || err.status === 403
-            ? 'Không có quyền truy cập. Vui lòng đăng nhập lại.'
-            : err.error?.message || err.message || 'Lỗi khi lấy danh sách bình luận';
+  const filters: CommentFilters = {};
+  if (this.statusFilter !== 'all') {
+    filters.status = this.statusFilter as Comment['status'];
+  }
+  if (this.ratingFilter > 0) {
+    filters.rating = this.ratingFilter;
+  }
+  if (this.productFilter !== 'all') {
+    filters.productId = this.productFilter;
+  }
+
+  this.commentService.getComments(filters).subscribe({
+    next: (response: ApiResponse<Comment[]>) => {
+      if (response.success) {
+        // Đảm bảo productId có giá trị hợp lệ
+        this.comments = (response.data || []).map(comment => ({
+          ...comment,
+          productId: comment.productId || { _id: 'unknown', name: 'Không xác định' }
+        }));
+        this.applyFiltersAndSort();
+        this.errorMessage = undefined;
+        console.log('Comments loaded:', this.comments);
+      } else {
+        this.errorMessage = response.message || 'Lỗi khi lấy danh sách bình luận.';
         Swal.fire('Lỗi', this.errorMessage, 'error');
-        if (err.status === 401 || err.status === 403) {
-          localStorage.removeItem('token');
-          this.router.navigate(['/login']);
-        }
-        this.isLoading = false;
-      },
-    });
+        console.log('Error response from getComments:', response.message);
+      }
+      this.isLoading = false;
+    },
+    error: (err) => {
+      console.error('Error loading comments:', err);
+      this.errorMessage =
+        err.status === 401 || err.status === 403
+          ? 'Không có quyền truy cập. Vui lòng đăng nhập lại.'
+          : err.error?.message || err.message || 'Lỗi khi lấy danh sách bình luận';
+      Swal.fire('Lỗi', this.errorMessage, 'error');
+      if (err.status === 401 || err.status === 403) {
+        localStorage.removeItem('adminToken');
+        this.router.navigate(['/login']);
+      }
+      this.isLoading = false;
+    },
+  });
   }
 
   loadCommentStats(): void {
@@ -144,6 +176,11 @@ export class QuanlybinhluanComponent implements OnInit, AfterViewInit {
   applyFiltersAndSort(): void {
     let filtered = [...this.comments];
 
+    // Lọc theo sản phẩm
+    if (this.productFilter !== 'all') {
+      filtered = filtered.filter(comment => comment.productId && comment.productId._id === this.productFilter);
+    }
+
     // Lọc theo từ khóa tìm kiếm
     if (this.searchQuery.trim()) {
       const query = this.searchQuery.toLowerCase().trim();
@@ -153,9 +190,9 @@ export class QuanlybinhluanComponent implements OnInit, AfterViewInit {
         const content = comment.content?.toLowerCase() || '';
         const productName = comment.productId?.name?.toLowerCase() || '';
         const status = comment.status?.toLowerCase() || '';
-        return userName.includes(query) || 
-               userEmail.includes(query) || 
-               content.includes(query) || 
+        return userName.includes(query) ||
+               userEmail.includes(query) ||
+               content.includes(query) ||
                productName.includes(query) ||
                status.includes(query);
       });
@@ -174,7 +211,7 @@ export class QuanlybinhluanComponent implements OnInit, AfterViewInit {
     // Sắp xếp
     filtered.sort((a, b) => {
       let aValue: any, bValue: any;
-      
+
       switch (this.sortBy) {
         case 'userName':
           aValue = a.userName || '';
@@ -246,7 +283,7 @@ export class QuanlybinhluanComponent implements OnInit, AfterViewInit {
   getPageNumbers(): number[] {
     const pages: number[] = [];
     const maxVisiblePages = 5;
-    
+
     if (this.totalPages <= maxVisiblePages) {
       for (let i = 1; i <= this.totalPages; i++) {
         pages.push(i);
@@ -254,12 +291,12 @@ export class QuanlybinhluanComponent implements OnInit, AfterViewInit {
     } else {
       const start = Math.max(1, this.currentPage - 2);
       const end = Math.min(this.totalPages, start + maxVisiblePages - 1);
-      
+
       for (let i = start; i <= end; i++) {
         pages.push(i);
       }
     }
-    
+
     return pages;
   }
 
@@ -540,4 +577,4 @@ export class QuanlybinhluanComponent implements OnInit, AfterViewInit {
     this.editContent = '';
     this.editRating = 5;
   }
-} 
+}

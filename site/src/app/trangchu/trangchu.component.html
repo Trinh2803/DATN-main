@@ -57,25 +57,25 @@
       <h2>Sản phẩm mới</h2>
     </div>
     <div class="products-grid">
-      <app-listcard *ngFor="let product of newProducts" [product]="product" [title]="''"></app-listcard>
+      <app-listcard [data]="newProducts"></app-listcard>
     </div>
   </div>
-  
+
   <div class="products-section" *ngIf="saleProducts.length > 0">
     <div class="section-header">
       <h2>Sản phẩm sale</h2>
     </div>
     <div class="products-grid">
-      <app-listcard *ngFor="let product of saleProducts" [product]="product" [title]="''"></app-listcard>
+      <app-listcard [data]="saleProducts"></app-listcard>
     </div>
   </div>
-  
+
   <div class="products-section" *ngIf="hotProducts.length > 0">
     <div class="section-header">
       <h2>Sản phẩm hot</h2>
     </div>
     <div class="products-grid">
-      <app-listcard *ngFor="let product of hotProducts" [product]="product" [title]="''"></app-listcard>
+      <app-listcard [data]="hotProducts"></app-listcard>
     </div>
   </div>
 </div>
@@ -102,3 +102,6 @@
     </div>
   </div>
 </section>
+
+
+

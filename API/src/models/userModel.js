@@ -11,4 +11,4 @@ const userSchema = new Schema({
   avatar: { type: String, default: null } // Thêm trường avatar
 }, { timestamps: true });
 
-module.exports = mongoose.model('users', userSchema);
+module.exports = mongoose.model('User', userSchema);

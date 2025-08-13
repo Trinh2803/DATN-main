@@ -68,13 +68,27 @@ export class SanphamComponent implements OnInit {
   private loadProducts(): void {
     this.productService.getAllProducts().subscribe({
       next: (products: ProductInterface[]) => {
+        console.log('API trả về:', products);
+        if (!products || !Array.isArray(products)) {
+          this.errorMessage = 'API trả về dữ liệu không hợp lệ.';
+          this.allProducts = [];
+          this.filteredProducts = [];
+          this.displayedProducts = [];
+          return;
+        }
         this.allProducts = products;
         this.filteredProducts = [...products];
         this.updatePagination();
-        this.errorMessage = products.length === 0 ? 'Không có sản phẩm nào để hiển thị.' : '';
+        if (products.length === 0) {
+          this.errorMessage = 'Không có sản phẩm nào để hiển thị.';
+        } else if (this.displayedProducts.length === 0) {
+          this.errorMessage = 'Không có sản phẩm nào hợp lệ để hiển thị.';
+        } else {
+          this.errorMessage = '';
+        }
       },
       error: (error) => {
-        console.error('Error fetching products:', error);
+        console.error('Lỗi API:', error);
         this.allProducts = [];
         this.filteredProducts = [];
         this.displayedProducts = [];
@@ -106,10 +120,29 @@ export class SanphamComponent implements OnInit {
     }
   }
 
-  onSortChange(order: 'asc' | 'desc' | ''): void {
-    this.sortOrder = order;
-    this.currentPage = 1;
-    if (order) {
+onSortChange(order: 'asc' | 'desc' | ''): void {
+  this.sortOrder = order;
+  this.currentPage = 1;
+
+  if (order) {
+    if (this.selectedCategory) {
+      // Nếu có danh mục được chọn, gọi API với danh mục và sắp xếp giá
+      this.productService.getProductsByCategoryAndPriceSort(this.selectedCategory, order).subscribe({
+        next: (products) => {
+          this.allProducts = products;
+          this.filteredProducts = [...products];
+          this.updatePagination();
+          this.errorMessage = products.length === 0 ? 'Không có sản phẩm nào trong danh mục này.' : '';
+        },
+        error: (error) => {
+          console.error('Error fetching products by category and sort:', error);
+          this.filteredProducts = [];
+          this.displayedProducts = [];
+          this.errorMessage = 'Không thể tải sản phẩm theo danh mục và sắp xếp.';
+        },
+      });
+    } else {
+      // Nếu không có danh mục được chọn, chỉ sắp xếp theo giá
       this.productService.getProductsByPriceSort(order).subscribe({
         next: (products) => {
           this.allProducts = products;
@@ -124,10 +157,16 @@ export class SanphamComponent implements OnInit {
           this.errorMessage = 'Không thể sắp xếp sản phẩm.';
         },
       });
+    }
+  } else {
+    // Nếu chọn "Mặc định", tải lại sản phẩm theo danh mục (nếu có) hoặc tất cả sản phẩm
+    if (this.selectedCategory) {
+      this.onCategoryChange(this.selectedCategory);
     } else {
       this.loadProducts();
     }
   }
+}
 
   onSearchChange(): void {
     this.searchSubject.next(this.searchQuery);
@@ -156,10 +195,14 @@ export class SanphamComponent implements OnInit {
   }
 
   updatePagination(): void {
-    this.totalPages = Math.ceil(this.filteredProducts.length / this.productsPerPage);
+    // Hiển thị tất cả sản phẩm, không lọc theo stock
+    const validProducts = this.filteredProducts.filter((p: any) =>
+      p && typeof p === 'object' && p._id
+    );
+    this.totalPages = Math.ceil(validProducts.length / this.productsPerPage);
     const startIndex = (this.currentPage - 1) * this.productsPerPage;
     const endIndex = startIndex + this.productsPerPage;
-    this.displayedProducts = this.filteredProducts.slice(startIndex, endIndex);
+    this.displayedProducts = validProducts.slice(startIndex, endIndex);
   }
 
   goToPage(page: number): void {

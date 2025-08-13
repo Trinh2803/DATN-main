@@ -6,6 +6,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { PaymentService } from '../services/payment.service';
 
 interface CartItem {
   product: ProductInterface;
@@ -32,8 +33,6 @@ export class CheckoutComponent implements OnInit {
   cartItems: CartItem[] = [];
   totalPrice: number = 0;
   orderNote: string = '';
-  discountCode: string = '';
-  discountInfo: any = null;
   finalAmount: number = 0;
   shippingInfo: ShippingInfo = {
     fullName: '',
@@ -49,7 +48,8 @@ export class CheckoutComponent implements OnInit {
     private cartService: CartService,
     private userService: UserService,
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private paymentService: PaymentService
   ) {}
 
   ngOnInit(): void {
@@ -61,19 +61,18 @@ export class CheckoutComponent implements OnInit {
     this.cartService.cartItems$.subscribe((items) => {
       this.cartItems = items;
       this.totalPrice = this.cartService.getTotalPrice();
+      // Recalculate totals when cart changes
+      this.recalcTotals();
+
+      // Nếu giỏ hàng rỗng, quay về trang giỏ hàng
+      if (!items || items.length === 0) {
+        this.router.navigate(['/giohang']);
+      }
     });
 
-    const pendingOrder = localStorage.getItem('pendingOrder');
-    if (pendingOrder) {
-      const orderData = JSON.parse(pendingOrder);
-      this.orderNote = orderData.orderNote || '';
-      this.cartItems = orderData.cartItems || [];
-      this.totalPrice = orderData.totalPrice || 0;
-      this.discountCode = orderData.discountCode || '';
-      this.discountInfo = orderData.discountInfo || null;
-      this.finalAmount = orderData.finalAmount || this.totalPrice;
-    } else {
-      this.router.navigate(['/giohang']);
+    // finalAmount luôn được tính lại từ giỏ hàng hiện tại
+    if (!this.finalAmount) {
+      this.recalcTotals();
     }
   }
 
@@ -89,29 +88,46 @@ export class CheckoutComponent implements OnInit {
       return;
     }
 
-    const orderData = {
-      userId: user._id,
-      customerName: this.shippingInfo.fullName,
-      customerPhone: this.shippingInfo.phone,
-      customerAddress: this.shippingInfo.address,
-      customerNote: this.orderNote || this.shippingInfo.note,
-      customerEmail: user.email || '',
-      items: this.cartItems.map(item => ({
-        productId: item.product._id,
-        quantity: item.quantity,
-        price: this.getItemPrice(item), // giá đã giảm
-        variantId: item.selectedVariant?._id,
-        variantSize: item.selectedVariant?.size,
-        discountInfo: (item as any).discountInfo || null // gửi discountInfo cho từng item
-      })),
-      total: this.totalPrice,
-      finalAmount: this.finalAmount,
-      discountCode: this.discountCode,
-      discountInfo: this.discountInfo,
-      status: 'Chờ xác nhận',
-      adminNote: '',
+    // Nếu chọn thanh toán VNPay
+    if (this.shippingInfo.paymentMethod === 'vnpay') {
+      this.processVNPayPayment();
+      return;
+    }
+
+    // Xử lý thanh toán COD (Cash on Delivery)
+    this.processCODOrder();
+  }
+
+  private processVNPayPayment(): void {
+    const paymentData = {
+      amount: this.finalAmount,
+      bankCode: '', // Để trống để hiển thị tất cả ngân hàng
+      language: 'vn',
+      orderInfo: `Thanh toán đơn hàng MOHO - ${this.shippingInfo.fullName}`
     };
 
+    this.paymentService.createPayment(paymentData).subscribe({
+      next: (response) => {
+        if (response.code === '00') {
+          // Lưu thông tin đơn hàng để xử lý sau khi thanh toán thành công
+          const orderData = this.prepareOrderData();
+          localStorage.setItem('pendingVNPayOrder', JSON.stringify(orderData));
+
+          // Chuyển đến trang thanh toán VNPay
+          this.paymentService.openPaymentPage(response.data);
+        } else {
+          alert('Không thể tạo URL thanh toán: ' + response.message);
+        }
+      },
+      error: (error) => {
+        alert('Lỗi kết nối thanh toán: ' + error.message);
+        console.error('VNPay payment error:', error);
+      }
+    });
+  }
+
+  private processCODOrder(): void {
+    const orderData = this.prepareOrderData();
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
@@ -122,15 +138,55 @@ export class CheckoutComponent implements OnInit {
         this.cartService.clearCart();
         localStorage.removeItem('pendingOrder');
         const orderId = response.data._id;
-        console.log('Order created with ID:', orderId);
+        console.log('COD Order created with ID:', orderId);
+        
+        // Success message
+        alert('Đơn hàng COD đã được tạo thành công! Đang chuyển đến trang đơn hàng...');
+        // Navigate to order detail
         this.router.navigate(['/donhang'], {
-          queryParams: { orderId },
+          queryParams: { orderId }
         });
       },
       error: (err) => {
         alert('Đặt hàng thất bại: ' + (err.error?.message || 'Vui lòng thử lại sau'));
       },
     });
+  }
+
+  // Recalculate final amount based on total and discount
+  private recalcTotals(): void {
+    // Tính tổng sau giảm dựa trên từng item (đã tính discountInfo trong getItemPrice)
+    const discounted = this.cartItems.reduce((sum, item) => {
+      return sum + this.getItemPrice(item) * item.quantity;
+    }, 0);
+    this.finalAmount = Math.max(0, Math.round(discounted));
+  }
+
+  // Discount code UI/logic removed: totals now equal cart total.
+
+  private prepareOrderData(): any {
+    const user = this.userService.getCurrentUser();
+    return {
+      userId: user._id,
+      customerName: this.shippingInfo.fullName,
+      customerPhone: this.shippingInfo.phone,
+      customerAddress: this.shippingInfo.address,
+      customerNote: this.orderNote || this.shippingInfo.note,
+      customerEmail: user.email || '',
+      items: this.cartItems.map(item => ({
+        productId: item.product._id,
+        quantity: item.quantity,
+        price: this.getItemPrice(item),
+        variantId: item.selectedVariant?._id,
+        variantSize: item.selectedVariant?.size,
+        discountInfo: (item as any).discountInfo || null
+      })),
+      total: this.totalPrice,
+      finalAmount: this.finalAmount,
+      status: 'Chờ xác nhận',
+      adminNote: '',
+      paymentMethod: this.shippingInfo.paymentMethod
+    };
   }
 
   // Thêm phương thức public để quay lại giỏ hàng
@@ -143,7 +199,7 @@ export class CheckoutComponent implements OnInit {
     let basePrice = item.selectedVariant ? (item.selectedVariant.salePrice || item.selectedVariant.price) : (item.product.salePrice || item.product.price);
     if ((item as any).discountInfo) {
       const discountInfo = (item as any).discountInfo;
-      if (discountInfo.discountType === 'percent') {
+      if (discountInfo.discountType === 'percentage') {
         return Math.round(basePrice * (1 - discountInfo.discountValue / 100));
       } else if (discountInfo.discountType === 'fixed') {
         return Math.max(0, basePrice - discountInfo.discountValue);
@@ -158,5 +214,15 @@ export class CheckoutComponent implements OnInit {
       return `${item.selectedVariant.size}`;
     }
     return '';
+  }
+
+  // Helpers cho template: tạm tính và tổng cộng sau giảm
+  getDiscountedSubtotal(): number {
+    return this.cartItems.reduce((sum, item) => sum + this.getItemPrice(item) * item.quantity, 0);
+  }
+
+  getDiscountedTotal(): number {
+    // Hiện tại phí vận chuyển miễn phí, tổng = tạm tính
+    return Math.max(0, Math.round(this.getDiscountedSubtotal()));
   }
 }

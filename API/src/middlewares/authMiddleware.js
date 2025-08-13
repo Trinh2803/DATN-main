@@ -30,13 +30,16 @@ const verifyToken = (req, res, next) => {
 };
 
 const verifyAdmin = (req, res, next) => {
-  verifyToken(req, res, () => {
-    if (req.user.role === 'admin') {
-      next();
-    } else {
-      res.status(403).json({ message: 'Yêu cầu quyền admin' });
-    }
-  });
+  // Không gọi verifyToken nữa vì nó đã được gọi trong route
+  if (!req.user) {
+    return res.status(401).json({ message: 'Chưa xác thực' });
+  }
+  
+  if (req.user.role === 'admin') {
+    next();
+  } else {
+    res.status(403).json({ message: 'Yêu cầu quyền admin' });
+  }
 };
 
 module.exports = { verifyToken, verifyAdmin };

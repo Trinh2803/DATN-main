@@ -11,6 +11,14 @@ const getAllComments = async (filters = {}) => {
   }
   
   if (filters.productId) {
+    // Handle special product identifiers like 'homepage'
+    const specialProducts = ['homepage'];
+    
+    // Only validate as ObjectId if it's not a special product identifier
+    if (!specialProducts.includes(filters.productId) && !mongoose.isValidObjectId(filters.productId)) {
+      throw new Error('ID sản phẩm không hợp lệ');
+    }
+    
     query.productId = filters.productId;
   }
   
@@ -47,7 +55,11 @@ const getCommentById = async (id) => {
 
 // Lấy bình luận theo sản phẩm
 const getCommentsByProduct = async (productId) => {
-  if (!mongoose.isValidObjectId(productId)) {
+  // Handle special product identifiers like 'homepage'
+  const specialProducts = ['homepage'];
+  
+  // If it's not a special product identifier, validate as MongoDB ObjectId
+  if (!specialProducts.includes(productId) && !mongoose.isValidObjectId(productId)) {
     throw new Error('ID sản phẩm không hợp lệ');
   }
   
@@ -62,19 +74,31 @@ const getCommentsByProduct = async (productId) => {
 
 // Tạo bình luận mới
 const createComment = async (commentData) => {
-  // Validate sản phẩm tồn tại
-  const product = await Product.findById(commentData.productId);
-  if (!product) {
-    throw new Error('Sản phẩm không tồn tại');
+  // Handle special product identifiers like 'homepage'
+  const specialProducts = ['homepage'];
+  
+  // Only validate product existence for regular product IDs
+  if (!specialProducts.includes(commentData.productId)) {
+    const product = await Product.findById(commentData.productId);
+    if (!product) {
+      throw new Error('Sản phẩm không tồn tại');
+    }
   }
   
   const comment = new Comment(commentData);
   await comment.save();
   
-  return await comment.populate([
-    { path: 'productId', select: 'name thumbnail' },
-    { path: 'userId', select: 'name email' }
-  ]);
+  // For special products, don't try to populate productId since it won't exist in Product collection
+  if (specialProducts.includes(commentData.productId)) {
+    return await comment.populate([
+      { path: 'userId', select: 'name email' }
+    ]);
+  } else {
+    return await comment.populate([
+      { path: 'productId', select: 'name thumbnail' },
+      { path: 'userId', select: 'name email' }
+    ]);
+  }
 };
 
 // Cập nhật trạng thái bình luận

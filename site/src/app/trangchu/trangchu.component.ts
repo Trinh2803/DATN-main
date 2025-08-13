@@ -1,8 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ListcardComponent } from '../listcard/listcard.component';
 import { ProductInterface } from '../product-interface';
 import { ProductService } from '../product.service';
+import { CommentService } from '../comment.service';
+import { Comment, ApiResponse } from '../interfaces/comment.interface';
 
 interface Slide {
   image: string;
@@ -27,11 +30,12 @@ interface NewsItem {
 @Component({
   selector: 'app-trangchu',
   standalone: true,
-  imports: [CommonModule, ListcardComponent],
+  imports: [CommonModule, ListcardComponent, FormsModule],
   templateUrl: './trangchu.component.html',
   styleUrls: ['./trangchu.component.css']
 })
 export class TrangchuComponent implements OnInit, OnDestroy {
+  allProducts: ProductInterface[] = [];
   newProducts: ProductInterface[] = [];
   saleProducts: ProductInterface[] = [];
   hotProducts: ProductInterface[] = [];
@@ -96,50 +100,62 @@ export class TrangchuComponent implements OnInit, OnDestroy {
 
   currentSlide: number = 0;
   private autoSlideInterval: any;
+  comments: Comment[] = [];
+  newCommentContent: string = '';
+  newCommentRating: number = 5;
+  newCommentName: string = '';
+  newCommentEmail: string = '';
+  isSubmittingComment: boolean = false;
+  commentError: string = '';
 
-  constructor(private productService: ProductService) {}
+  constructor(private productService: ProductService, private commentService: CommentService) {}
 
   ngOnInit(): void {
+    // Gọi API lấy tất cả sản phẩm
+    this.productService.getAllProducts().subscribe({
+      next: (data: any) => {
+        const arr = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
+        this.allProducts = arr.filter((p: any) => p && typeof p === 'object' && p._id);
+      },
+      error: (error) => {
+        this.allProducts = [];
+      }
+    });
     // Start the banner auto-slide
     this.startAutoSlide();
 
     // Fetch new products
     this.productService.getNewProducts().subscribe({
       next: (data: any) => {
-        console.log('Raw New Products:', data);
-        console.log('Is array?', Array.isArray(data));
-        this.newProducts = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
-        console.log('Assigned New Products:', this.newProducts);
+        const arr = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
+        this.newProducts = arr.filter((p: any) => p && typeof p === 'object' && p._id);
       },
       error: (error) => {
-        console.error('Error fetching new products:', error);
         this.newProducts = [];
       }
     });
 
-    // Fetch sale products
     this.productService.getSaleProducts().subscribe({
       next: (data: any) => {
-        console.log('Raw Sale Products:', data);
-        console.log('Is array?', Array.isArray(data));
-        this.saleProducts = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
-        console.log('Assigned Sale Products:', this.saleProducts);
+        const arr = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
+        this.saleProducts = arr.filter((p: any) => p && typeof p === 'object' && p._id);
       },
       error: (error) => {
-        console.error('Error fetching sale products:', error);
         this.saleProducts = [];
       }
     });
 
-    // Fetch hot products
     this.productService.getHotProducts().subscribe({
       next: (data: any) => {
-        console.log('Raw Hot Products:', data);
-        this.hotProducts = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
-        console.log('Assigned Hot Products:', this.hotProducts);
+        console.log('API hotProducts trả về:', data);
+        const arr = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
+        this.hotProducts = arr.filter((p: any) => p && typeof p === 'object' && p._id);
+        if (this.hotProducts.length === 0) {
+          console.warn('Không có sản phẩm hot nào để hiển thị!');
+        }
       },
       error: (error) => {
-        console.error('Error fetching hot products:', error);
+        console.error('Lỗi API hotProducts:', error);
         this.hotProducts = [];
       }
     });
@@ -158,6 +174,59 @@ export class TrangchuComponent implements OnInit, OnDestroy {
       }
     });
     */
+    this.loadComments();
+  }
+
+  loadComments(): void {
+    // Nếu muốn lấy bình luận cho trang chủ, có thể lấy tất cả hoặc theo 1 productId mặc định
+    // Ở đây lấy tất cả bình luận của 1 productId giả định (hoặc sửa lại API để lấy bình luận chung)
+    const productId = 'homepage'; // hoặc null nếu backend hỗ trợ
+    this.commentService.getCommentsByProduct(productId).subscribe({
+      next: (res: ApiResponse<Comment[]>) => {
+        if (res.success) {
+          this.comments = res.data || [];
+        } else {
+          this.comments = [];
+        }
+      },
+      error: () => {
+        this.comments = [];
+      }
+    });
+  }
+
+  submitComment(): void {
+    if (!this.newCommentName.trim() || !this.newCommentEmail.trim() || !this.newCommentContent.trim()) {
+      this.commentError = 'Vui lòng nhập đầy đủ thông tin.';
+      return;
+    }
+    this.isSubmittingComment = true;
+    this.commentError = '';
+    const productId = 'homepage'; // hoặc null nếu backend hỗ trợ
+    this.commentService.createComment({
+      productId,
+      userName: this.newCommentName,
+      userEmail: this.newCommentEmail,
+      rating: this.newCommentRating,
+      content: this.newCommentContent
+    }).subscribe({
+      next: (res: ApiResponse<Comment>) => {
+        if (res.success) {
+          this.newCommentContent = '';
+          this.newCommentRating = 5;
+          this.newCommentName = '';
+          this.newCommentEmail = '';
+          this.loadComments();
+        } else {
+          this.commentError = res.message || 'Gửi bình luận thất bại.';
+        }
+        this.isSubmittingComment = false;
+      },
+      error: () => {
+        this.commentError = 'Gửi bình luận thất bại.';
+        this.isSubmittingComment = false;
+      }
+    });
   }
 
   ngOnDestroy(): void {

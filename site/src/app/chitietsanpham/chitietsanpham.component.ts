@@ -3,13 +3,17 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../product.service';
 import { CartService } from '../cart.service';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ProductInterface, Variant } from '../product-interface';
 import { WishlistService } from '../wishlist.service';
+import { CommentService } from '../comment.service';
+import { Comment } from '../interfaces/comment.interface';
 import Swal from 'sweetalert2';
+import { DiscountService, Discount } from '../discount.service';
 
 @Component({
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   selector: 'app-chitietsanpham',
   templateUrl: './chitietsanpham.component.html',
   styleUrls: ['./chitietsanpham.component.css'],
@@ -22,12 +26,34 @@ export class ChiTietSanPhamComponent implements OnInit {
   relatedProducts: ProductInterface[] = []; // Thêm sản phẩm liên quan
   private wishlistCache = new Map<string, boolean>();
 
+  // Comment properties
+  comments: Comment[] = [];
+  averageRating: number = 0;
+  commentFilter: string | number = 'all';
+  hoverRating: number = 0;
+  isSubmitting: boolean = false;
+  newComment = {
+    userName: '',
+    userEmail: '',
+    rating: 0,
+    content: ''
+  };
+
+  // Coupon properties
+  couponCode: string = '';
+  appliedCoupon: any = null;
+  availableCoupons: any[] = [];
+  couponError: string = '';
+  isApplyingCoupon: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private productService: ProductService,
     private cartService: CartService,
-    private wishlistService: WishlistService
+    private wishlistService: WishlistService,
+    private commentService: CommentService,
+    private discountService: DiscountService
   ) {}
 
   ngOnInit(): void {
@@ -43,6 +69,10 @@ export class ChiTietSanPhamComponent implements OnInit {
           this.loadRelatedProducts();
           // Load wishlist status
           this.loadWishlistStatus();
+          // Load comments
+          this.loadComments();
+          // Load available coupons
+          this.loadAvailableCoupons();
         },
         error: (err: any) => {
           console.error('Lỗi khi lấy chi tiết sản phẩm:', err);
@@ -53,7 +83,7 @@ export class ChiTietSanPhamComponent implements OnInit {
 
   private loadWishlistStatus(): void {
     if (!this.product) return;
-    
+
     const token = localStorage.getItem('token');
     if (!token) return;
 
@@ -158,7 +188,8 @@ export class ChiTietSanPhamComponent implements OnInit {
       productToAdd.selectedVariant = this.selectedVariant;
     }
 
-    this.cartService.addToCartWithQuantity(productToAdd, this.quantity);
+    // Đưa appliedCoupon vào cart item nếu có
+    this.cartService.addToCartWithQuantity(productToAdd, this.quantity, this.appliedCoupon || undefined);
     Swal.fire({
       title: 'Thành công',
       text: `Đã thêm ${this.quantity} sản phẩm vào giỏ hàng`,
@@ -175,7 +206,8 @@ export class ChiTietSanPhamComponent implements OnInit {
       productToAdd.selectedVariant = this.selectedVariant;
     }
 
-    this.cartService.addToCartWithQuantity(productToAdd, this.quantity);
+    // Đưa appliedCoupon vào cart item nếu có
+    this.cartService.addToCartWithQuantity(productToAdd, this.quantity, this.appliedCoupon || undefined);
     this.router.navigate(['/checkout']);
   }
 
@@ -229,9 +261,20 @@ export class ChiTietSanPhamComponent implements OnInit {
 
     this.productService.getAllProducts().subscribe({
       next: (products: ProductInterface[]) => {
-        // Lọc sản phẩm cùng danh mục và loại bỏ sản phẩm hiện tại
+        // Lọc sản phẩm cùng danh mục, loại bỏ sản phẩm hiện tại và chỉ lấy sản phẩm còn hàng
         this.relatedProducts = products
-          .filter((p: ProductInterface) => p.categoryId === this.product!.categoryId && p._id !== this.product!._id)
+          .filter((p: ProductInterface) => {
+            if (p.categoryId !== this.product!.categoryId || p._id === this.product!._id) return false;
+            // Nếu không có trường stock thì vẫn hiển thị
+            if (typeof p.stock !== 'number' && !p.variants) return true;
+            // Nếu có stock thì kiểm tra còn hàng
+            if (typeof p.stock === 'number' && p.stock > 0) return true;
+            // Nếu có variants thì kiểm tra từng variant
+            if (p.variants && Array.isArray(p.variants)) {
+              return p.variants.some((v: any) => typeof v.stock !== 'number' || v.stock > 0);
+            }
+            return false;
+          })
           .slice(0, 4); // Chỉ lấy 4 sản phẩm liên quan
       },
       error: (err: any) => {
@@ -391,5 +434,223 @@ export class ChiTietSanPhamComponent implements OnInit {
   isFavorite(): boolean {
     if (!this.product) return false;
     return this.wishlistCache.get(this.product._id) || false;
+  }
+
+  // Comment methods
+  loadComments(): void {
+    if (this.product?._id) {
+      this.commentService.getCommentsByProduct(this.product._id).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.comments = response.data.filter(comment => comment.status === 'approved');
+            this.calculateAverageRating();
+          }
+        },
+        error: (err) => {
+          console.error('Lỗi khi tải bình luận:', err);
+        }
+      });
+    }
+  }
+
+  calculateAverageRating(): void {
+    if (this.comments.length > 0) {
+      const totalRating = this.comments.reduce((sum, comment) => sum + comment.rating, 0);
+      this.averageRating = totalRating / this.comments.length;
+    } else {
+      this.averageRating = 0;
+    }
+  }
+
+  setRating(rating: number): void {
+    this.newComment.rating = rating;
+  }
+
+  getRatingText(rating: number): string {
+    const ratingTexts = {
+      1: 'Rất tệ',
+      2: 'Tệ',
+      3: 'Bình thường',
+      4: 'Tốt',
+      5: 'Rất tốt'
+    };
+    return ratingTexts[rating as keyof typeof ratingTexts] || '';
+  }
+
+  submitComment(): void {
+    if (!this.product?._id) return;
+
+    this.isSubmitting = true;
+    const commentData = {
+      productId: this.product._id,
+      userName: this.newComment.userName,
+      userEmail: this.newComment.userEmail,
+      rating: this.newComment.rating,
+      content: this.newComment.content
+    };
+
+    this.commentService.createComment(commentData).subscribe({
+      next: (response) => {
+        if (response.success) {
+          Swal.fire({
+            title: 'Thành công!',
+            text: 'Đánh giá của bạn đã được gửi và đang chờ duyệt',
+            icon: 'success',
+            confirmButtonText: 'OK'
+          });
+          // Reset form
+          this.newComment = {
+            userName: '',
+            userEmail: '',
+            rating: 0,
+            content: ''
+          };
+        }
+      },
+      error: (err) => {
+        console.error('Lỗi khi gửi bình luận:', err);
+        Swal.fire({
+          title: 'Lỗi!',
+          text: 'Có lỗi xảy ra khi gửi đánh giá',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+      },
+      complete: () => {
+        this.isSubmitting = false;
+      }
+    });
+  }
+
+  getRatingCount(rating: number): number {
+    return this.comments.filter(comment => comment.rating === rating).length;
+  }
+
+  getRatingPercentage(rating: number): number {
+    if (this.comments.length === 0) return 0;
+    return (this.getRatingCount(rating) / this.comments.length) * 100;
+  }
+
+  setCommentFilter(filter: string | number): void {
+    this.commentFilter = filter;
+  }
+
+  getFilteredComments(): Comment[] {
+    if (this.commentFilter === 'all') {
+      return this.comments;
+    }
+    return this.comments.filter(comment => comment.rating === this.commentFilter);
+  }
+
+  formatDate(dateString: string | undefined): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('vi-VN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
+
+  // Coupon methods
+  loadAvailableCoupons(): void {
+    if (!this.product) {
+      this.availableCoupons = [];
+      return;
+    }
+    const productId = this.product._id;
+    const categoryId = this.product.categoryId?._id;
+    this.discountService.getApplicable(productId, categoryId).subscribe({
+      next: (res: { success: boolean; data: Discount[] }) => {
+        this.availableCoupons = res.data || [];
+      },
+      error: (err: any) => {
+        console.error('Không tải được danh sách mã giảm giá:', err);
+        this.availableCoupons = [];
+      }
+    });
+  }
+
+  applyCoupon(): void {
+    if (!this.couponCode.trim()) {
+      this.couponError = 'Vui lòng nhập mã giảm giá';
+      return;
+    }
+
+    this.isApplyingCoupon = true;
+    this.couponError = '';
+
+    const totalAmount = this.getCurrentPrice();
+    const productIds = this.product ? [this.product._id] : [];
+    this.discountService.checkDiscountCode(this.couponCode.trim(), totalAmount, productIds).subscribe({
+      next: (response: { success: boolean; discount: any }) => {
+        if (response && response.success) {
+          this.appliedCoupon = response.discount;
+          this.couponCode = '';
+          this.couponError = '';
+          Swal.fire({
+            title: 'Thành công!',
+            text: `Đã áp dụng mã giảm giá ${response.discount.name}`,
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false
+          });
+        } else {
+          this.couponError = 'Mã giảm giá không hợp lệ hoặc đã hết hạn';
+        }
+        this.isApplyingCoupon = false;
+      },
+      error: (err: any) => {
+        this.couponError = err?.error?.message || 'Mã giảm giá không hợp lệ hoặc đã hết hạn';
+        this.isApplyingCoupon = false;
+      }
+    });
+  }
+
+  removeCoupon(): void {
+    this.appliedCoupon = null;
+    this.couponError = '';
+    Swal.fire({
+      title: 'Đã xóa mã giảm giá',
+      icon: 'info',
+      timer: 1500,
+      showConfirmButton: false
+    });
+  }
+
+  selectCoupon(code: string): void {
+    this.couponCode = code;
+    this.applyCoupon();
+  }
+
+  formatDiscount(coupon: any): string {
+    if (coupon.discountType === 'percentage') {
+      return `${coupon.discountValue}%`;
+    } else if (coupon.discountType === 'fixed') {
+      return `${coupon.discountValue.toLocaleString('vi-VN')}đ`;
+    } else if (coupon.discountType === 'shipping') {
+      return 'Miễn phí ship';
+    }
+    return '';
+  }
+
+  getDiscountAmount(): number {
+    if (!this.appliedCoupon) return 0;
+
+    const currentPrice = this.getCurrentPrice();
+
+    if (this.appliedCoupon.discountType === 'percentage') {
+      return (currentPrice * this.appliedCoupon.discountValue) / 100;
+    } else if (this.appliedCoupon.discountType === 'fixed') {
+      return Math.min(this.appliedCoupon.discountValue, currentPrice);
+    }
+
+    return 0;
+  }
+
+  getFinalPrice(): number {
+    const originalPrice = this.getCurrentPrice();
+    const discountAmount = this.getDiscountAmount();
+    return Math.max(0, originalPrice - discountAmount);
   }
 }
