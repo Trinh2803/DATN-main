@@ -89,6 +89,8 @@
   justify-content: space-between;
   padding: 26px 52px 10px 38px;
 }
+.header-left {
+}
 .page-title {
   font-size: 22px;
   font-weight: bold;
@@ -332,12 +334,6 @@ th {
   min-height: 100vh;
 }
 
-.sidebar {
-  width: 250px;
-  background: #f8f9fa;
-  padding: 20px;
-}
-
 .main-container {
   flex: 1;
   padding: 20px;
@@ -375,17 +371,6 @@ th {
 
 .table-wrapper {
   overflow-x: auto;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th, td {
-  padding: 10px;
-  border: 1px solid #ddd;
-  text-align: left;
 }
 
 .edit-button {
