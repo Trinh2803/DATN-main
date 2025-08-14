@@ -10,6 +10,50 @@ exports.getAllDiscounts = async (req, res) => {
   }
 };
 
+// Lấy các mã giảm giá phù hợp theo sản phẩm/danh mục (public)
+exports.getApplicableForProduct = async (req, res) => {
+  try {
+    const { productId, categoryId } = req.query;
+    const now = new Date();
+    const all = Discount.getAllDiscounts();
+
+    const applicable = all.filter(d => {
+      if (!d.isActive) return false;
+      // Chuẩn hóa thời gian để so sánh, endDate tính đến hết ngày (23:59:59.999)
+      const start = d.startDate ? new Date(d.startDate) : null;
+      const end = d.endDate ? new Date(d.endDate) : null;
+      if (end) end.setHours(23, 59, 59, 999);
+      if ((start && now < start) || (end && now > end)) return false;
+      if (d.usageLimit && d.usedCount >= d.usageLimit) return false;
+      // Lọc theo sản phẩm/danh mục nếu có cấu hình
+      let okProduct = true;
+      if (d.applicableProducts && d.applicableProducts.length > 0) {
+        okProduct = !!productId && d.applicableProducts.map(x => x.toString()).includes(productId.toString());
+      }
+      let okCategory = true;
+      if (d.applicableCategories && d.applicableCategories.length > 0) {
+        okCategory = !!categoryId && d.applicableCategories.map(x => x.toString()).includes(categoryId.toString());
+      }
+      return okProduct && okCategory;
+    }).map(d => ({
+      _id: d._id,
+      code: d.code,
+      name: d.name,
+      description: d.description,
+      discountType: d.discountType,
+      discountValue: d.discountValue,
+      minOrderValue: d.minOrderValue || 0,
+      maxDiscount: d.maxDiscount,
+      startDate: d.startDate,
+      endDate: d.endDate
+    }));
+
+    res.json({ success: true, data: applicable });
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi server', error: error.message });
+  }
+};
+
 // Lấy mã giảm giá theo ID
 exports.getDiscountById = async (req, res) => {
   try {
@@ -37,6 +81,7 @@ exports.createDiscount = async (req, res) => {
       startDate,
       endDate,
       usageLimit,
+      usageLimitPerUser,
       applicableProducts,
       applicableCategories
     } = req.body;
@@ -74,7 +119,9 @@ exports.createDiscount = async (req, res) => {
       startDate: start,
       endDate: end,
       usageLimit,
+      usageLimitPerUser,
       usedCount: 0,
+      usedBy: {},
       isActive: true,
       applicableProducts,
       applicableCategories,
@@ -102,6 +149,7 @@ exports.updateDiscount = async (req, res) => {
       endDate,
       usageLimit,
       isActive,
+      usageLimitPerUser,
       applicableProducts,
       applicableCategories
     } = req.body;
@@ -142,6 +190,7 @@ exports.updateDiscount = async (req, res) => {
       startDate: startDate ? new Date(startDate) : discount.startDate,
       endDate: endDate ? new Date(endDate) : discount.endDate,
       usageLimit: usageLimit !== undefined ? usageLimit : discount.usageLimit,
+      usageLimitPerUser: usageLimitPerUser !== undefined ? usageLimitPerUser : discount.usageLimitPerUser,
       isActive: isActive !== undefined ? isActive : discount.isActive,
       applicableProducts: applicableProducts || discount.applicableProducts,
       applicableCategories: applicableCategories || discount.applicableCategories
@@ -181,15 +230,20 @@ exports.checkDiscountCode = async (req, res) => {
       return res.status(404).json({ message: 'Mã giảm giá không tồn tại hoặc đã bị vô hiệu hóa' });
     }
     const now = new Date();
-    if (now < discount.startDate || now > discount.endDate) {
+    // Ép kiểu ngày và so sánh bao gồm hết ngày kết thúc
+    const start = discount.startDate ? new Date(discount.startDate) : null;
+    const end = discount.endDate ? new Date(discount.endDate) : null;
+    if (end) end.setHours(23, 59, 59, 999);
+    if ((start && now < start) || (end && now > end)) {
       return res.status(400).json({ message: 'Mã giảm giá chưa có hiệu lực hoặc đã hết hạn' });
     }
     if (discount.usageLimit && discount.usedCount >= discount.usageLimit) {
       return res.status(400).json({ message: 'Mã giảm giá đã hết lượt sử dụng' });
     }
-    if (totalAmount < discount.minOrderValue) {
+    const minOrder = discount.minOrderValue || 0;
+    if (totalAmount < minOrder) {
       return res.status(400).json({ 
-        message: `Đơn hàng tối thiểu phải từ ${discount.minOrderValue.toLocaleString('vi-VN')}đ để sử dụng mã này` 
+        message: `Đơn hàng tối thiểu phải từ ${minOrder.toLocaleString('vi-VN')}đ để sử dụng mã này` 
       });
     }
     if (discount.applicableProducts && discount.applicableProducts.length > 0) {
@@ -229,7 +283,7 @@ exports.checkDiscountCode = async (req, res) => {
   }
 };
 
-// Áp dụng mã giảm giá (tăng usedCount)
+// Áp dụng mã giảm giá (tăng usedCount, kiểm tra giới hạn)
 exports.applyDiscount = async (req, res) => {
   try {
     const { discountId } = req.body;
@@ -237,9 +291,52 @@ exports.applyDiscount = async (req, res) => {
     if (!discount) {
       return res.status(404).json({ message: 'Mã giảm giá không tồn tại' });
     }
-    Discount.updateDiscount(discountId, {
-      usedCount: discount.usedCount + 1
-    });
+
+    // Kiểm tra trạng thái kích hoạt
+    if (!discount.isActive) {
+      return res.status(400).json({ message: 'Mã giảm giá đã bị vô hiệu hóa' });
+    }
+
+    // Kiểm tra thời gian hiệu lực (tính hết ngày kết thúc)
+    const now = new Date();
+    const start = discount.startDate ? new Date(discount.startDate) : null;
+    const end = discount.endDate ? new Date(discount.endDate) : null;
+    if (end) end.setHours(23, 59, 59, 999);
+    if ((start && now < start) || (end && now > end)) {
+      return res.status(400).json({ message: 'Mã giảm giá chưa có hiệu lực hoặc đã hết hạn' });
+    }
+
+    // Kiểm tra giới hạn tổng số lượt dùng
+    if (discount.usageLimit && discount.usedCount >= discount.usageLimit) {
+      return res.status(400).json({ message: 'Mã giảm giá đã hết lượt sử dụng' });
+    }
+
+    // Kiểm tra giới hạn theo người dùng (nếu có cấu hình)
+    if (discount.usageLimitPerUser) {
+      // Yêu cầu đăng nhập để áp dụng mã khi có giới hạn theo user
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'Vui lòng đăng nhập để áp dụng mã giảm giá' });
+      }
+      const usedBy = discount.usedBy || {};
+      const userUsedCount = usedBy[userId] || 0;
+      if (userUsedCount >= discount.usageLimitPerUser) {
+        return res.status(400).json({ message: 'Bạn đã sử dụng hết số lượt cho mã giảm giá này' });
+      }
+
+      // Cập nhật cả bộ đếm tổng và theo user
+      usedBy[userId] = userUsedCount + 1;
+      Discount.updateDiscount(discountId, {
+        usedCount: (discount.usedCount || 0) + 1,
+        usedBy
+      });
+    } else {
+      // Chỉ cập nhật bộ đếm tổng
+      Discount.updateDiscount(discountId, {
+        usedCount: (discount.usedCount || 0) + 1
+      });
+    }
+
     res.json({ message: 'Áp dụng mã giảm giá thành công' });
   } catch (error) {
     res.status(500).json({ message: 'Lỗi server', error: error.message });

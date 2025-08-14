@@ -9,6 +9,7 @@ import { WishlistService } from '../wishlist.service';
 import { CommentService } from '../comment.service';
 import { Comment } from '../interfaces/comment.interface';
 import Swal from 'sweetalert2';
+import { DiscountService, Discount } from '../discount.service';
 
 @Component({
   standalone: true,
@@ -51,7 +52,8 @@ export class ChiTietSanPhamComponent implements OnInit {
     private productService: ProductService,
     private cartService: CartService,
     private wishlistService: WishlistService,
-    private commentService: CommentService
+    private commentService: CommentService,
+    private discountService: DiscountService
   ) {}
 
   ngOnInit(): void {
@@ -186,7 +188,8 @@ export class ChiTietSanPhamComponent implements OnInit {
       productToAdd.selectedVariant = this.selectedVariant;
     }
 
-    this.cartService.addToCartWithQuantity(productToAdd, this.quantity);
+    // Đưa appliedCoupon vào cart item nếu có
+    this.cartService.addToCartWithQuantity(productToAdd, this.quantity, this.appliedCoupon || undefined);
     Swal.fire({
       title: 'Thành công',
       text: `Đã thêm ${this.quantity} sản phẩm vào giỏ hàng`,
@@ -203,7 +206,8 @@ export class ChiTietSanPhamComponent implements OnInit {
       productToAdd.selectedVariant = this.selectedVariant;
     }
 
-    this.cartService.addToCartWithQuantity(productToAdd, this.quantity);
+    // Đưa appliedCoupon vào cart item nếu có
+    this.cartService.addToCartWithQuantity(productToAdd, this.quantity, this.appliedCoupon || undefined);
     this.router.navigate(['/checkout']);
   }
 
@@ -465,7 +469,7 @@ export class ChiTietSanPhamComponent implements OnInit {
   getRatingText(rating: number): string {
     const ratingTexts = {
       1: 'Rất tệ',
-      2: 'Tệ', 
+      2: 'Tệ',
       3: 'Bình thường',
       4: 'Tốt',
       5: 'Rất tốt'
@@ -550,42 +554,21 @@ export class ChiTietSanPhamComponent implements OnInit {
 
   // Coupon methods
   loadAvailableCoupons(): void {
-    // Mock data - trong thực tế sẽ gọi API để lấy mã giảm giá có sẵn
-    this.availableCoupons = [
-      {
-        id: '1',
-        code: 'WELCOME10',
-        name: 'Chào mừng khách hàng mới',
-        description: 'Giảm 10% cho đơn hàng đầu tiên',
-        discountType: 'percentage',
-        discountValue: 10,
-        minOrderValue: 500000,
-        expiryDate: '2024-12-31',
-        isActive: true
+    if (!this.product) {
+      this.availableCoupons = [];
+      return;
+    }
+    const productId = this.product._id;
+    const categoryId = this.product.categoryId?._id;
+    this.discountService.getApplicable(productId, categoryId).subscribe({
+      next: (res: { success: boolean; data: Discount[] }) => {
+        this.availableCoupons = res.data || [];
       },
-      {
-        id: '2',
-        code: 'SAVE50K',
-        name: 'Tiết kiệm 50K',
-        description: 'Giảm 50,000đ cho đơn hàng từ 1,000,000đ',
-        discountType: 'fixed',
-        discountValue: 50000,
-        minOrderValue: 1000000,
-        expiryDate: '2024-11-30',
-        isActive: true
-      },
-      {
-        id: '3',
-        code: 'FREESHIP',
-        name: 'Miễn phí vận chuyển',
-        description: 'Miễn phí ship cho đơn hàng từ 300,000đ',
-        discountType: 'shipping',
-        discountValue: 0,
-        minOrderValue: 300000,
-        expiryDate: '2024-12-15',
-        isActive: true
+      error: (err: any) => {
+        console.error('Không tải được danh sách mã giảm giá:', err);
+        this.availableCoupons = [];
       }
-    ];
+    });
   }
 
   applyCoupon(): void {
@@ -597,35 +580,31 @@ export class ChiTietSanPhamComponent implements OnInit {
     this.isApplyingCoupon = true;
     this.couponError = '';
 
-    // Simulate API call
-    setTimeout(() => {
-      const coupon = this.availableCoupons.find(c => 
-        c.code.toLowerCase() === this.couponCode.toLowerCase() && c.isActive
-      );
-
-      if (coupon) {
-        // Check minimum order value
-        const currentPrice = this.getCurrentPrice();
-        if (currentPrice < coupon.minOrderValue) {
-          this.couponError = `Đơn hàng tối thiểu ${coupon.minOrderValue.toLocaleString('vi-VN')}đ để áp dụng mã này`;
-        } else {
-          this.appliedCoupon = coupon;
+    const totalAmount = this.getCurrentPrice();
+    const productIds = this.product ? [this.product._id] : [];
+    this.discountService.checkDiscountCode(this.couponCode.trim(), totalAmount, productIds).subscribe({
+      next: (response: { success: boolean; discount: any }) => {
+        if (response && response.success) {
+          this.appliedCoupon = response.discount;
           this.couponCode = '';
           this.couponError = '';
           Swal.fire({
             title: 'Thành công!',
-            text: `Đã áp dụng mã giảm giá ${coupon.name}`,
+            text: `Đã áp dụng mã giảm giá ${response.discount.name}`,
             icon: 'success',
             timer: 2000,
             showConfirmButton: false
           });
+        } else {
+          this.couponError = 'Mã giảm giá không hợp lệ hoặc đã hết hạn';
         }
-      } else {
-        this.couponError = 'Mã giảm giá không hợp lệ hoặc đã hết hạn';
+        this.isApplyingCoupon = false;
+      },
+      error: (err: any) => {
+        this.couponError = err?.error?.message || 'Mã giảm giá không hợp lệ hoặc đã hết hạn';
+        this.isApplyingCoupon = false;
       }
-      
-      this.isApplyingCoupon = false;
-    }, 1000);
+    });
   }
 
   removeCoupon(): void {
@@ -657,15 +636,15 @@ export class ChiTietSanPhamComponent implements OnInit {
 
   getDiscountAmount(): number {
     if (!this.appliedCoupon) return 0;
-    
+
     const currentPrice = this.getCurrentPrice();
-    
+
     if (this.appliedCoupon.discountType === 'percentage') {
       return (currentPrice * this.appliedCoupon.discountValue) / 100;
     } else if (this.appliedCoupon.discountType === 'fixed') {
       return Math.min(this.appliedCoupon.discountValue, currentPrice);
     }
-    
+
     return 0;
   }
 

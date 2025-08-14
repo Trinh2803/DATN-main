@@ -52,12 +52,23 @@ export class PaymentResultComponent implements OnInit {
 
   private createOrderAfterPayment(): void {
     const paymentData = this.getPaymentDetails();
+    this.isLoading = true;
+    
     this.vnpayCallbackService.handlePaymentSuccess(paymentData).subscribe({
       next: (response: any) => {
+        console.log('Order created successfully:', response);
         const orderId = response.data._id;
+        
+        // Hiển thị thông báo thành công
+        alert('Đơn hàng đã được tạo thành công! Đang chuyển đến trang hóa đơn...');
+        
+        // Chuyển đến trang hóa đơn
         this.vnpayCallbackService.onOrderCreated(orderId);
       },
       error: (error) => {
+        console.error('Error creating order:', error);
+        this.isLoading = false;
+        this.errorMessage = 'Lỗi khi tạo đơn hàng: ' + (error.error?.message || error.message || 'Vui lòng thử lại');
         this.vnpayCallbackService.handlePaymentError(error);
       }
     });

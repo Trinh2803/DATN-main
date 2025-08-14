@@ -3,14 +3,12 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CartService } from '../cart.service';
-import { DiscountService } from '../discount.service';
 import { ProductInterface, Variant } from '../product-interface';
 
 interface CartItem {
   product: ProductInterface;
   quantity: number;
   selectedVariant?: Variant;
-  discountCode?: string;
   discountInfo?: any;
 }
 
@@ -24,24 +22,15 @@ interface CartItem {
 export class GiohangComponent implements OnInit {
   cartItems: CartItem[] = [];
   totalAmount = 0;
-  discountCode = '';
-  discountAmount = 0;
-  finalAmount = 0;
-  appliedDiscount: any = null;
-  discountError = '';
-  discountSuccess = '';
   
   // Additional properties for HTML template
   cartItemCount = 0;
   totalPrice = 0;
-  cartDiscountCode = '';
-  cartDiscountInfo: any = null;
   orderNote = '';
 
   constructor(
     private cartService: CartService,
-    private router: Router,
-    private discountService: DiscountService
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -59,7 +48,6 @@ export class GiohangComponent implements OnInit {
     }, 0);
     
     this.totalPrice = this.totalAmount;
-    this.finalAmount = this.totalAmount - this.discountAmount;
   }
 
   getDiscountedTotal(): number {
@@ -123,29 +111,7 @@ export class GiohangComponent implements OnInit {
     return item.quantity < maxStock;
   }
 
-  applyDiscount(item: CartItem): void {
-    if (!item.discountCode?.trim()) {
-      alert('Vui lòng nhập mã giảm giá');
-      return;
-    }
-    
-    // Apply discount logic for individual item
-    this.discountService.checkDiscountCode(item.discountCode, this.getItemPrice(item) * item.quantity, [item.product._id]).subscribe({
-      next: (response) => {
-        if (response.success) {
-          item.discountInfo = response.discount;
-          this.calculateTotal();
-        }
-      },
-      error: (error) => {
-        alert(error.error?.message || 'Mã giảm giá không hợp lệ');
-      }
-    });
-  }
-
-  applyCartDiscount(): void {
-    this.checkDiscountCode();
-  }
+  // Discount application removed from cart.
 
   checkout(): void {
     this.proceedToCheckout();
@@ -251,52 +217,7 @@ export class GiohangComponent implements OnInit {
     return 999; // Không giới hạn nếu không có biến thể
   }
 
-  // Discount code functionality
-  checkDiscountCode(): void {
-    if (!this.discountCode.trim()) {
-      this.discountError = 'Vui lòng nhập mã giảm giá';
-      return;
-    }
-
-    const productIds = this.cartItems.map(item => item.product._id);
-    
-    this.discountService.checkDiscountCode(this.discountCode, this.totalAmount, productIds).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.appliedDiscount = response.discount;
-          this.discountAmount = response.discount.discountAmount;
-          this.finalAmount = this.totalAmount - this.discountAmount;
-          this.discountSuccess = `Áp dụng mã giảm giá thành công! Giảm ${this.discountAmount.toLocaleString('vi-VN')}đ`;
-          this.discountError = '';
-          
-          // Update cart discount info
-          this.cartDiscountInfo = {
-            code: response.discount.code,
-            discountAmount: response.discount.discountAmount,
-            finalAmount: this.finalAmount
-          };
-        }
-      },
-      error: (error) => {
-        this.discountError = error.error?.message || 'Mã giảm giá không hợp lệ';
-        this.discountSuccess = '';
-        this.appliedDiscount = null;
-        this.discountAmount = 0;
-        this.finalAmount = this.totalAmount;
-        this.cartDiscountInfo = null;
-      }
-    });
-  }
-
-  removeDiscount(): void {
-    this.discountCode = '';
-    this.appliedDiscount = null;
-    this.discountAmount = 0;
-    this.finalAmount = this.totalAmount;
-    this.discountError = '';
-    this.discountSuccess = '';
-    this.cartDiscountInfo = null;
-  }
+  // Discount code functionality removed.
 
   proceedToCheckout(): void {
     if (this.cartItems.length === 0) {
@@ -308,9 +229,7 @@ export class GiohangComponent implements OnInit {
     localStorage.setItem('pendingOrder', JSON.stringify({
       cartItems: this.cartItems,
       totalPrice: this.totalPrice,
-      finalAmount: this.finalAmount,
-      discountCode: this.cartDiscountCode,
-      discountInfo: this.cartDiscountInfo,
+      finalAmount: this.totalPrice,
       orderNote: this.orderNote
     }));
 
