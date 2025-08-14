@@ -1,66 +1,51 @@
-<div class="product-card">
-  <div class="product-image">
-    <!-- Hiển thị discount-tag cho sản phẩm sale -->
-    <span class="discount-tag" *ngIf="hasDiscount(product)">
-      Giảm {{ calculateDiscount(product) }}%
-    </span>
-    <!-- Hiển thị new-tag chỉ khi không phải sản phẩm sale -->
-    <span class="new-tag" *ngIf="isNewProduct(product.createdAt)">NEW</span>
-    <span class="hot-star blink-hot" *ngIf="title === 'Sản phẩm hot'">🔥 HOT</span>
-    <!-- Hiển thị out-of-stock tag -->
-    <span class="out-of-stock-tag" *ngIf="!isInStock(product)">Hết hàng</span>
-    <!-- Nút yêu thích -->
-    <button class="favorite-btn" (click)="toggleFavorite(product)">
-      <i [class]="isFavorite(product) ? 'fas fa-heart' : 'far fa-heart'"></i>
-    </button>
 
-    <!-- Thêm routerLink vào ảnh -->
-    <a [routerLink]="['/chitiet', product._id]">
-      <img src="http://localhost:3000{{product.thumbnail}}" alt="{{product.name}}">
-    </a>
-  </div>
-  <div class="product-info">
-    <!-- Thêm routerLink vào tên sản phẩm -->
-    <h3 class="product-title">
-      <a style="text-decoration: none;" [routerLink]="['/chitiet', product._id]">{{product.name}}</a>
-    </h3>
-
-    <!-- Hiển thị thông tin biến thể nếu có -->
-    <div class="variant-info" *ngIf="product.variants && product.variants.length > 0">
-      <span class="variant-count">{{product.variants.length}} kích thước</span>
+<div class="product-list">
+  <div *ngFor="let product of data" class="product-card">
+    <div class="product-image">
+      <span class="discount-tag" *ngIf="hasDiscount(product)">
+        Giảm {{ calculateDiscount(product) }}%
+      </span>
+      <span class="new-tag" *ngIf="product?.createdAt && isNewProduct(product.createdAt)">NEW</span>
+      <span class="hot-star blink-hot" *ngIf="title === 'Sản phẩm hot'">🔥 HOT</span>
+      <span class="out-of-stock-tag" *ngIf="!isInStock(product)">Hết hàng</span>
+      <button class="favorite-btn" (click)="toggleFavorite(product)">
+        <i [class]="product && product._id && isFavorite(product) ? 'fas fa-heart' : 'far fa-heart'"></i>
+      </button>
+      <a [routerLink]="['/chitiet', product._id]">
+        <img *ngIf="product && product._id" src="http://localhost:3000{{product.thumbnail}}" alt="{{product.name}}">
+      </a>
     </div>
-
-    <div class="product-price">
-      <span class="current-price">
-        {{ getCurrentPrice(product) | number:'1.0-0' }}₫
-      </span>
-
-      <span class="old-price" *ngIf="hasDiscount(product)">
-        {{ getOriginalPrice(product) | number:'1.0-0' }}₫
-      </span>
-      
-      <!-- Hiển thị thông tin "Giá từ" khi có biến thể -->
-      <div class="price-from-info" *ngIf="product.variants && product.variants.length > 0">
-        <small class="price-from-text">Giá từ</small>
+    <div class="product-info">
+      <h3 class="product-title">
+        <a *ngIf="product && product._id" style="text-decoration: none;" [routerLink]="['/chitiet', product._id]">{{product.name}}</a>
+      </h3>
+      <div class="variant-info" *ngIf="product.variants && product.variants.length > 0">
+        <span class="variant-count">{{product.variants.length}} kích thước</span>
+      </div>
+      <div class="product-price">
+        <span class="current-price">
+          {{ getCurrentPrice(product) | number:'1.0-0' }}₫
+        </span>
+        <span class="old-price" *ngIf="hasDiscount(product)">
+          {{ getOriginalPrice(product) | number:'1.0-0' }}₫
+        </span>
+        <div class="price-from-info" *ngIf="product.variants && product.variants.length > 0">
+          <small class="price-from-text">Giá từ</small>
+        </div>
       </div>
     </div>
-  </div>
-
-  <!-- Nút hành động -->
-  <div class="product-actions">
-    <!-- Nút thêm vào giỏ -->
-    <button class="add-to-cart-btn"
-            (click)="addToCart(product)"
-            [disabled]="!isInStock(product)">
-      {{ !isInStock(product) ? 'Hết hàng' : 'Thêm vào giỏ' }}
-    </button>
-
-    <!-- Nút mua ngay -->
-    <button class="buy-now-btn"
-            (click)="buyNow(product)"
-            [disabled]="!isInStock(product)">
-      Mua ngay
-    </button>
+    <div class="product-actions">
+      <button class="add-to-cart-btn"
+              (click)="addToCart(product)"
+              [disabled]="!isInStock(product)">
+        {{ !isInStock(product) ? 'Hết hàng' : 'Thêm vào giỏ' }}
+      </button>
+      <button class="buy-now-btn"
+              (click)="buyNow(product)"
+              [disabled]="!isInStock(product)">
+        Mua ngay
+      </button>
+    </div>
   </div>
 </div>
 

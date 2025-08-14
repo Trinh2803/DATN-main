@@ -18,7 +18,11 @@
       <p><strong>Địa chỉ:</strong> {{ order.shippingInfo.address || 'N/A' }}</p>
       <p><strong>Ghi chú:</strong> {{ order.shippingInfo.note || order.orderNote || 'Không có' }}</p>
       <p><strong>Phương thức vận chuyển:</strong> {{ order.shippingInfo.shippingMethod === 'free' ? 'Miễn phí vận chuyển' : (order.shippingInfo.shippingMethod || 'Khác') }}</p>
-      <p><strong>Phương thức thanh toán:</strong> {{ order.shippingInfo.paymentMethod === 'cod' ? 'Thanh toán khi nhận hàng' : (order.shippingInfo.paymentMethod || 'Khác') }}</p>
+      <p><strong>Phương thức thanh toán:</strong> 
+        <span *ngIf="order.shippingInfo.paymentMethod === 'cod'">Thanh toán khi nhận hàng</span>
+        <span *ngIf="order.shippingInfo.paymentMethod === 'vnpay'">Thanh toán online (VNPay)</span>
+        <span *ngIf="!order.shippingInfo.paymentMethod || (order.shippingInfo.paymentMethod !== 'cod' && order.shippingInfo.paymentMethod !== 'vnpay')">Khác</span>
+      </p>
       <p><strong>Ngày đặt hàng:</strong> {{ order.orderDate | date:'dd/MM/yyyy HH:mm' }}</p>
     </div>
 

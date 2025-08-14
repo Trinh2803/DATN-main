@@ -184,15 +184,33 @@ function showDiscountModal() {
       
       <div class="form-row">
         <div class="form-group">
-          <label for="usageLimit">Giới hạn sử dụng</label>
+          <label for="usageLimit">Giới hạn sử dụng tổng</label>
           <input type="number" id="usageLimit" name="usageLimit" value="${editingDiscount?.usageLimit || ''}" min="0" placeholder="0 = không giới hạn">
+          <small class="form-hint">Số lần tối đa mã có thể được sử dụng (0 = không giới hạn)</small>
         </div>
+        <div class="form-group">
+          <label for="usageLimitPerUser">Giới hạn sử dụng/người</label>
+          <input type="number" id="usageLimitPerUser" name="usageLimitPerUser" value="${editingDiscount?.usageLimitPerUser || ''}" min="0" placeholder="0 = không giới hạn">
+          <small class="form-hint">Số lần tối đa mỗi người dùng được sử dụng (0 = không giới hạn)</small>
+        </div>
+      </div>
+      
+      <div class="form-row">
         <div class="form-group">
           <label class="checkbox-label">
             <input type="checkbox" id="isActive" name="isActive" ${editingDiscount?.isActive !== false ? 'checked' : ''}>
             Kích hoạt mã giảm giá
           </label>
         </div>
+        ${editingDiscount ? `
+          <div class="form-group">
+            <label>Đã sử dụng:</label>
+            <div class="usage-info">
+              <span class="badge">${editingDiscount.usedCount || 0} lần</span>
+              ${editingDiscount.usageLimit ? `<span class="text-muted">/ ${editingDiscount.usageLimit} lần</span>` : ''}
+            </div>
+          </div>
+        ` : ''}
       </div>
       
       <div class="form-actions">
@@ -233,7 +251,13 @@ async function saveDiscount(event) {
     startDate: formData.get('startDate'),
     endDate: formData.get('endDate'),
     usageLimit: formData.get('usageLimit') ? parseInt(formData.get('usageLimit')) : null,
-    isActive: formData.get('isActive') === 'on'
+    usageLimitPerUser: formData.get('usageLimitPerUser') ? parseInt(formData.get('usageLimitPerUser')) : null,
+    isActive: formData.get('isActive') === 'on',
+    // Giữ nguyên usedCount và usedBy nếu đang cập nhật
+    ...(editingDiscount && {
+      usedCount: editingDiscount.usedCount || 0,
+      usedBy: editingDiscount.usedBy || {}
+    })
   };
 
   try {

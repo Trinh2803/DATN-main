@@ -8,7 +8,8 @@
   "productId": {
     "$oid": "67fb0351f07de8526cae34bb"
   },
-  "img": "sofa_halden_small.jpeg"
+  "img": "sofa_halden_small.jpeg",
+  "stock": 10
 },
 {
   "_id": {
@@ -20,7 +21,8 @@
   "productId": {
     "$oid": "67fb0351f07de8526cae34bb"
   },
-  "img": "sofa_halden_large.jpeg"
+  "img": "sofa_halden_large.jpeg",
+  "stock": 10
 },
 {
   "_id": {
@@ -32,7 +34,8 @@
   "productId": {
     "$oid": "67fb04b5f07de8526cae34c8"
   },
-  "img": "/images/1744503989540-pro_be_noi_that_moho___2__acd996ed82684c60b11f65cede53b78d_master.jpg"
+  "img": "/images/1744503989540-pro_be_noi_that_moho___2__acd996ed82684c60b11f65cede53b78d_master.jpg",
+  "stock": 10
 },
 {
   "_id": {
@@ -44,7 +47,8 @@
   "productId": {
     "$oid": "67fb0564f07de8526cae34d2"
   },
-  "img": "/images/1744504164108-pro_go_phoi_trang_noi_that_moho_tu_giay_trang_tri_vienna_204_878b1deccc9c409481404d310e8fb045_master.webp"
+  "img": "/images/1744504164108-pro_go_phoi_trang_noi_that_moho_tu_giay_trang_tri_vienna_204_878b1deccc9c409481404d310e8fb045_master.webp",
+  "stock": 10
 },
 {
   "_id": {
@@ -56,7 +60,8 @@
   "productId": {
     "$oid": "67fb0564f07de8526cae34d2"
   },
-  "img": "/images/1744504407951-pro_nau_noi_that_moho_ban_lam_viec_vline_601_a_e60e2f8b72854311ae12424eed3cb88a_master.webp"
+  "img": "/images/1744504407951-pro_nau_noi_that_moho_ban_lam_viec_vline_601_a_e60e2f8b72854311ae12424eed3cb88a_master.webp",
+  "stock": 10
 },
 {
   "_id": {
@@ -68,7 +73,8 @@
   "productId": {
     "$oid": "67fb0351f07de8526cae34bb"
   },
-  "img": "/images/1744504493568-pro_den_noi_that_moho_ghe_van_phong_riga_3_4722911408574dbf8513ef8d4aeefe0e_master.webp"
+  "img": "/images/1744504493568-pro_den_noi_that_moho_ghe_van_phong_riga_3_4722911408574dbf8513ef8d4aeefe0e_master.webp",
+  "stock": 10
 },
 {
   "_id": {
@@ -80,7 +86,8 @@
   "productId": {
     "$oid": "67fb0351f07de8526cae34bb"
   },
-  "img": "/images/1744504558161-pro_den_noi_that_moho_ke_de_sach_8_e44f4b290be04aac83bc2f615437144c_master.webp"
+  "img": "/images/1744504558161-pro_den_noi_that_moho_ke_de_sach_8_e44f4b290be04aac83bc2f615437144c_master.webp",
+  "stock": 10
 },
 {
   "_id": {
@@ -92,7 +99,8 @@
   "productId": {
     "$oid": "67fb0351f07de8526cae34bb"
   },
-  "img": "/images/1744504629419-pro_nau_noi_that_moho_combo_ban_lam_viec_go_moho_ghe_nexo_5_75d8bfa8974d45f2ad79ae23ae7e7537_master.webp"
+  "img": "/images/1744504629419-pro_nau_noi_that_moho_combo_ban_lam_viec_go_moho_ghe_nexo_5_75d8bfa8974d45f2ad79ae23ae7e7537_master.webp",
+  "stock": 10
 },
 {
   "_id": {
@@ -104,7 +112,8 @@
   "productId": {
     "$oid": "67fb0351f07de8526cae34bb"
   },
-  "img": "/images/1744504809245-pro_trang_kem_noi_that_moho_nem_lo_xo_van_thanh_1_f450cb4751eb444d963cf01ecad6b5d5_master.png"
+  "img": "/images/1744504809245-pro_trang_kem_noi_that_moho_nem_lo_xo_van_thanh_1_f450cb4751eb444d963cf01ecad6b5d5_master.png",
+  "stock": 10
 },
 {
   "_id": {
@@ -116,5 +125,6 @@
   "productId": {
     "$oid": "67fb0351f07de8526cae34bb"
   },
-  "img": "/images/1744504809245-pro_trang_kem_noi_that_moho_nem_lo_xo_van_thanh_1_f450cb4751eb444d963cf01ecad6b5d5_master.png"
+  "img": "/images/1744504809245-pro_trang_kem_noi_that_moho_nem_lo_xo_van_thanh_1_f450cb4751eb444d963cf01ecad6b5d5_master.png",
+  "stock": 10
 }]

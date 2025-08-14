@@ -8,8 +8,8 @@
       <a class="menu-item" [routerLink]="['/quanlydanhmuc']"><span class="icon menu-list"></span> Danh mục</a>
       <a class="menu-item" [routerLink]="['/quanlysanpham']"><span class="icon menu-product"></span> Sản phẩm</a>
       <a class="menu-item" [routerLink]="['/quanlynguoidung']"><span class="icon menu-customer"></span> Khách hàng</a>
-      <a class="menu-item" [routerLink]="['/quanlygiamgia']"><span class="icon menu-discount"></span> Chương trình giảm giá</a>
       <a class="menu-item active" [routerLink]="['/quanlydonhang']"><span class="icon menu-order"></span> Đơn hàng</a>
+      <a class="menu-item" [routerLink]="['/quanlygiamgia']"><span class="icon menu-list"></span> Chương trình giảm giá</a>
       <a class="menu-item" [routerLink]="['/quanlybinhluan']"><span class="icon menu-comment"></span> Bình luận</a>
     </nav>
     <div class="sidebar-bottom">
@@ -205,12 +205,6 @@
                 </td>
                 <td>
                   <div class="action-container">
-<<<<<<< HEAD
-                    <select class="action-select" (change)="updateOrderStatus(order._id!, $event)" [value]="order.status">
-                      <option *ngFor="let status of getAllowedStatuses(order.status)" [value]="status">
-                        {{ status }}
-                      </option>
-=======
                     <!-- Nút xác nhận chỉ hiển thị khi đơn hàng đang chờ xác nhận -->
                     <button 
                       *ngIf="order.status === 'Chờ xác nhận'"
@@ -231,7 +225,6 @@
                       <option value="Đã giao">Đã giao</option>
                       <option value="Đã hủy" *ngIf="canShowCancelOption(order.status)">Đã hủy</option>
                       <option value="Đã hoàn thành">Đã hoàn thành</option>
->>>>>>> 1cffa053ea773e328a32b56188c9855d7a18249e
                     </select>
                     
                     <!-- Hiển thị trạng thái đã hoàn thành không thể thay đổi -->

@@ -52,12 +52,13 @@ export class QuanlydonhangComponent implements OnInit, AfterViewInit {
       case 'Đang chuẩn bị':
         return ['Đang chuẩn bị', 'Đang giao', 'Đã hủy'];
       case 'Đang giao':
-        return ['Đang giao', 'Đã giao'];
+        return ['Đang giao', 'Đã giao', 'Đã hủy']; // Cho phép hủy khi đang giao (trường hợp đặc biệt)
       case 'Đã giao':
-        return ['Đã giao', 'Đã hoàn thành'];
+        return ['Đã giao', 'Đã hoàn thành']; // Cho phép chuyển từ đã giao sang hoàn thành
       case 'Đã hủy':
+        return ['Đã hủy', 'Chờ xác nhận']; // Admin có thể khôi phục đơn hàng đã hủy
       case 'Đã hoàn thành':
-        return [currentStatus];
+        return ['Đã hoàn thành']; // Trạng thái cuối, không thể thay đổi
       default:
         return [currentStatus];
     }
@@ -258,63 +259,103 @@ export class QuanlydonhangComponent implements OnInit, AfterViewInit {
   }
 
   canShowDropdown(status: string): boolean {
-    return status !== 'Chờ xác nhận' && status !== 'Đã hủy' && status !== 'Đã hoàn thành';
+    // Cho phép dropdown cho tất cả trạng thái trừ 'Đã hoàn thành'
+    return status !== 'Đã hoàn thành';
+  }
+
+  // Kiểm tra xem có phải đơn hàng VNPay không
+  isVnpayOrder(order: Order): boolean {
+    return order.paymentMethod === 'vnpay';
+  }
+
+  // Lấy trạng thái thanh toán
+  getPaymentStatusText(order: Order): string {
+    if (order.paymentMethod === 'vnpay') {
+      switch (order.paymentStatus) {
+        case 'completed': return 'Đã thanh toán';
+        case 'pending': return 'Chờ thanh toán';
+        case 'failed': return 'Thanh toán thất bại';
+        default: return 'Không xác định';
+      }
+    }
+    return 'Thanh toán khi nhận hàng';
+  }
+
+  // Lấy class CSS cho trạng thái thanh toán
+  getPaymentStatusClass(order: Order): string {
+    if (order.paymentMethod === 'vnpay') {
+      switch (order.paymentStatus) {
+        case 'completed': return 'badge-success';
+        case 'pending': return 'badge-warning';
+        case 'failed': return 'badge-danger';
+        default: return 'badge-secondary';
+      }
+    }
+    return 'badge-info';
   }
 
   updateOrderStatus(orderId: string, event: Event): void {
     const selectElement = event.target as HTMLSelectElement;
     const newStatus = selectElement.value as Order['status'];
-
-    // Ngăn chặn việc quay lại trạng thái "Chờ xác nhận"
-    if (newStatus === 'Chờ xác nhận') {
-      Swal.fire('Cảnh báo', 'Không thể quay lại trạng thái "Chờ xác nhận" sau khi đã xác nhận đơn hàng.', 'warning');
-      // Reset dropdown về trạng thái hiện tại
-      setTimeout(() => {
-        const currentOrder = this.orders.find(order => order._id === orderId);
-        if (currentOrder) {
-          selectElement.value = currentOrder.status;
-        }
-      }, 100);
-      return;
-    }
-
-    // Ngăn chặn việc chuyển từ trạng thái "Đã hủy" sang trạng thái khác
     const currentOrder = this.orders.find(order => order._id === orderId);
-    if (currentOrder && currentOrder.status === 'Đã hủy' && newStatus !== 'Đã hủy') {
-      Swal.fire('Cảnh báo', 'Đơn hàng đã hủy không thể chuyển sang trạng thái khác.', 'warning');
+    
+    if (!currentOrder) {
+      Swal.fire('Lỗi', 'Không tìm thấy đơn hàng.', 'error');
+      return;
+    }
+
+    // Kiểm tra trạng thái có được phép chuyển đổi không
+    const allowedStatuses = this.getAllowedStatuses(currentOrder.status);
+    if (!allowedStatuses.includes(newStatus)) {
+      Swal.fire('Cảnh báo', `Không thể chuyển từ trạng thái "${currentOrder.status}" sang "${newStatus}".`, 'warning');
       // Reset dropdown về trạng thái hiện tại
       setTimeout(() => {
-        if (currentOrder) {
-          selectElement.value = currentOrder.status;
-        }
+        selectElement.value = currentOrder.status;
       }, 100);
       return;
     }
 
-    // Ngăn chặn việc chuyển sang "Đã hủy" từ các trạng thái đã hoàn thành
-    if (newStatus === 'Đã hủy' && currentOrder && (currentOrder.status === 'Đã giao' || currentOrder.status === 'Đã hoàn thành')) {
-      Swal.fire('Cảnh báo', 'Đơn hàng đã giao hoặc hoàn thành không thể hủy.', 'warning');
-      // Reset dropdown về trạng thái hiện tại
-      setTimeout(() => {
-        if (currentOrder) {
+    // Xác nhận đặc biệt cho việc khôi phục đơn hàng đã hủy
+    if (currentOrder.status === 'Đã hủy' && newStatus === 'Chờ xác nhận') {
+      Swal.fire({
+        title: 'Khôi phục đơn hàng',
+        text: 'Bạn có chắc muốn khôi phục đơn hàng đã hủy này về trạng thái "Chờ xác nhận"?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Khôi phục',
+        cancelButtonText: 'Hủy',
+        confirmButtonColor: '#ff9800',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.executeStatusUpdate(orderId, newStatus, selectElement, currentOrder);
+        } else {
           selectElement.value = currentOrder.status;
         }
-      }, 100);
+      });
       return;
     }
 
-    // Ngăn chặn việc thay đổi trạng thái đã hoàn thành
-    if (currentOrder && currentOrder.status === 'Đã hoàn thành' && newStatus !== 'Đã hoàn thành') {
-      Swal.fire('Cảnh báo', 'Đơn hàng đã hoàn thành không thể thay đổi trạng thái.', 'warning');
-      // Reset dropdown về trạng thái hiện tại
-      setTimeout(() => {
-        if (currentOrder) {
+    // Xác nhận đặc biệt cho việc hủy đơn hàng đang giao
+    if (newStatus === 'Đã hủy' && currentOrder.status === 'Đang giao') {
+      Swal.fire({
+        title: 'Hủy đơn hàng đang giao',
+        text: 'Đơn hàng đang trong quá trình giao. Bạn có chắc muốn hủy?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Hủy đơn hàng',
+        cancelButtonText: 'Không hủy',
+        confirmButtonColor: '#dc3545',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.executeStatusUpdate(orderId, newStatus, selectElement, currentOrder);
+        } else {
           selectElement.value = currentOrder.status;
         }
-      }, 100);
+      });
       return;
     }
 
+    // Xác nhận thông thường
     Swal.fire({
       title: 'Xác nhận',
       text: `Bạn có chắc muốn cập nhật trạng thái thành "${newStatus}"?`,
@@ -324,33 +365,47 @@ export class QuanlydonhangComponent implements OnInit, AfterViewInit {
       cancelButtonText: 'Hủy',
     }).then((result) => {
       if (result.isConfirmed) {
-        console.log('Updating status for order:', orderId, 'to', newStatus);
-        this.orderService.updateOrderStatus(orderId, newStatus).subscribe({
-          next: (response: ApiResponse<Order>) => {
-            if (response.success) {
-              this.loadOrders();
-              this.errorMessage = undefined;
-              Swal.fire('Thành công', 'Cập nhật trạng thái thành công', 'success');
-              console.log('Order status updated:', response.data);
-            } else {
-              this.errorMessage = response.message || 'Lỗi khi cập nhật trạng thái.';
-              Swal.fire('Lỗi', this.errorMessage, 'error');
-              console.log('Update status failed:', response.message);
-            }
-          },
-          error: (err) => {
-            console.error('Error updating order status:', err);
-            this.errorMessage = err.error?.message || err.message || 'Lỗi khi cập nhật trạng thái';
-            Swal.fire('Lỗi', this.errorMessage, 'error');
-          },
-        });
+        this.executeStatusUpdate(orderId, newStatus, selectElement, currentOrder);
       } else {
-        // Reset dropdown về trạng thái hiện tại nếu user hủy
-        const currentOrder = this.orders.find(order => order._id === orderId);
-        if (currentOrder) {
+        selectElement.value = currentOrder.status;
+      }
+    });
+  }
+
+  // Hàm thực hiện cập nhật trạng thái
+  private executeStatusUpdate(orderId: string, newStatus: Order['status'], selectElement: HTMLSelectElement, currentOrder: Order): void {
+    console.log('Updating status for order:', orderId, 'to', newStatus);
+    this.orderService.updateOrderStatus(orderId, newStatus).subscribe({
+      next: (response: ApiResponse<Order>) => {
+        if (response.success) {
+          this.loadOrders();
+          this.errorMessage = undefined;
+          
+          // Thông báo thành công tùy theo loại cập nhật
+          let successMessage = 'Cập nhật trạng thái thành công';
+          if (currentOrder.status === 'Đã hủy' && newStatus === 'Chờ xác nhận') {
+            successMessage = 'Khôi phục đơn hàng thành công';
+          } else if (newStatus === 'Đã hoàn thành') {
+            successMessage = 'Đơn hàng đã được hoàn thành';
+          }
+          
+          Swal.fire('Thành công', successMessage, 'success');
+          console.log('Order status updated:', response.data);
+        } else {
+          this.errorMessage = response.message || 'Lỗi khi cập nhật trạng thái.';
+          Swal.fire('Lỗi', this.errorMessage, 'error');
+          console.log('Update status failed:', response.message);
+          // Reset dropdown về trạng thái cũ khi có lỗi
           selectElement.value = currentOrder.status;
         }
-      }
+      },
+      error: (err) => {
+        console.error('Error updating order status:', err);
+        this.errorMessage = err.error?.message || err.message || 'Lỗi khi cập nhật trạng thái';
+        Swal.fire('Lỗi', this.errorMessage, 'error');
+        // Reset dropdown về trạng thái cũ khi có lỗi
+        selectElement.value = currentOrder.status;
+      },
     });
   }
 

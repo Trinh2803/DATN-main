@@ -17,42 +17,56 @@ export class WishlistComponent implements OnInit {
   error: string | null = null;
 
   constructor(
-    private wishlistService: WishlistService,
-    private router: Router
+    private router: Router,
+    private wishlistService: WishlistService
   ) {}
 
   ngOnInit(): void {
     this.loadWishlist();
   }
 
-  loadWishlist(): void {
-    this.loading = true;
-    this.wishlistService.getUserWishlist().subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.wishlistItems = response.data;
-          this.error = null;
-        } else {
-          this.error = response.message || 'Lỗi khi tải danh sách yêu thích';
-        }
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Error loading wishlist:', err);
-        // Check if token is expired
-        if (err.status === 401 || err.status === 403) {
-          this.error = 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.';
-          // Clear token and redirect to login
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          this.router.navigate(['/dangnhap']);
-        } else {
-          this.error = 'Lỗi khi tải danh sách yêu thích';
-        }
-        this.loading = false;
-      }
+  private handleAuthError(): void {
+    Swal.fire({
+      title: 'Phiên đăng nhập hết hạn',
+      text: 'Vui lòng đăng nhập lại',
+      icon: 'warning',
+      confirmButtonText: 'OK'
+    }).then(() => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      this.router.navigate(['/dangnhap']);
     });
   }
+
+loadWishlist(): void {
+  this.loading = true;
+  const token = localStorage.getItem('token');
+  if (!token) {
+    this.wishlistItems = []; // Đặt danh sách trống
+    this.loading = false;
+    return; // Không hiển thị thông báo, chỉ tải giao diện trống
+  }
+  this.wishlistService.getUserWishlist().subscribe({
+    next: (response) => {
+      if (response.success) {
+        this.wishlistItems = response.data;
+        this.error = null;
+      } else {
+        this.error = response.message || 'Lỗi khi tải danh sách yêu thích';
+      }
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error('Lỗi khi tải danh sách yêu thích:', err);
+      if (err.status === 401 || err.status === 403) {
+        this.handleAuthError(); // Giữ lại xử lý lỗi xác thực
+      } else {
+        this.error = 'Lỗi khi tải danh sách yêu thích';
+        this.loading = false;
+      }
+    }
+  });
+}
 
   removeFromWishlist(productId: string): void {
     Swal.fire({
@@ -74,19 +88,9 @@ export class WishlistComponent implements OnInit {
             }
           },
           error: (err) => {
-            console.error('Error removing from wishlist:', err);
-            // Check if token is expired
+            console.error('Lỗi khi xóa khỏi danh sách yêu thích:', err);
             if (err.status === 401 || err.status === 403) {
-              Swal.fire({
-                title: 'Phiên đăng nhập hết hạn',
-                text: 'Vui lòng đăng nhập lại',
-                icon: 'warning',
-                confirmButtonText: 'OK'
-              });
-              // Clear token and redirect to login
-              localStorage.removeItem('token');
-              localStorage.removeItem('user');
-              this.router.navigate(['/dangnhap']);
+              this.handleAuthError();
             } else {
               Swal.fire('Lỗi', 'Lỗi khi xóa sản phẩm', 'error');
             }
@@ -120,19 +124,9 @@ export class WishlistComponent implements OnInit {
             }
           },
           error: (err) => {
-            console.error('Error clearing wishlist:', err);
-            // Check if token is expired
+            console.error('Lỗi khi xóa danh sách yêu thích:', err);
             if (err.status === 401 || err.status === 403) {
-              Swal.fire({
-                title: 'Phiên đăng nhập hết hạn',
-                text: 'Vui lòng đăng nhập lại',
-                icon: 'warning',
-                confirmButtonText: 'OK'
-              });
-              // Clear token and redirect to login
-              localStorage.removeItem('token');
-              localStorage.removeItem('user');
-              this.router.navigate(['/dangnhap']);
+              this.handleAuthError();
             } else {
               Swal.fire('Lỗi', 'Lỗi khi xóa danh sách', 'error');
             }
@@ -144,6 +138,10 @@ export class WishlistComponent implements OnInit {
 
   viewProduct(productId: string): void {
     this.router.navigate(['/product', productId]);
+  }
+
+  navigateToShop(): void {
+    this.router.navigate(['/shop']);
   }
 
   getDiscountedPrice(price: number, discountPercent?: number): number {
@@ -159,4 +157,14 @@ export class WishlistComponent implements OnInit {
       currency: 'VND'
     }).format(price);
   }
-} 
+
+  getImageUrl(thumbnail: string | undefined): string {
+    const baseUrl = 'http://localhost:3000';
+    return thumbnail ? `${baseUrl}${thumbnail}` : 'assets/images/default-product.jpg';
+  }
+
+  handleImageError(event: Event): void {
+    const imgElement = event.target as HTMLImageElement;
+    imgElement.src = 'assets/images/default-product.jpg';
+  }
+}

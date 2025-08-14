@@ -36,10 +36,31 @@ const orderSchema = new Schema({
   },
   status: {
     type: String,
-    enum: ['Chờ xác nhận', 'Đang chuẩn bị', 'Đang giao', 'Đã giao', 'Đã hủy', 'Đã hoàn thành'],
+    enum: ['Chờ xác nhận', 'Đang chuẩn bị', 'Đang giao', 'Đã giao', 'Đã hủy', 'Đã hoàn thành', 'Đã thanh toán'],
     default: 'Chờ xác nhận'
   },
-  adminNote: String
+  adminNote: String,
+  // Thông tin thanh toán VNPay
+  paymentMethod: {
+    type: String,
+    enum: ['cod', 'vnpay'],
+    default: 'cod'
+  },
+  paymentStatus: {
+    type: String,
+    enum: ['pending', 'completed', 'failed'],
+    default: 'pending'
+  },
+  vnpayInfo: {
+    transactionId: String,        // vnp_TxnRef
+    transactionNo: String,        // vnp_TransactionNo
+    amount: Number,               // vnp_Amount
+    bankCode: String,             // vnp_BankCode
+    payDate: String,              // vnp_PayDate
+    responseCode: String,         // vnp_ResponseCode
+    orderInfo: String,            // vnp_OrderInfo
+    secureHash: String            // vnp_SecureHash
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Order', orderSchema);

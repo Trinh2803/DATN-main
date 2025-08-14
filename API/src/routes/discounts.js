@@ -5,6 +5,7 @@ const authMiddleware = require('../middlewares/authMiddleware');
 
 // Public routes
 router.post('/check', discountController.checkDiscountCode);
+router.get('/applicable', discountController.getApplicableForProduct);
 
 // Protected routes (admin only)
 router.get('/', authMiddleware.verifyToken, authMiddleware.verifyAdmin, discountController.getAllDiscounts);
@@ -14,4 +15,4 @@ router.put('/:id', authMiddleware.verifyToken, authMiddleware.verifyAdmin, disco
 router.delete('/:id', authMiddleware.verifyToken, authMiddleware.verifyAdmin, discountController.deleteDiscount);
 router.post('/apply', authMiddleware.verifyToken, discountController.applyDiscount);
 
-module.exports = router; 
+module.exports = router;

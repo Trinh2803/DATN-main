@@ -10,7 +10,31 @@ function readDiscounts() {
 }
 
 function writeDiscounts(discounts) {
-  fs.writeFileSync(DISCOUNT_FILE, JSON.stringify(discounts, null, 2));
+  try {
+    // Tạo thư mục nếu chưa tồn tại
+    const dir = path.dirname(DISCOUNT_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    
+    // Ghi dữ liệu vào file tạm trước
+    const tempFile = DISCOUNT_FILE + '.tmp';
+    fs.writeFileSync(tempFile, JSON.stringify(discounts, null, 2));
+    
+    // Đổi tên file tạm thành file chính thức
+    if (fs.existsSync(DISCOUNT_FILE)) {
+      fs.unlinkSync(DISCOUNT_FILE);
+    }
+    fs.renameSync(tempFile, DISCOUNT_FILE);
+    
+    console.log('Đã cập nhật file giảm giá thành công');
+    return true;
+  } catch (error) {
+    console.error('Lỗi khi ghi file giảm giá:', error);
+    console.error('Đường dẫn file:', DISCOUNT_FILE);
+    console.error('Lỗi chi tiết:', error.message);
+    return false;
+  }
 }
 
 function getAllDiscounts() {
@@ -34,12 +58,41 @@ function createDiscount(discount) {
 }
 
 function updateDiscount(_id, updated) {
+  console.log(`[DEBUG] Updating discount ${_id} with:`, JSON.stringify(updated, null, 2));
   const discounts = readDiscounts();
   const idx = discounts.findIndex(d => d._id === _id);
-  if (idx === -1) return null;
-  discounts[idx] = { ...discounts[idx], ...updated };
-  writeDiscounts(discounts);
-  return discounts[idx];
+  if (idx === -1) {
+    console.log(`[DEBUG] Discount ${_id} not found`);
+    return null;
+  }
+  
+  // Tạo bản cập nhật mới
+  const currentDiscount = discounts[idx];
+  const newDiscount = { ...currentDiscount, ...updated };
+  
+  // Tự động tăng usedCount nếu có trong updated
+  if (typeof updated.usedCount === 'number') {
+    newDiscount.usedCount = (currentDiscount.usedCount || 0) + updated.usedCount;
+  }
+  
+  // Tự động cập nhật isActive nếu vượt quá giới hạn
+  if (newDiscount.usageLimit && newDiscount.usedCount >= newDiscount.usageLimit) {
+    console.log(`[DEBUG] Disabling discount ${_id} - reached usage limit`);
+    newDiscount.isActive = false;
+  }
+  
+  // Cập nhật lại mảng
+  discounts[idx] = newDiscount;
+  
+  // Ghi ra file
+  const writeSuccess = writeDiscounts(discounts);
+  if (!writeSuccess) {
+    console.error(`[ERROR] Failed to write discounts file after updating ${_id}`);
+    return null;
+  }
+  
+  console.log(`[DEBUG] Successfully updated discount ${_id}`);
+  return newDiscount;
 }
 
 function deleteDiscount(_id) {

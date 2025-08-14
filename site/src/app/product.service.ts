@@ -27,10 +27,11 @@ export class ProductService {
   getNewProducts(): Observable<ProductInterface[]> {
     return this.http.get<ProductInterface[]>(`${this.apiUrl}/new?limit=8`);
   }
- // Lấy sản phẩm hot
- getHotProducts(): Observable<ProductInterface[]> {
-  return this.http.get<ProductInterface[]>(`${this.apiUrl}/hot?limit=8`);
-}
+
+  // Lấy sản phẩm hot
+  getHotProducts(): Observable<ProductInterface[]> {
+    return this.http.get<ProductInterface[]>(`${this.apiUrl}/hot?limit=8`);
+  }
 
   // Lấy danh mục
   getCategories(): Observable<CategoryInterface[]> {
@@ -49,6 +50,15 @@ export class ProductService {
     return this.http.get<ProductInterface[]>(this.apiUrl, { params });
   }
 
+  // Lọc sản phẩm theo danh mục và sắp xếp theo giá
+  getProductsByCategoryAndPriceSort(categoryId: string, sortOrder: 'asc' | 'desc'): Observable<ProductInterface[]> {
+    let params = new HttpParams()
+      .set('categoryId', categoryId)
+      .set('sortBy', 'price')
+      .set('order', sortOrder);
+    return this.http.get<ProductInterface[]>(this.apiUrl, { params });
+  }
+
   // Tìm kiếm sản phẩm theo tên
   searchProductsByName(name: string): Observable<ProductInterface[]> {
     let params = new HttpParams().set('name', name);
@@ -61,7 +71,7 @@ export class ProductService {
     return this.http.get<ProductInterface[]>(this.apiUrl, { params });
   }
 
-  // Tìm kiếm danh mục theo tên (mới)
+  // Tìm kiếm danh mục theo tên
   searchCategoriesByName(name: string): Observable<CategoryInterface[]> {
     let params = new HttpParams().set('name', name);
     interface ApiResponse {
@@ -72,7 +82,9 @@ export class ProductService {
       map((response: ApiResponse) => response.data || [])
     );
   }
-getProductById(id: string): Observable<ProductInterface> {
+
+  // Lấy sản phẩm theo ID
+  getProductById(id: string): Observable<ProductInterface> {
     return this.http.get<ProductInterface>(`${this.apiUrl}/${id}`);
   }
 }
