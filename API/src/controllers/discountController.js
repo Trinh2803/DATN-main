@@ -283,76 +283,124 @@ exports.checkDiscountCode = async (req, res) => {
   }
 };
 
-// Áp dụng mã giảm giá (tăng usedCount, kiểm tra giới hạn)
+// Áp dụng mã giảm giá
+// Hàm này sẽ kiểm tra điều kiện sử dụng mã giảm giá
+// Nếu đạt điều kiện, nó sẽ tăng usedCount ngay lập tức để tránh sử dụng nhiều lần
 exports.applyDiscount = async (req, res) => {
   try {
-    const { discountId } = req.body;
-    const discount = Discount.getDiscountById(discountId);
+    const { code } = req.body;
+    const { userId } = req.user;
+
+    console.log(`[DISCOUNT] Applying discount code: ${code} for user: ${userId}`);
+
+    // Tìm mã giảm giá
+    const discount = await Discount.getDiscountByCode(code);
     if (!discount) {
-      return res.status(404).json({ message: 'Mã giảm giá không tồn tại' });
+      return res.status(404).json({
+        success: false,
+        message: 'Mã giảm giá không tồn tại'
+      });
+    }
+
+    console.log(`[DISCOUNT] Found discount:`, JSON.stringify(discount, null, 2));
+
+    // Kiểm tra thời hạn
+    const now = new Date();
+    if (now < new Date(discount.startDate)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Mã giảm giá chưa đến thời gian áp dụng'
+      });
+    }
+    
+    if (now > new Date(discount.endDate)) {
+      // Tự động vô hiệu hóa mã nếu đã hết hạn
+      if (discount.isActive) {
+        console.log(`[DISCOUNT] Auto-disabling expired discount: ${discount._id}`);
+        await Discount.updateDiscount(discount._id, { isActive: false });
+      }
+      return res.status(400).json({
+        success: false,
+        message: 'Mã giảm giá đã hết hạn',
+        code: 'DISCOUNT_EXPIRED'
+      });
     }
 
     // Kiểm tra trạng thái kích hoạt
     if (!discount.isActive) {
-      return res.status(400).json({ message: 'Mã giảm giá đã bị vô hiệu hóa' });
+      return res.status(400).json({
+        success: false,
+        message: 'Mã giảm giá không còn khả dụng',
+        code: 'DISCOUNT_INACTIVE'
+      });
     }
 
-    // Kiểm tra thời gian hiệu lực (tính hết ngày kết thúc)
-    const now = new Date();
-    const start = discount.startDate ? new Date(discount.startDate) : null;
-    const end = discount.endDate ? new Date(discount.endDate) : null;
-    if (end) end.setHours(23, 59, 59, 999);
-    if ((start && now < start) || (end && now > end)) {
-      return res.status(400).json({ message: 'Mã giảm giá chưa có hiệu lực hoặc đã hết hạn' });
-    }
-
-    // Kiểm tra giới hạn tổng số lượt dùng
-    if (discount.usageLimit && discount.usedCount >= discount.usageLimit) {
-      // Tự động vô hiệu hóa mã nếu đạt giới hạn
-      if (discount.isActive) {
-        const updated = Discount.updateDiscount(discountId, { isActive: false });
-        console.log('Auto-disabled discount:', updated);
+    // Kiểm tra giới hạn sử dụng toàn cục
+    if (discount.usageLimit !== undefined && discount.usageLimit !== null) {
+      if (discount.usedCount >= discount.usageLimit) {
+        // Tự động vô hiệu hóa mã nếu đã hết lượt
+        if (discount.isActive) {
+          console.log(`[DISCOUNT] Auto-disabling used-up discount: ${discount._id}`);
+          await Discount.updateDiscount(discount._id, { isActive: false });
+        }
+        return res.status(400).json({
+          success: false,
+          message: 'Mã giảm giá đã hết lượt sử dụng',
+          code: 'DISCOUNT_LIMIT_REACHED'
+        });
       }
-      return res.status(400).json({ message: 'Mã giảm giá đã hết lượt sử dụng' });
     }
 
-    // Kiểm tra giới hạn theo người dùng (nếu có cấu hình)
-    if (discount.usageLimitPerUser) {
-      // Yêu cầu đăng nhập để áp dụng mã khi có giới hạn theo user
-      const userId = req.user?.id;
-      if (!userId) {
-        return res.status(401).json({ message: 'Vui lòng đăng nhập để áp dụng mã giảm giá' });
-      }
-      const usedBy = discount.usedBy || {};
-      const userUsedCount = usedBy[userId] || 0;
+    // Kiểm tra giới hạn sử dụng theo người dùng
+    if (userId && discount.usageLimitPerUser) {
+      const userUsedCount = (discount.usedBy && discount.usedBy[userId]) || 0;
       if (userUsedCount >= discount.usageLimitPerUser) {
-        return res.status(400).json({ message: 'Bạn đã sử dụng hết số lượt cho mã giảm giá này' });
+        return res.status(400).json({
+          success: false,
+          message: 'Bạn đã sử dụng hết số lần sử dụng cho mã giảm giá này',
+          code: 'USER_LIMIT_REACHED'
+        });
       }
-
-      // Cập nhật cả bộ đếm tổng và theo user
-      const newUsedCount = (discount.usedCount || 0) + 1;
-      usedBy[userId] = userUsedCount + 1;
-      
-      // Nếu đạt giới hạn sử dụng sau lần này thì vô hiệu hóa mã
-      const updateData = {
-        usedCount: 1, // Chỉ cần truyền số lượng tăng thêm
-        usedBy: { [userId]: 1 } // Chỉ cần truyền user hiện tại
-      };
-      
-      const updatedDiscount = Discount.updateDiscount(discountId, updateData);
-      console.log('Updated discount with user limit:', updatedDiscount);
-    } else {
-      // Cập nhật bộ đếm tổng
-      const updateData = {
-        usedCount: 1 // Chỉ cần truyền số lượng tăng thêm
-      };
-      
-      const updatedDiscount = Discount.updateDiscount(discountId, updateData);
-      console.log('Updated discount without user limit:', updatedDiscount);
     }
 
-    res.json({ message: 'Áp dụng mã giảm giá thành công' });
+    // Nếu đến đây, mã giảm giá hợp lệ
+    // Tăng số lần sử dụng NGAY LẬP TỨC để tránh sử dụng nhiều lần
+    const success = await Discount.incrementDiscountUsage(discount._id, userId);
+    
+    if (!success) {
+      return res.status(500).json({
+        success: false,
+        message: 'Không thể cập nhật trạng thái mã giảm giá',
+        code: 'UPDATE_FAILED'
+      });
+    }
+
+    // Làm mới danh sách mã giảm giá từ file để đảm bảo dữ liệu mới nhất
+    const updatedDiscounts = await Discount.getAllDiscounts();
+    const updatedDiscount = updatedDiscounts.find(d => d._id === discount._id);
+    
+    if (!updatedDiscount) {
+      console.error(`[ERROR] Could not find updated discount ${discount._id} after increment`);
+      return res.status(500).json({
+        success: false,
+        message: 'Đã xảy ra lỗi khi xác nhận mã giảm giá',
+        code: 'CONFIRMATION_FAILED'
+      });
+    }
+    
+    console.log(`[DISCOUNT] Successfully applied discount. New usedCount: ${updatedDiscount.usedCount}`);
+    
+    res.json({ 
+      success: true,
+      message: 'Áp dụng mã giảm giá thành công',
+      discount: updatedDiscount
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Lỗi server', error: error.message });
+    console.error('[ERROR] Error in applyDiscount:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Lỗi server',
+      error: error.message 
+    });
   }
 };

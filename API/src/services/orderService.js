@@ -79,9 +79,23 @@ const updateSellCountForOrder = async (items) => {
 };
 
 const createOrder = async (orderData) => {
+  // Suy ra discountInfo từ các item nếu thiếu ở cấp đơn hàng
+  if (!orderData.discountInfo && Array.isArray(orderData.items)) {
+    const fromItem = orderData.items.find((it) => it && it.discountInfo && it.discountInfo._id);
+    if (fromItem) {
+      orderData.discountInfo = {
+        _id: String(fromItem.discountInfo._id),
+        code: fromItem.discountInfo.code,
+      };
+      console.log('[ORDER] Inferred order-level discountInfo from items:', orderData.discountInfo);
+    }
+  }
+
   // Kiểm tra mã giảm giá trước khi tạo đơn hàng
   if (orderData.discountInfo?._id) {
-    const discount = await Discount.getDiscountById(orderData.discountInfo._id);
+    const discountIdStr = String(orderData.discountInfo._id);
+    console.log('[ORDER] Incoming discountInfo:', orderData.discountInfo);
+    const discount = await Discount.getDiscountById(discountIdStr);
     
     if (discount) {
       const now = new Date();
@@ -191,72 +205,12 @@ const createOrder = async (orderData) => {
   await updateSellCountForOrder(order.items);
   await order.save();
   
-  // Cập nhật số lần sử dụng mã giảm giá sau khi tạo đơn hàng thành công
+  // LƯU Ý: ĐÃ DI CHUYỂN VIỆC CẬP NHẬT SỬ DỤNG MÃ GIẢM GIÁ VÀO HÀM applyDiscount
+  // để đảm bảo tính nhất quán và tránh race condition
+  
+  // Chỉ ghi log thông tin về mã giảm giá (nếu có)
   if (order.discountInfo?._id) {
-    try {
-      console.log('Starting discount update for order:', order._id);
-      const discount = await Discount.getDiscountById(order.discountInfo._id);
-      console.log('Found discount:', discount);
-      
-      if (discount) {
-        const userId = order.userId;
-        console.log(`[ORDER] Updating discount usage for order ${order._id}, discount: ${discount._id}`);
-        
-        // Kiểm tra lại điều kiện sử dụng trước khi cập nhật
-        const now = new Date();
-        const withinTime = (!discount.startDate || now >= new Date(discount.startDate)) && 
-                         (!discount.endDate || now <= new Date(discount.endDate));
-        
-        if (!withinTime) {
-          console.log(`[ORDER] Discount ${discount._id} is not within valid date range`);
-          return order;
-        }
-        
-        // Kiểm tra giới hạn sử dụng toàn cục
-        if (discount.usageLimit && (discount.usedCount || 0) >= discount.usageLimit) {
-          console.log(`[ORDER] Discount ${discount._id} has reached global usage limit`);
-          // Tự động vô hiệu hóa mã nếu đạt giới hạn
-          if (discount.isActive) {
-            console.log(`[ORDER] Auto-disabling discount ${discount._id} - reached usage limit`);
-            await Discount.updateDiscount(discount._id, { isActive: false });
-          }
-          return order;
-        }
-        
-        // Xử lý giới hạn sử dụng theo người dùng (nếu có)
-        if (discount.usageLimitPerUser && userId) {
-          const usedBy = { ...(discount.usedBy || {}) };
-          const userUsed = usedBy[userId] || 0;
-          
-          if (userUsed >= discount.usageLimitPerUser) {
-            console.log(`[ORDER] User ${userId} has reached usage limit for discount ${discount._id}`);
-            return order;
-          }
-          
-          // Tăng bộ đếm cho người dùng
-          console.log(`[ORDER] Updating discount ${discount._id} with user limit for user ${userId}`);
-          const updateResult = await Discount.updateDiscount(discount._id, {
-            usedCount: 1, // Tăng 1 lần sử dụng
-            usedBy: { [userId]: 1 } // Cập nhật số lần sử dụng của user
-          });
-          
-          console.log(`[ORDER] Discount update result:`, updateResult);
-        } else {
-          // Chỉ tăng bộ đếm toàn cục
-          console.log(`[ORDER] Updating global usage for discount ${discount._id}`);
-          const updateResult = await Discount.updateDiscount(discount._id, {
-            usedCount: 1 // Chỉ tăng usedCount lên 1
-          });
-          
-          console.log(`[ORDER] Global discount update result:`, updateResult);
-        }
-      } else {
-        console.log('No discount found with ID:', order.discountInfo._id);
-      }
-    } catch (error) {
-      console.error('Lỗi khi cập nhật số lần sử dụng mã giảm giá:', error);
-      // Không throw lỗi vì đơn hàng đã được tạo thành công
-    }
+    console.log(`[ORDER] Order ${order._id} created with discount: ${order.discountInfo._id}`);
   }
   
   return order;

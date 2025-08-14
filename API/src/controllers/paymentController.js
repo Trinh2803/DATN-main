@@ -9,40 +9,9 @@ const Discount = require('../models/discountModel');
 exports.createPayment = async (req, res) => {
     try {
         const { amount, bankCode, language, orderData } = req.body;
-        
-        // Kiểm tra và áp dụng mã giảm giá nếu có
-        if (orderData?.discountInfo?._id) {
-            try {
-                // Gọi API applyDiscount để kiểm tra và cập nhật số lần sử dụng
-                const response = await fetch('http://localhost:3000/api/discounts/apply', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': req.headers.authorization || ''
-                    },
-                    body: JSON.stringify({
-                        discountId: orderData.discountInfo._id,
-                        userId: orderData.userId || (req.user?.id)
-                    })
-                });
+        // Lưu ý: KHÔNG tăng bộ đếm mã giảm giá tại đây.
+        // Việc tăng usedCount sẽ thực hiện sau khi thanh toán VNPay thành công (createOrderAfterPayment).
 
-                const result = await response.json();
-                
-                if (!response.ok) {
-                    return res.status(response.status).json({
-                        success: false,
-                        message: result.message || 'Lỗi khi áp dụng mã giảm giá'
-                    });
-                }
-            } catch (error) {
-                console.error('Error applying discount:', error);
-                return res.status(500).json({
-                    success: false,
-                    message: 'Lỗi khi xử lý mã giảm giá'
-                });
-            }
-        }
-        
         process.env.TZ = 'Asia/Ho_Chi_Minh'; // Thiết lập múi giờ
         const date = new Date();
         const createDate = moment(date).format('YYYYMMDDHHmmss');
@@ -58,37 +27,9 @@ exports.createPayment = async (req, res) => {
         const currCode = 'VND';
         const amountInVND = Math.round(parseFloat(amount) * 100);
 
-        // Xác định returnUrl ưu tiên theo thứ tự: body.returnUrl -> headers.origin/referrer -> config
-        const clientReturnUrl = typeof req.body?.returnUrl === 'string' ? req.body.returnUrl.trim() : '';
-        const headerOrigin = typeof req.headers.origin === 'string' ? req.headers.origin.trim() : '';
-        const headerReferer = typeof req.headers.referer === 'string' ? req.headers.referer.trim() : '';
-
-        // Lấy origin từ referer nếu có
-        let refererOrigin = '';
-        try {
-            if (headerReferer) {
-                const u = new URL(headerReferer);
-                refererOrigin = u.origin;
-            }
-        } catch (_) {}
-
-        // Chọn base URL
-        let chosenBase = clientReturnUrl || headerOrigin || refererOrigin || vnp_ReturnUrl;
-
-        // Nếu chosenBase là full path vnp_ReturnUrl, giữ nguyên; nếu chỉ là origin, thêm path /payment-result
-        let effectiveReturnUrl = chosenBase;
-        try {
-            const u = new URL(chosenBase);
-            // Nếu path không phải /payment-result, đảm bảo trả về đúng path
-            if (!u.pathname || u.pathname === '/' || !u.pathname.includes('/payment-result')) {
-                effectiveReturnUrl = `${u.origin}/payment-result`;
-            }
-        } catch (_) {
-            // Nếu không phải URL hợp lệ, fallback về config
-            effectiveReturnUrl = vnp_ReturnUrl;
-        }
-
-        console.log('[VNPay] Using returnUrl:', effectiveReturnUrl);
+        // Luôn sử dụng URL trả về được cấu hình trong server để tránh sai cổng/ứng dụng
+        const effectiveReturnUrl = vnp_ReturnUrl;
+        console.log('[VNPay] Using returnUrl (from config):', effectiveReturnUrl);
 
         // Cấu hình tham số gửi đến VNPay
         let vnp_Params = {
@@ -153,13 +94,8 @@ exports.paymentReturn = (req, res) => {
                 vnp_OrderInfo: vnp_Params['vnp_OrderInfo'] || ''
             }).toString();
             
-            if (responseCode === '00') {
-                // Thanh toán thành công - redirect về trang kết quả thanh toán của frontend
-                return res.redirect(`http://localhost:4200/payment-result?${queryParams}`);
-            } else {
-                // Thanh toán thất bại - redirect về trang kết quả thanh toán với lỗi
-                return res.redirect(`http://localhost:4200/payment-result?${queryParams}`);
-            }
+            // Redirect về frontend theo cấu hình
+            return res.redirect(`${vnp_ReturnUrl}?${queryParams}`);
         } else {
             return res.status(400).json({
                 code: '97',
@@ -198,165 +134,8 @@ exports.createOrderAfterPayment = async (req, res) => {
 
         // Tạo đơn hàng trong database
         const order = await orderService.createOrder(updatedOrderData);
-
-        // Tăng bộ đếm sử dụng mã giảm giá (nếu có)
-        try {
-            const discountId = updatedOrderData?.discountInfo?._id;
-            if (discountId) {
-                const discount = Discount.getDiscountById(discountId);
-                if (discount && discount.isActive) {
-                    const now = new Date();
-                    const withinTime = (!discount.startDate || now >= new Date(discount.startDate)) && (!discount.endDate || now <= new Date(discount.endDate));
-                    const underGlobalLimit = !discount.usageLimit || (discount.usedCount || 0) < discount.usageLimit;
-                    if (withinTime && underGlobalLimit) {
-                        const userId = req.user?.id || req.user?._id || updatedOrderData.userId;
-                        if (discount.usageLimitPerUser) {
-                            if (userId) {
-                                const usedBy = discount.usedBy || {};
-                                const userUsed = usedBy[userId] || 0;
-                                if (userUsed < discount.usageLimitPerUser) {
-                                    usedBy[userId] = userUsed + 1;
-                                    Discount.updateDiscount(discountId, {
-                                        usedCount: (discount.usedCount || 0) + 1,
-                                        usedBy
-                                    });
-                                }
-                            }
-                        } else {
-                            Discount.updateDiscount(discountId, {
-                                usedCount: (discount.usedCount || 0) + 1
-                            });
-                        }
-                    }
-                }
-            }
-        } catch (incErr) {
-            console.warn('Không thể tăng bộ đếm mã giảm giá sau VNPay:', incErr?.message || incErr);
-        }
-
-        return res.status(201).json({
-            success: true,
-            message: 'Đơn hàng đã được tạo thành công sau thanh toán VNPay',
-            data: order
-        });
-    } catch (error) {
-        console.error('Error creating order after VNPay payment:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Lỗi khi tạo đơn hàng sau thanh toán',
-            error: error.message
-        });
-    }
-};
-
-// Lấy thông tin hóa đơn
-exports.getInvoice = async (req, res) => {
-    try {
-        const { orderId } = req.params;
-        const order = await orderService.getOrderById(orderId);
         
-        if (!order) {
-            return res.status(404).json({
-                success: false,
-                message: 'Không tìm thấy đơn hàng'
-            });
-        }
-
-        // Tạo thông tin hóa đơn
-        const invoice = {
-            orderId: order._id,
-            orderDate: order.createdAt,
-            customerInfo: {
-                name: order.customerName,
-                email: order.customerEmail,
-                phone: order.customerPhone,
-                address: order.customerAddress
-            },
-            items: order.items,
-            total: order.total,
-            finalAmount: order.finalAmount,
-            discountInfo: order.discountInfo,
-            paymentMethod: order.paymentMethod,
-            paymentStatus: order.paymentStatus,
-            vnpayInfo: order.vnpayInfo,
-            status: order.status
-        };
-
-        res.status(200).json({
-            success: true,
-            message: 'Lấy thông tin hóa đơn thành công',
-            data: invoice
-        });
-    } catch (error) {
-        console.error('Error getting invoice:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Lỗi khi lấy thông tin hóa đơn',
-            error: error.message
-        });
-    }
-};
-
-// Tạo đơn hàng sau khi thanh toán VNPay thành công
-exports.createOrderAfterPayment = async (req, res) => {
-    try {
-        const { orderData, vnpayData } = req.body;
-        
-        // Cập nhật thông tin thanh toán vào orderData
-        const updatedOrderData = {
-            ...orderData,
-            paymentMethod: 'vnpay',
-            paymentStatus: 'completed',
-            status: 'Đã thanh toán',
-            vnpayInfo: {
-                transactionId: vnpayData.vnp_TxnRef,
-                transactionNo: vnpayData.vnp_TransactionNo,
-                amount: parseInt(vnpayData.vnp_Amount),
-                bankCode: vnpayData.vnp_BankCode,
-                payDate: vnpayData.vnp_PayDate,
-                responseCode: vnpayData.vnp_ResponseCode,
-                orderInfo: vnpayData.vnp_OrderInfo,
-                secureHash: vnpayData.vnp_SecureHash
-            }
-        };
-
-        // Tạo đơn hàng trong database
-        const order = await orderService.createOrder(updatedOrderData);
-        
-        // Tăng bộ đếm sử dụng mã giảm giá (nếu có)
-        try {
-            const discountId = updatedOrderData?.discountInfo?._id;
-            if (discountId) {
-                const discount = Discount.getDiscountById(discountId);
-                if (discount && discount.isActive) {
-                    const now = new Date();
-                    const withinTime = (!discount.startDate || now >= new Date(discount.startDate)) && (!discount.endDate || now <= new Date(discount.endDate));
-                    const underGlobalLimit = !discount.usageLimit || (discount.usedCount || 0) < discount.usageLimit;
-                    if (withinTime && underGlobalLimit) {
-                        const userId = req.user?.id || req.user?._id || updatedOrderData.userId;
-                        if (discount.usageLimitPerUser) {
-                            if (userId) {
-                                const usedBy = discount.usedBy || {};
-                                const userUsed = usedBy[userId] || 0;
-                                if (userUsed < discount.usageLimitPerUser) {
-                                    usedBy[userId] = userUsed + 1;
-                                    Discount.updateDiscount(discountId, {
-                                        usedCount: (discount.usedCount || 0) + 1,
-                                        usedBy
-                                    });
-                                }
-                            }
-                        } else {
-                            Discount.updateDiscount(discountId, {
-                                usedCount: (discount.usedCount || 0) + 1
-                            });
-                        }
-                    }
-                }
-            }
-        } catch (incErr) {
-            console.warn('Không thể tăng bộ đếm mã giảm giá sau VNPay:', incErr?.message || incErr);
-        }
+        // Không tăng bộ đếm mã giảm giá ở đây. orderService.createOrder() đã xử lý tăng usedCount sau khi đơn hàng được tạo thành công.
 
         res.status(201).json({
             success: true,
