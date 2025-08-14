@@ -7,12 +7,46 @@ const orderService = require('../services/orderService');
 // Tạo URL thanh toán
 exports.createPayment = async (req, res) => {
     try {
+        const { amount, bankCode, language, orderData } = req.body;
+        
+        // Kiểm tra và áp dụng mã giảm giá nếu có
+        if (orderData?.discountInfo?._id) {
+            try {
+                // Gọi API applyDiscount để kiểm tra và cập nhật số lần sử dụng
+                const response = await fetch('http://localhost:3000/api/discounts/apply', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': req.headers.authorization || ''
+                    },
+                    body: JSON.stringify({
+                        discountId: orderData.discountInfo._id,
+                        userId: orderData.userId || (req.user?.id)
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    return res.status(response.status).json({
+                        success: false,
+                        message: result.message || 'Lỗi khi áp dụng mã giảm giá'
+                    });
+                }
+            } catch (error) {
+                console.error('Error applying discount:', error);
+                return res.status(500).json({
+                    success: false,
+                    message: 'Lỗi khi xử lý mã giảm giá'
+                });
+            }
+        }
+        
         process.env.TZ = 'Asia/Ho_Chi_Minh'; // Thiết lập múi giờ
         const date = new Date();
         const createDate = moment(date).format('YYYYMMDDHHmmss');
         const ipAddr = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || '127.0.0.1';
-         const orderId = moment(date).format('YYYYMMDDHHmmss') + String(Math.floor(Math.random() * 100000)).padStart(5, '0');
-        const { amount, bankCode, language } = req.body;
+        const orderId = moment(date).format('YYYYMMDDHHmmss') + String(Math.floor(Math.random() * 100000)).padStart(5, '0');
 
         // Kiểm tra amount hợp lệ
         if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
@@ -22,6 +56,38 @@ exports.createPayment = async (req, res) => {
         const locale = language || 'vn';
         const currCode = 'VND';
         const amountInVND = Math.round(parseFloat(amount) * 100);
+
+        // Xác định returnUrl ưu tiên theo thứ tự: body.returnUrl -> headers.origin/referrer -> config
+        const clientReturnUrl = typeof req.body?.returnUrl === 'string' ? req.body.returnUrl.trim() : '';
+        const headerOrigin = typeof req.headers.origin === 'string' ? req.headers.origin.trim() : '';
+        const headerReferer = typeof req.headers.referer === 'string' ? req.headers.referer.trim() : '';
+
+        // Lấy origin từ referer nếu có
+        let refererOrigin = '';
+        try {
+            if (headerReferer) {
+                const u = new URL(headerReferer);
+                refererOrigin = u.origin;
+            }
+        } catch (_) {}
+
+        // Chọn base URL
+        let chosenBase = clientReturnUrl || headerOrigin || refererOrigin || vnp_ReturnUrl;
+
+        // Nếu chosenBase là full path vnp_ReturnUrl, giữ nguyên; nếu chỉ là origin, thêm path /payment-result
+        let effectiveReturnUrl = chosenBase;
+        try {
+            const u = new URL(chosenBase);
+            // Nếu path không phải /payment-result, đảm bảo trả về đúng path
+            if (!u.pathname || u.pathname === '/' || !u.pathname.includes('/payment-result')) {
+                effectiveReturnUrl = `${u.origin}/payment-result`;
+            }
+        } catch (_) {
+            // Nếu không phải URL hợp lệ, fallback về config
+            effectiveReturnUrl = vnp_ReturnUrl;
+        }
+
+        console.log('[VNPay] Using returnUrl:', effectiveReturnUrl);
 
         // Cấu hình tham số gửi đến VNPay
         let vnp_Params = {
@@ -34,7 +100,7 @@ exports.createPayment = async (req, res) => {
             vnp_OrderInfo: `Thanh toán cho mã GD: ${orderId}`,
             vnp_OrderType: 'other',
             vnp_Amount: amountInVND,
-            vnp_ReturnUrl: vnp_ReturnUrl,
+            vnp_ReturnUrl: effectiveReturnUrl,
             vnp_IpAddr: ipAddr,
             vnp_CreateDate: createDate,
         };
