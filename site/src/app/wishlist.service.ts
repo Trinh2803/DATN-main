@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, BehaviorSubject, throwError, map } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import Swal from 'sweetalert2';
 
 export interface WishlistItem {
   _id: string;
@@ -39,7 +38,6 @@ export class WishlistService {
     this.loadWishlist();
   }
 
-  // Tạo tiêu đề HTTP với token xác thực
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
     return new HttpHeaders({
@@ -48,12 +46,7 @@ export class WishlistService {
     });
   }
 
-  // Thêm sản phẩm vào danh sách yêu thích
   addToWishlist(productId: string): Observable<ApiResponse<WishlistItem>> {
-    const currentWishlist = this.wishlistSubject.getValue();
-    if (currentWishlist.some(item => item.productId._id === productId)) {
-      return throwError(() => new Error('Sản phẩm đã có trong danh sách yêu thích'));
-    }
     return this.http.post<ApiResponse<WishlistItem>>(
       `${this.apiUrl}/add`,
       { productId },
@@ -63,7 +56,6 @@ export class WishlistService {
     );
   }
 
-  // Xóa sản phẩm khỏi danh sách yêu thích
   removeFromWishlist(productId: string): Observable<ApiResponse<any>> {
     return this.http.delete<ApiResponse<any>>(
       `${this.apiUrl}/remove/${productId}`,
@@ -73,7 +65,6 @@ export class WishlistService {
     );
   }
 
-  // Lấy danh sách yêu thích của người dùng
   getUserWishlist(): Observable<ApiResponse<WishlistItem[]>> {
     return this.http.get<ApiResponse<WishlistItem[]>>(
       `${this.apiUrl}/user`,
@@ -81,7 +72,6 @@ export class WishlistService {
     );
   }
 
-  // Kiểm tra trạng thái danh sách yêu thích
   checkWishlistStatus(productId: string): Observable<ApiResponse<{ isInWishlist: boolean }>> {
     return this.http.get<ApiResponse<{ isInWishlist: boolean }>>(
       `${this.apiUrl}/check/${productId}`,
@@ -89,7 +79,6 @@ export class WishlistService {
     );
   }
 
-  // Xóa toàn bộ danh sách yêu thích
   clearWishlist(): Observable<ApiResponse<any>> {
     return this.http.delete<ApiResponse<any>>(
       `${this.apiUrl}/clear`,
@@ -99,6 +88,22 @@ export class WishlistService {
     );
   }
 
+<<<<<<< HEAD
+  private loadWishlist(): void {
+    const token = localStorage.getItem('token');
+    if (token) {
+      this.getUserWishlist().subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.wishlistSubject.next(response.data);
+          }
+        },
+        error: (error) => {
+          console.error('Error loading wishlist:', error);
+          this.wishlistSubject.next([]);
+        }
+      });
+=======
   // Tải danh sách yêu thích và cập nhật trạng thái
 // wishlist.service.ts
 private loadWishlist(): void {
@@ -119,10 +124,10 @@ private loadWishlist(): void {
     error: (error) => {
       console.error('Lỗi khi tải danh sách yêu thích:', error);
       this.wishlistSubject.next([]);
+>>>>>>> Trinh
     }
-  });
-}
-  // Lấy số lượng mục trong danh sách yêu thích
+  }
+
   getWishlistCount(): Observable<number> {
     return new Observable(observer => {
       this.wishlist$.subscribe(wishlist => {
@@ -131,10 +136,12 @@ private loadWishlist(): void {
     });
   }
 
-  // Kiểm tra xem sản phẩm có trong danh sách yêu thích không
   isInWishlist(productId: string): Observable<boolean> {
-    return this.checkWishlistStatus(productId).pipe(
-      map(response => response.data.isInWishlist)
-    );
+    return new Observable(observer => {
+      this.wishlist$.subscribe(wishlist => {
+        const isInWishlist = wishlist.some(item => item.productId._id === productId);
+        observer.next(isInWishlist);
+      });
+    });
   }
-}
+} 

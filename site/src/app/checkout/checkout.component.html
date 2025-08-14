@@ -49,25 +49,20 @@
         <div class="payment-option">
           <input type="radio" id="vnpay" name="paymentMethod" [(ngModel)]="shippingInfo.paymentMethod" value="vnpay" />
           <label for="vnpay">
-            <div class="vnpay-css-icon"></div>
-            <span class="payment-text">
-              <strong>Thanh toán online VNPay</strong>
-              <small>Thẻ ATM, Visa, MasterCard, QR Code</small>
-            </span>
+            <img src="https://sandbox.vnpayment.vn/apis/assets/images/logo.png" width="24" height="24" alt="VNPay Icon" />
+            Thanh toán online VNPay
           </label>
         </div>
       </div>
     </form>
 
     <div class="btn-row">
-      <button class="btn btn-outline" (click)="goToCart()">Quay lại giỏ hàng</button>
+<button class="btn btn-outline" (click)="goToCart()">Quay lại giỏ hàng</button>
       <button class="btn btn-primary" (click)="onCheckout()">Hoàn tất đơn hàng</button>
     </div>
   </div>
 
   <div class="right-section">
-    
-
     <div class="cart-items">
       <div class="cart-item" *ngFor="let item of cartItems; let i = index">
         <div class="cart-item-image">
@@ -87,7 +82,12 @@
     <div class="cart-summary">
       <div class="summary-row">
         <span>Tạm tính</span>
-        <span>{{ getDiscountedSubtotal() | number:'1.0-0' }}₫</span>
+        <span>{{ totalPrice | number:'1.0-0' }}₫</span>
+      </div>
+      
+      <div class="summary-row" *ngIf="discountInfo">
+        <span>Giảm giá ({{ discountInfo.code }})</span>
+        <span class="discount-amount">-{{ discountInfo.discountAmount | number:'1.0-0' }}₫</span>
       </div>
       
       <div class="summary-row">
@@ -97,7 +97,7 @@
       
       <div class="summary-row total">
         <span>Tổng cộng</span>
-        <span>VND {{ getDiscountedTotal() | number:'1.0-0' }}₫</span>
+        <span>VND {{ finalAmount | number:'1.0-0' }}₫</span>
       </div>
     </div>
   </div>

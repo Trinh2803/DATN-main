@@ -103,5 +103,37 @@
   </div>
 </section>
 
-
-
+<!-- Comment Section -->
+<section class="comment-section">
+  <div class="container">
+    <h2>Bình luận</h2>
+    <div *ngIf="comments.length === 0" class="no-comments">Chưa có bình luận nào.</div>
+    <div class="comment-list">
+      <div class="comment-item" *ngFor="let cmt of comments">
+        <div class="comment-header">
+          <strong>{{ cmt.userName }}</strong> <span class="comment-email">({{ cmt.userEmail }})</span>
+          <span class="comment-rating">- Đánh giá: {{ cmt.rating }}/5</span>
+        </div>
+        <div class="comment-content">{{ cmt.content }}</div>
+        <div class="comment-date">{{ cmt.createdAt ? (cmt.createdAt | date:'dd/MM/yyyy HH:mm') : '' }}</div>
+      </div>
+    </div>
+    <div class="comment-form">
+      <h3>Gửi bình luận của bạn</h3>
+      <div *ngIf="commentError" class="comment-error">{{ commentError }}</div>
+      <form (ngSubmit)="submitComment()" #commentForm="ngForm">
+        <input type="text" [(ngModel)]="newCommentName" name="name" placeholder="Tên của bạn" required />
+        <input type="email" [(ngModel)]="newCommentEmail" name="email" placeholder="Email" required />
+        <select [(ngModel)]="newCommentRating" name="rating" required>
+          <option [value]="5">5 sao</option>
+          <option [value]="4">4 sao</option>
+          <option [value]="3">3 sao</option>
+          <option [value]="2">2 sao</option>
+          <option [value]="1">1 sao</option>
+        </select>
+        <textarea [(ngModel)]="newCommentContent" name="content" placeholder="Nội dung bình luận" rows="3" required></textarea>
+        <button type="submit" [disabled]="isSubmittingComment">Gửi bình luận</button>
+      </form>
+    </div>
+  </div>
+</section>

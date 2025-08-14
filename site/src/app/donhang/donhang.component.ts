@@ -83,7 +83,7 @@ export class DonhangComponent implements OnInit {
               address: response.data.customerAddress,
               note: response.data.customerNote,
               shippingMethod: 'free', // Giả sử mặc định
-              paymentMethod: response.data.paymentMethod || 'cod', // Lấy từ API
+              paymentMethod: 'cod', // Giả sử mặc định
             },
             orderNote: response.data.customerNote,
             orderDate: response.data.createdAt,

@@ -33,6 +33,8 @@ export class CheckoutComponent implements OnInit {
   cartItems: CartItem[] = [];
   totalPrice: number = 0;
   orderNote: string = '';
+  discountCode: string = '';
+  discountInfo: any = null;
   finalAmount: number = 0;
   shippingInfo: ShippingInfo = {
     fullName: '',
@@ -61,18 +63,19 @@ export class CheckoutComponent implements OnInit {
     this.cartService.cartItems$.subscribe((items) => {
       this.cartItems = items;
       this.totalPrice = this.cartService.getTotalPrice();
-      // Recalculate totals when cart changes
-      this.recalcTotals();
-
-      // Nếu giỏ hàng rỗng, quay về trang giỏ hàng
-      if (!items || items.length === 0) {
-        this.router.navigate(['/giohang']);
-      }
     });
 
-    // finalAmount luôn được tính lại từ giỏ hàng hiện tại
-    if (!this.finalAmount) {
-      this.recalcTotals();
+    const pendingOrder = localStorage.getItem('pendingOrder');
+    if (pendingOrder) {
+      const orderData = JSON.parse(pendingOrder);
+      this.orderNote = orderData.orderNote || '';
+      this.cartItems = orderData.cartItems || [];
+      this.totalPrice = orderData.totalPrice || 0;
+      this.discountCode = orderData.discountCode || '';
+      this.discountInfo = orderData.discountInfo || null;
+      this.finalAmount = orderData.finalAmount || this.totalPrice;
+    } else {
+      this.router.navigate(['/giohang']);
     }
   }
 
@@ -138,13 +141,9 @@ export class CheckoutComponent implements OnInit {
         this.cartService.clearCart();
         localStorage.removeItem('pendingOrder');
         const orderId = response.data._id;
-        console.log('COD Order created with ID:', orderId);
-        
-        // Success message
-        alert('Đơn hàng COD đã được tạo thành công! Đang chuyển đến trang đơn hàng...');
-        // Navigate to order detail
+        console.log('Order created with ID:', orderId);
         this.router.navigate(['/donhang'], {
-          queryParams: { orderId }
+          queryParams: { orderId },
         });
       },
       error: (err) => {
@@ -152,17 +151,6 @@ export class CheckoutComponent implements OnInit {
       },
     });
   }
-
-  // Recalculate final amount based on total and discount
-  private recalcTotals(): void {
-    // Tính tổng sau giảm dựa trên từng item (đã tính discountInfo trong getItemPrice)
-    const discounted = this.cartItems.reduce((sum, item) => {
-      return sum + this.getItemPrice(item) * item.quantity;
-    }, 0);
-    this.finalAmount = Math.max(0, Math.round(discounted));
-  }
-
-  // Discount code UI/logic removed: totals now equal cart total.
 
   private prepareOrderData(): any {
     const user = this.userService.getCurrentUser();
@@ -183,6 +171,8 @@ export class CheckoutComponent implements OnInit {
       })),
       total: this.totalPrice,
       finalAmount: this.finalAmount,
+      discountCode: this.discountCode,
+      discountInfo: this.discountInfo,
       status: 'Chờ xác nhận',
       adminNote: '',
       paymentMethod: this.shippingInfo.paymentMethod
@@ -199,7 +189,7 @@ export class CheckoutComponent implements OnInit {
     let basePrice = item.selectedVariant ? (item.selectedVariant.salePrice || item.selectedVariant.price) : (item.product.salePrice || item.product.price);
     if ((item as any).discountInfo) {
       const discountInfo = (item as any).discountInfo;
-      if (discountInfo.discountType === 'percentage') {
+      if (discountInfo.discountType === 'percent') {
         return Math.round(basePrice * (1 - discountInfo.discountValue / 100));
       } else if (discountInfo.discountType === 'fixed') {
         return Math.max(0, basePrice - discountInfo.discountValue);
@@ -214,15 +204,5 @@ export class CheckoutComponent implements OnInit {
       return `${item.selectedVariant.size}`;
     }
     return '';
-  }
-
-  // Helpers cho template: tạm tính và tổng cộng sau giảm
-  getDiscountedSubtotal(): number {
-    return this.cartItems.reduce((sum, item) => sum + this.getItemPrice(item) * item.quantity, 0);
-  }
-
-  getDiscountedTotal(): number {
-    // Hiện tại phí vận chuyển miễn phí, tổng = tạm tính
-    return Math.max(0, Math.round(this.getDiscountedSubtotal()));
   }
 }

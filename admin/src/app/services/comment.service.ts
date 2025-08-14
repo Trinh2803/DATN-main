@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { Comment, CommentStats, CommentFilters, ApiResponse } from '../interfaces/comment.interface';
 import { AuthService } from './auth.service';
 
@@ -14,8 +13,7 @@ export class CommentService {
   constructor(private http: HttpClient, private authService: AuthService) {}
 
   // Lấy tất cả bình luận với filter
-  // Trong CommentService, phương thức getComments
-getComments(filters?: CommentFilters): Observable<ApiResponse<Comment[]>> {
+  getComments(filters?: CommentFilters): Observable<ApiResponse<Comment[]>> {
     const token = this.authService.getToken();
     if (!token) {
       return throwError(() => new Error('Thiếu token xác thực'));
@@ -37,26 +35,10 @@ getComments(filters?: CommentFilters): Observable<ApiResponse<Comment[]>> {
       'Content-Type': 'application/json'
     });
 
-    return this.http.get<ApiResponse<Comment[]>>(this.apiUrl, { headers, params }).pipe(
-      map(response => {
-        if (response.success && response.data) {
-          response.data = response.data.map(comment => ({
-            ...comment,
-            productId: comment.productId || { _id: 'unknown', name: 'Không xác định', thumbnail: '/assets/images/icon.png' },
-            adminReply: comment.adminReply
-              ? {
-                  ...comment.adminReply,
-                  adminId: comment.adminReply.adminId || { name: 'Admin không xác định' }
-                }
-              : undefined
-          }));
-        }
-        return response;
-      })
-    );
+    return this.http.get<ApiResponse<Comment[]>>(this.apiUrl, { headers, params });
   }
 
-  // Các phương thức khác giữ nguyên
+  // Lấy bình luận theo ID
   getCommentById(id: string): Observable<ApiResponse<Comment>> {
     const token = this.authService.getToken();
     if (!token) {
@@ -68,17 +50,7 @@ getComments(filters?: CommentFilters): Observable<ApiResponse<Comment[]>> {
       'Content-Type': 'application/json'
     });
 
-    return this.http.get<ApiResponse<Comment>>(`${this.apiUrl}/${id}`, { headers }).pipe(
-      map(response => {
-        if (response.success && response.data) {
-          response.data = {
-            ...response.data,
-            productId: response.data.productId || { _id: 'unknown', name: 'Không xác định', thumbnail: '/assets/images/icon.png' }
-          };
-        }
-        return response;
-      })
-    );
+    return this.http.get<ApiResponse<Comment>>(`${this.apiUrl}/${id}`, { headers });
   }
 
   // Lấy thống kê bình luận
@@ -173,17 +145,7 @@ getComments(filters?: CommentFilters): Observable<ApiResponse<Comment[]>> {
 
   // Lấy bình luận theo sản phẩm (public API)
   getCommentsByProduct(productId: string): Observable<ApiResponse<Comment[]>> {
-    return this.http.get<ApiResponse<Comment[]>>(`${this.apiUrl}/product/${productId}`).pipe(
-      map(response => {
-        if (response.success && response.data) {
-          response.data = response.data.map(comment => ({
-            ...comment,
-            productId: comment.productId || { _id: productId, name: 'Không xác định', thumbnail: '/assets/images/icon.png' }
-          }));
-        }
-        return response;
-      })
-    );
+    return this.http.get<ApiResponse<Comment[]>>(`${this.apiUrl}/product/${productId}`);
   }
 
   // Tạo bình luận mới (public API)
@@ -196,4 +158,4 @@ getComments(filters?: CommentFilters): Observable<ApiResponse<Comment[]>> {
   }): Observable<ApiResponse<Comment>> {
     return this.http.post<ApiResponse<Comment>>(this.apiUrl, commentData);
   }
-}
+} 

@@ -6,7 +6,6 @@ interface CartItem {
   product: ProductInterface;
   quantity: number;
   selectedVariant?: Variant;
-  discountInfo?: any;
 }
 
 @Injectable({
@@ -36,7 +35,7 @@ export class CartService {
     console.log('CartService: Cart saved successfully');
   }
 
-  addToCart(product: ProductInterface, discountInfo?: any) {
+  addToCart(product: ProductInterface) {
     const existingItem = this.cartItems.find((item) =>
       item.product._id === product._id &&
       this.compareVariants(item.selectedVariant, product.selectedVariant)
@@ -44,21 +43,17 @@ export class CartService {
 
     if (existingItem) {
       existingItem.quantity += 1;
-      if (discountInfo) {
-        existingItem.discountInfo = discountInfo;
-      }
     } else {
       this.cartItems.push({
         product,
         quantity: 1,
-        selectedVariant: product.selectedVariant,
-        discountInfo
+        selectedVariant: product.selectedVariant
       });
     }
     this.saveCartToLocalStorage();
   }
 
-  addToCartWithQuantity(product: ProductInterface, quantity: number, discountInfo?: any) {
+  addToCartWithQuantity(product: ProductInterface, quantity: number) {
     const existingItem = this.cartItems.find((item) =>
       item.product._id === product._id &&
       this.compareVariants(item.selectedVariant, product.selectedVariant)
@@ -66,23 +61,14 @@ export class CartService {
 
     if (existingItem) {
       existingItem.quantity += quantity;
-      if (discountInfo) {
-        existingItem.discountInfo = discountInfo;
-      }
     } else {
       this.cartItems.push({
         product,
         quantity,
-        selectedVariant: product.selectedVariant,
-        discountInfo
+        selectedVariant: product.selectedVariant
       });
     }
     this.saveCartToLocalStorage();
-  }
-
-  // Convenience method: add with discount explicitly
-  addToCartWithQuantityAndDiscount(product: ProductInterface, quantity: number, discountInfo: any) {
-    return this.addToCartWithQuantity(product, quantity, discountInfo);
   }
 
   private compareVariants(variant1?: Variant, variant2?: Variant): boolean {
