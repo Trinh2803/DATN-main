@@ -58,6 +58,38 @@ exports.createPayment = async (req, res) => {
         const currCode = 'VND';
         const amountInVND = Math.round(parseFloat(amount) * 100);
 
+        // Xác định returnUrl ưu tiên theo thứ tự: body.returnUrl -> headers.origin/referrer -> config
+        const clientReturnUrl = typeof req.body?.returnUrl === 'string' ? req.body.returnUrl.trim() : '';
+        const headerOrigin = typeof req.headers.origin === 'string' ? req.headers.origin.trim() : '';
+        const headerReferer = typeof req.headers.referer === 'string' ? req.headers.referer.trim() : '';
+
+        // Lấy origin từ referer nếu có
+        let refererOrigin = '';
+        try {
+            if (headerReferer) {
+                const u = new URL(headerReferer);
+                refererOrigin = u.origin;
+            }
+        } catch (_) {}
+
+        // Chọn base URL
+        let chosenBase = clientReturnUrl || headerOrigin || refererOrigin || vnp_ReturnUrl;
+
+        // Nếu chosenBase là full path vnp_ReturnUrl, giữ nguyên; nếu chỉ là origin, thêm path /payment-result
+        let effectiveReturnUrl = chosenBase;
+        try {
+            const u = new URL(chosenBase);
+            // Nếu path không phải /payment-result, đảm bảo trả về đúng path
+            if (!u.pathname || u.pathname === '/' || !u.pathname.includes('/payment-result')) {
+                effectiveReturnUrl = `${u.origin}/payment-result`;
+            }
+        } catch (_) {
+            // Nếu không phải URL hợp lệ, fallback về config
+            effectiveReturnUrl = vnp_ReturnUrl;
+        }
+
+        console.log('[VNPay] Using returnUrl:', effectiveReturnUrl);
+
         // Cấu hình tham số gửi đến VNPay
         let vnp_Params = {
             vnp_Version: '2.1.0',
@@ -69,7 +101,7 @@ exports.createPayment = async (req, res) => {
             vnp_OrderInfo: `Thanh toán cho mã GD: ${orderId}`,
             vnp_OrderType: 'other',
             vnp_Amount: amountInVND,
-            vnp_ReturnUrl: vnp_ReturnUrl,
+            vnp_ReturnUrl: effectiveReturnUrl,
             vnp_IpAddr: ipAddr,
             vnp_CreateDate: createDate,
         };
