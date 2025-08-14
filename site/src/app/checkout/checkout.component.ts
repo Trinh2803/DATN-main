@@ -46,21 +46,6 @@ export class CheckoutComponent implements OnInit {
   };
   private apiUrl = 'http://localhost:3000/orders';
 
-  // Xác định base URL của site (không phải Admin). Có thể override bằng localStorage 'SITE_BASE_URL'
-  private getSiteBaseUrl(): string {
-    const override = localStorage.getItem('SITE_BASE_URL');
-    if (override && /^https?:\/\//.test(override)) {
-      return override.replace(/\/$/, '');
-    }
-    // Mặc định dev: site chạy khác cổng admin, ví dụ 4300
-    const defaultSite = 'http://localhost:4300';
-    // Nếu hiện tại không phải 4200 (thường là admin), ưu tiên origin hiện tại
-    if (!window.location.origin.includes(':4200')) {
-      return window.location.origin;
-    }
-    return defaultSite;
-  }
-
   constructor(
     private cartService: CartService,
     private userService: UserService,
@@ -121,9 +106,7 @@ export class CheckoutComponent implements OnInit {
       amount: this.finalAmount,
       bankCode: '', // Để trống để hiển thị tất cả ngân hàng
       language: 'vn',
-      orderInfo: `Thanh toán đơn hàng MOHO - ${this.shippingInfo.fullName}`,
-      // Truyền returnUrl trỏ về đúng site (không phải Admin)
-      returnUrl: `${this.getSiteBaseUrl()}/payment-result`
+      orderInfo: `Thanh toán đơn hàng MOHO - ${this.shippingInfo.fullName}`
     };
 
     this.paymentService.createPayment(paymentData).subscribe({

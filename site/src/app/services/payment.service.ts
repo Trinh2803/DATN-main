@@ -7,8 +7,6 @@ export interface PaymentRequest {
   bankCode?: string;
   language?: string;
   orderInfo?: string;
-  // URL để VNPay redirect quay về sau khi thanh toán
-  returnUrl?: string;
 }
 
 export interface PaymentResponse {
@@ -56,10 +54,7 @@ export class PaymentService {
    * @param paymentUrl URL thanh toán
    */
   openPaymentPage(paymentUrl: string): void {
-    // Mở trong cùng tab để sau khi thanh toán xong,
-    // VNPay redirect về vnp_ReturnUrl sẽ quay lại app ở cùng ngữ cảnh,
-    // giúp luồng điều hướng đến hóa đơn hoạt động ổn định hơn
-    window.location.href = paymentUrl;
+    window.open(paymentUrl, '_blank');
   }
 
   /**

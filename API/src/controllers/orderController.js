@@ -93,54 +93,12 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
-const Discount = require('../models/discountModel');
-
 const createOrder = async (req, res) => {
   try {
     const orderData = {
       ...req.body,
     };
-
-    // Kiểm tra mã giảm giá nếu có
-    if (orderData.discountInfo?._id) {
-      const discount = await Discount.getDiscountById(orderData.discountInfo._id);
-      
-      if (!discount) {
-        return res.status(400).json({
-          success: false,
-          message: 'Mã giảm giá không hợp lệ'
-        });
-      }
-
-      const now = new Date();
-      
-      // Kiểm tra thời hạn sử dụng
-      const isWithinTime = (!discount.startDate || now >= new Date(discount.startDate)) && 
-                         (!discount.endDate || now <= new Date(discount.endDate));
-      
-      // Kiểm tra giới hạn sử dụng tổng
-      const isUnderGlobalLimit = !discount.usageLimit || (discount.usedCount || 0) < discount.usageLimit;
-      
-      // Kiểm tra giới hạn sử dụng mỗi người dùng
-      let isUnderUserLimit = true;
-      const userId = orderData.userId || (req.user?.id);
-      
-      if (userId && discount.usageLimitPerUser) {
-        const usedByUser = (discount.usedBy && discount.usedBy[userId]) || 0;
-        isUnderUserLimit = usedByUser < discount.usageLimitPerUser;
-      }
-      
-      // Nếu mã không còn hiệu lực hoặc đã hết lượt sử dụng
-      if (!discount.isActive || !isWithinTime || !isUnderGlobalLimit || !isUnderUserLimit) {
-        return res.status(400).json({
-          success: false,
-          message: 'Mã giảm giá không còn khả dụng hoặc đã hết lượt sử dụng'
-        });
-      }
-      
-      // Đã chuyển việc cập nhật số lần sử dụng sang orderService.js
-      // để đảm bảo chỉ cập nhật khi đơn hàng được tạo thành công
-    }
+    
     // Chỉ thêm userId nếu user đã đăng nhập
     if (req.user && req.user.id) {
       orderData.userId = req.user.id;
