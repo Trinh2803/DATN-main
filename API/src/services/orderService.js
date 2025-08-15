@@ -154,6 +154,10 @@ const createOrder = async (orderData) => {
         productId: item.productId,
         productName,
         thumbnail, // Lưu thumbnail vào items
+        // Mang theo thông tin biến thể nếu có (hỗ trợ nhiều tên trường từ FE)
+        // Lưu ý: FE có thể gửi selectedVariant._id (ObjectId) không trùng với variants.id (string). Sẽ ưu tiên resolve bằng size.
+        variantId: item.variantId || item.variant?.id || item.selectedVariant?.id || item.selectedVariant?._id || undefined,
+        size: item.size || item.variant?.size || item.selectedVariant?.size || item.variantSize || undefined,
         quantity: item.quantity,
         price: item.price
       };
@@ -202,18 +206,108 @@ const createOrder = async (orderData) => {
   }
 
   const order = new Order(orderDataToSave);
-  await updateSellCountForOrder(order.items);
-  await order.save();
-  
-  // LƯU Ý: ĐÃ DI CHUYỂN VIỆC CẬP NHẬT SỬ DỤNG MÃ GIẢM GIÁ VÀO HÀM applyDiscount
-  // để đảm bảo tính nhất quán và tránh race condition
-  
-  // Chỉ ghi log thông tin về mã giảm giá (nếu có)
-  if (order.discountInfo?._id) {
-    console.log(`[ORDER] Order ${order._id} created with discount: ${order.discountInfo._id}`);
+  // 1) Validate tồn kho cho tất cả items (hỗ trợ biến thể)
+  for (const item of order.items) {
+    const product = await Product.findById(item.productId).lean();
+    if (!product) {
+      throw new Error(`Không tìm thấy sản phẩm với ID ${item.productId}`);
+    }
+    if (product.variants && product.variants.length > 0) {
+      // Bắt buộc phải có biến thể: chấp nhận variantId hoặc size
+      let variantId = item.variantId;
+      let variant = null;
+      if (variantId) {
+        variant = product.variants.find(v => String(v.id) === String(variantId));
+      } else if (item.size) {
+        variant = product.variants.find(v => String(v.size).toLowerCase() === String(item.size).toLowerCase());
+        if (variant) variantId = variant.id;
+      }
+      if (!variantId || !variant) {
+        throw new Error('Sản phẩm có biến thể, vui lòng chọn biến thể cụ thể để đặt hàng');
+      }
+      if (!variant) {
+        throw new Error('Biến thể không hợp lệ hoặc không tồn tại');
+      }
+      const vStock = typeof variant.stock === 'number' ? variant.stock : 0;
+      if (vStock < item.quantity) {
+        throw new Error(`Biến thể "${variant.size || variant.id}" của sản phẩm "${product.name}" không đủ hàng. Còn: ${vStock}, yêu cầu: ${item.quantity}`);
+      }
+    } else {
+      const currentStock = typeof product.stock === 'number' ? product.stock : 0;
+      if (currentStock < item.quantity) {
+        throw new Error(`Sản phẩm "${product.name}" không đủ hàng. Còn: ${currentStock}, yêu cầu: ${item.quantity}`);
+      }
+    }
   }
-  
-  return order;
+
+  // 2) Giảm tồn kho trước khi lưu đơn hàng, có rollback nếu lưu đơn thất bại (hỗ trợ biến thể)
+  const decremented = [];
+  try {
+    // Giảm tồn kho với $inc và điều kiện stock >= quantity
+    for (const item of order.items) {
+      let incRes;
+      // Xác định variantId hiệu lực nếu có
+      let effVariantId = item.variantId;
+      if (!effVariantId && item.size) {
+        const prod = await Product.findById(item.productId).lean();
+        const found = prod?.variants?.find(v => String(v.size).toLowerCase() === String(item.size).toLowerCase());
+        if (found) effVariantId = found.id;
+      }
+      if (effVariantId) {
+        // Giảm tồn kho biến thể
+        incRes = await Product.updateOne(
+          { _id: item.productId, 'variants.id': effVariantId, 'variants.stock': { $gte: item.quantity } },
+          { $inc: { 'variants.$.stock': -item.quantity } }
+        );
+        if (!incRes || incRes.modifiedCount !== 1) {
+          throw new Error('Cập nhật tồn kho biến thể thất bại do không đủ hàng hoặc lỗi hệ thống');
+        }
+        decremented.push({ productId: item.productId, variantId: effVariantId, quantity: item.quantity });
+      } else {
+        // Sản phẩm không có biến thể
+        incRes = await Product.updateOne(
+          { _id: item.productId, stock: { $gte: item.quantity } },
+          { $inc: { stock: -item.quantity } }
+        );
+        if (!incRes || incRes.modifiedCount !== 1) {
+          throw new Error('Cập nhật tồn kho thất bại do không đủ hàng hoặc lỗi hệ thống');
+        }
+        decremented.push({ productId: item.productId, quantity: item.quantity });
+      }
+    }
+
+    // Lưu đơn hàng
+    await order.save();
+
+    // Cập nhật sellCount sau khi lưu đơn thành công
+    await updateSellCountForOrder(order.items);
+
+    // Log thông tin về mã giảm giá (nếu có)
+    if (order.discountInfo?._id) {
+      console.log(`[ORDER] Order ${order._id} created with discount: ${order.discountInfo._id}`);
+    }
+
+    return order;
+  } catch (err) {
+    // Rollback tồn kho nếu có lỗi
+    if (decremented.length > 0) {
+      for (const d of decremented) {
+        try {
+          if (d.variantId) {
+            await Product.updateOne(
+              { _id: d.productId, 'variants.id': d.variantId },
+              { $inc: { 'variants.$.stock': d.quantity } }
+            );
+          } else {
+            await Product.updateOne({ _id: d.productId }, { $inc: { stock: d.quantity } });
+          }
+        } catch (rbErr) {
+          console.error('[ORDER][ROLLBACK] Lỗi khi hoàn tác tồn kho cho sản phẩm', d.productId, rbErr);
+        }
+      }
+    }
+    throw err;
+  }
 };
 
 const getPendingOrders = async () => {

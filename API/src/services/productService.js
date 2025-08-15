@@ -227,6 +227,86 @@ const getHotProducts = async (limit) => {
     throw new Error('Không thể lấy sản phẩm hot: ' + err.message);
   }
 };
+// Cập nhật số lượng tồn kho sản phẩm
+const updateProductStock = async (productId, quantity) => {
+  try {
+    // Tìm sản phẩm theo ID
+    const product = await Product.findById(productId);
+    
+    if (!product) {
+      console.error(`[PRODUCT] Không tìm thấy sản phẩm với ID: ${productId}`);
+      return { success: false, message: 'Không tìm thấy sản phẩm' };
+    }
+    
+    // Kiểm tra nếu sản phẩm có biến thể (variants)
+    if (product.variants && product.variants.length > 0) {
+      // Nếu có biến thể, không cập nhật stock ở cấp sản phẩm cha
+      return { 
+        success: false, 
+        message: 'Sản phẩm có biến thể, vui lòng cập nhật stock cho từng biến thể' 
+      };
+    }
+    
+    // Kiểm tra số lượng tồn kho
+    if (product.stock < quantity) {
+      return { 
+        success: false, 
+        message: 'Số lượng tồn kho không đủ',
+        currentStock: product.stock
+      };
+    }
+    
+    // Cập nhật số lượng tồn kho
+    product.stock -= quantity;
+    await product.save();
+    
+    console.log(`[PRODUCT] Đã cập nhật tồn kho sản phẩm ${productId}. Số lượng còn lại: ${product.stock}`);
+    return { 
+      success: true, 
+      message: 'Cập nhật tồn kho thành công',
+      currentStock: product.stock
+    };
+    
+  } catch (error) {
+    console.error(`[PRODUCT] Lỗi khi cập nhật tồn kho sản phẩm ${productId}:`, error);
+    return { 
+      success: false, 
+      message: 'Lỗi khi cập nhật tồn kho: ' + error.message 
+    };
+  }
+};
+
+// Cập nhật tồn kho cho nhiều sản phẩm trong đơn hàng
+const updateProductsStock = async (items) => {
+  try {
+    const results = [];
+    
+    for (const item of items) {
+      const result = await updateProductStock(item.productId, item.quantity);
+      results.push({
+        productId: item.productId,
+        ...result
+      });
+    }
+    
+    // Kiểm tra xem có lỗi nào không
+    const hasErrors = results.some(result => !result.success);
+    
+    return {
+      success: !hasErrors,
+      results: results,
+      message: hasErrors ? 'Một số sản phẩm cập nhật tồn kho không thành công' : 'Cập nhật tồn kho thành công'
+    };
+    
+  } catch (error) {
+    console.error('[ORDER] Lỗi khi cập nhật tồn kho đơn hàng:', error);
+    return {
+      success: false,
+      message: 'Lỗi khi cập nhật tồn kho đơn hàng: ' + error.message
+    };
+  }
+};
+
 module.exports = {
   getAllProducts,
   getProductById,
@@ -237,4 +317,6 @@ module.exports = {
   getSaleProducts,
   updateSellCount,
   getHotProducts,
+  updateProductStock,
+  updateProductsStock
 };
