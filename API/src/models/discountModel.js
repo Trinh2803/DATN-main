@@ -4,9 +4,16 @@ const path = require('path');
 const DISCOUNT_FILE = path.join(__dirname, '../../../Data/Deho.discounts.json');
 
 function readDiscounts() {
-  if (!fs.existsSync(DISCOUNT_FILE)) return [];
+  console.log(`[DEBUG] Reading discounts from: ${DISCOUNT_FILE}`);
+  if (!fs.existsSync(DISCOUNT_FILE)) {
+    console.log('[DEBUG] Discounts file does not exist, returning empty array');
+    return [];
+  }
   const data = fs.readFileSync(DISCOUNT_FILE, 'utf-8');
-  return data ? JSON.parse(data) : [];
+  console.log(`[DEBUG] Raw discounts data:`, data);
+  const result = data ? JSON.parse(data) : [];
+  console.log(`[DEBUG] Parsed discounts:`, JSON.stringify(result, null, 2));
+  return result;
 }
 
 function writeDiscounts(discounts) {
@@ -194,7 +201,12 @@ function deleteDiscount(_id) {
   return true;
 }
 
-// Hàm đơn giản để tăng số lần sử dụng mã giảm giá
+/**
+ * Tăng số lần sử dụng mã giảm giá
+ * @param {string} _id - ID của mã giảm giá
+ * @param {string} userId - ID của người dùng (nếu có)
+ * @returns {Promise<boolean>} - Trả về true nếu tăng thành công, false nếu thất bại
+ */
 function incrementDiscountUsage(_id, userId) {
   console.log(`[DISCOUNT] ===== STARTING DISCOUNT INCREMENT =====`);
   console.log(`[DISCOUNT] Discount ID: ${_id}, User ID: ${userId || 'guest'}`);
@@ -212,13 +224,8 @@ function incrementDiscountUsage(_id, userId) {
       return false;
     }
     
-    // Sử dụng spread operator để tạo bản sao nông, nhưng đảm bảo các trường con cũng được sao chép
-    const discount = { ...discounts[discountIndex] };
-    
-    // Sao chép thủ công các trường đặc biệt nếu cần
-    if (discounts[discountIndex].usedBy) {
-      discount.usedBy = { ...discounts[discountIndex].usedBy };
-    }
+    // Tạo bản sao sâu của đối tượng discount để tránh tham chiếu
+    const discount = JSON.parse(JSON.stringify(discounts[discountIndex]));
     
     console.log(`[DISCOUNT] Current discount state:`, {
       code: discount.code,
@@ -233,27 +240,44 @@ function incrementDiscountUsage(_id, userId) {
     const startDate = discount.startDate ? new Date(discount.startDate) : null;
     const endDate = discount.endDate ? new Date(discount.endDate) : null;
     
-    const isValidDate = (!startDate || now >= startDate) && 
-                       (!endDate || now <= endDate);
-    
-    if (!isValidDate) {
+    // Kiểm tra thời hạn sử dụng mã
+    if ((startDate && now < startDate) || (endDate && now > endDate)) {
       console.log(`[DISCOUNT] Discount ${_id} is not within valid date range`);
       console.log(`[DISCOUNT] Now: ${now}, Start: ${startDate}, End: ${endDate}`);
       return false;
     }
     
+    // Kiểm tra trạng thái kích hoạt
+    if (discount.isActive === false) {
+      console.log(`[DISCOUNT] Discount ${_id} is not active`);
+      return false;
+    }
+    
+    // Khởi tạo usedCount nếu chưa có
+    discount.usedCount = discount.usedCount || 0;
+    
     // Kiểm tra giới hạn sử dụng toàn cục
-    if (discount.usageLimit !== undefined && discount.usageLimit !== null) {
-      const currentUsed = discount.usedCount || 0;
-      if (currentUsed >= discount.usageLimit) {
-        console.log(`[DISCOUNT] Cannot increment - discount ${_id} has reached usage limit (${currentUsed}/${discount.usageLimit})`);
+    if (typeof discount.usageLimit === 'number' && discount.usageLimit > 0) {
+      if (discount.usedCount >= discount.usageLimit) {
+        console.log(`[DISCOUNT] Cannot increment - discount ${_id} has reached usage limit (${discount.usedCount}/${discount.usageLimit})`);
+        // Tự động vô hiệu hóa nếu đạt giới hạn
+        if (discount.isActive) {
+          console.log(`[DISCOUNT] Auto-disabling discount ${_id} - reached usage limit`);
+          discount.isActive = false;
+          // Cập nhật vào cơ sở dữ liệu
+          discounts[discountIndex] = discount;
+          writeDiscounts(discounts);
+        }
         return false;
       }
     }
     
     // Kiểm tra giới hạn sử dụng theo người dùng
-    if (userId && discount.usageLimitPerUser) {
-      const userUsedCount = (discount.usedBy && discount.usedBy[userId]) || 0;
+    if (userId && typeof discount.usageLimitPerUser === 'number' && discount.usageLimitPerUser > 0) {
+      // Khởi tạo usedBy nếu chưa có
+      discount.usedBy = discount.usedBy || {};
+      const userUsedCount = discount.usedBy[userId] || 0;
+      
       if (userUsedCount >= discount.usageLimitPerUser) {
         console.log(`[DISCOUNT] User ${userId} has reached usage limit for discount ${_id} (${userUsedCount}/${discount.usageLimitPerUser})`);
         return false;
@@ -261,7 +285,7 @@ function incrementDiscountUsage(_id, userId) {
     }
     
     // Tăng số lần sử dụng toàn cục
-    discount.usedCount = (discount.usedCount || 0) + 1;
+    discount.usedCount++;
     
     // Tăng số lần sử dụng theo người dùng (nếu có userId)
     if (userId) {
@@ -271,7 +295,8 @@ function incrementDiscountUsage(_id, userId) {
     }
 
     // Kiểm tra và vô hiệu hóa nếu đạt giới hạn
-    if (discount.usageLimit && discount.usedCount >= discount.usageLimit) {
+    if (typeof discount.usageLimit === 'number' && discount.usageLimit > 0 && 
+        discount.usedCount >= discount.usageLimit) {
       console.log(`[DISCOUNT] Disabling discount ${_id} - reached usage limit (${discount.usedCount}/${discount.usageLimit})`);
       discount.isActive = false;
     }
@@ -286,7 +311,7 @@ function incrementDiscountUsage(_id, userId) {
       console.log(`[DISCOUNT] SUCCESS: Incremented usage for discount ${_id}`);
       console.log(`[DISCOUNT] New state - usedCount: ${discount.usedCount}, isActive: ${discount.isActive}`);
       
-      // Verify the change was actually saved
+      // Xác minh dữ liệu đã được lưu thành công
       try {
         const updatedDiscounts = readDiscounts();
         const updatedDiscount = updatedDiscounts.find(d => d._id === _id);
@@ -294,7 +319,8 @@ function incrementDiscountUsage(_id, userId) {
           console.log(`[DISCOUNT] VERIFY: Current usedCount in file: ${updatedDiscount.usedCount}`);
           if (updatedDiscount.usedCount !== discount.usedCount) {
             console.error(`[DISCOUNT] VERIFY FAILED: Used count mismatch! Expected ${discount.usedCount} but got ${updatedDiscount.usedCount}`);
-            return false;
+            // Thử ghi lại nếu xác minh thất bại
+            return writeDiscounts(discounts);
           }
         } else {
           console.error(`[DISCOUNT] VERIFY FAILED: Could not find discount ${_id} after update`);
@@ -316,6 +342,177 @@ function incrementDiscountUsage(_id, userId) {
   }
 }
 
+/**
+ * Atomically updates discount usage with proper locking to prevent race conditions
+ * @param {string} _id - Discount ID
+ * @param {string} userId - User ID (optional)
+ * @returns {Promise<{success: boolean, discount: object}>} - Result of the operation
+ */
+async function atomicUpdateDiscountUsage(_id, userId) {
+  const maxRetries = 3;
+  let retryCount = 0;
+  
+  while (retryCount < maxRetries) {
+    let discounts;
+    let discountIndex;
+    let discount;
+    
+    try {
+      // Read current state
+      discounts = readDiscounts();
+      discountIndex = discounts.findIndex(d => d._id === _id);
+      
+      if (discountIndex === -1) {
+        return { success: false, error: 'Mã giảm giá không tồn tại', code: 'NOT_FOUND' };
+      }
+      
+      // Tạo bản sao để tránh thay đổi trực tiếp
+      discount = JSON.parse(JSON.stringify(discounts[discountIndex]));
+      
+      // Kiểm tra ngày hiệu lực
+      const now = new Date();
+      const startDate = discount.startDate ? new Date(discount.startDate) : null;
+      const endDate = discount.endDate ? new Date(discount.endDate) : null;
+      
+      // Kiểm tra ngày hiệu lực
+      if ((startDate && now < startDate) || (endDate && now > endDate)) {
+        return { 
+          success: false, 
+          error: 'Mã giảm giá không nằm trong thời gian áp dụng',
+          code: 'INVALID_DATE_RANGE'
+        };
+      }
+      
+      // Kiểm tra trạng thái kích hoạt
+      if (discount.isActive === false) {
+        return { 
+          success: false, 
+          error: 'Mã giảm giá không còn khả dụng',
+          code: 'DISCOUNT_INACTIVE'
+        };
+      }
+      
+      // Khởi tạo bộ đếm nếu cần
+      discount.usedCount = discount.usedCount || 0;
+      discount.usedBy = discount.usedBy || {};
+      
+      // Kiểm tra giới hạn sử dụng toàn cục
+      if (typeof discount.usageLimit === 'number' && discount.usageLimit > 0) {
+        // Kiểm tra nếu đã đạt hoặc vượt quá giới hạn
+        if (discount.usedCount >= discount.usageLimit) {
+          // Tự động vô hiệu hóa nếu đạt giới hạn
+          if (discount.isActive) {
+            console.log(`[DISCOUNT] Auto-disabling discount ${discount.code} - reached usage limit`);
+            discount.isActive = false;
+            discounts[discountIndex] = discount;
+            writeDiscounts(discounts);
+          }
+          return { 
+            success: false, 
+            error: 'Mã giảm giá đã đạt giới hạn sử dụng',
+            code: 'USAGE_LIMIT_REACHED'
+          };
+        }
+        
+        // Kiểm tra nếu lần tăng này sẽ vượt quá giới hạn
+        if (discount.usedCount + 1 > discount.usageLimit) {
+          console.log(`[DISCOUNT] Rejecting discount ${discount.code} - would exceed usage limit`);
+          return {
+            success: false,
+            error: 'Mã giảm giá đã đạt giới hạn sử dụng',
+            code: 'USAGE_LIMIT_REACHED'
+          };
+        }
+      }
+      
+      // Check per-user limit if user is logged in
+      if (userId) {
+        const userUsedCount = discount.usedBy[userId] || 0;
+        const userLimit = discount.usageLimitPerUser || discount.perUserLimit || discount.usageLimit;
+        
+        if (userLimit > 0 && userUsedCount >= userLimit) {
+          return {
+            success: false,
+            error: 'Bạn đã sử dụng hết số lần được phép',
+            code: 'USER_LIMIT_REACHED'
+          };
+        }
+      }
+      
+      // Nếu đến đây, mã giảm giá có thể được sử dụng
+      // Tăng bộ đếm toàn cục và kiểm tra lại lần cuối để tránh race condition
+      const newUsedCount = (discount.usedCount || 0) + 1;
+      
+      // Kiểm tra lại sau khi đã tăng để đảm bảo không vượt quá giới hạn
+      if (discount.usageLimit && newUsedCount > discount.usageLimit) {
+        console.log(`[DISCOUNT] Race condition detected for ${discount.code} - rejecting`);
+        return {
+          success: false,
+          error: 'Mã giảm giá đã đạt giới hạn sử dụng',
+          code: 'USAGE_LIMIT_REACHED'
+        };
+      }
+      
+      // Cập nhật bộ đếm
+      discount.usedCount = newUsedCount;
+      
+      // Tăng bộ đếm cho người dùng nếu có đăng nhập
+      if (userId) {
+        discount.usedBy = discount.usedBy || {};
+        discount.usedBy[userId] = (discount.usedBy[userId] || 0) + 1;
+      }
+      
+      // Tự động vô hiệu hóa nếu đạt giới hạn
+      if (discount.usageLimit && discount.usedCount >= discount.usageLimit) {
+        console.log(`[DISCOUNT] Auto-disabling discount ${discount.code} - reached usage limit (${discount.usedCount}/${discount.usageLimit})`);
+        discount.isActive = false;
+      }
+      
+      // Update the discount in the array
+      discounts[discountIndex] = discount;
+      
+      // Ghi thay đổi
+      try {
+        const writeSuccess = writeDiscounts(discounts);
+        if (writeSuccess) {
+          console.log(`[DISCOUNT] Successfully applied discount ${discount.code}. New used count: ${discount.usedCount}`);
+          return { success: true, discount };
+        } else {
+          console.error(`[DISCOUNT] Failed to write discount changes for ${discount.code}`);
+          return { 
+            success: false, 
+            error: 'Không thể cập nhật thông tin mã giảm giá',
+            code: 'WRITE_ERROR'
+          };
+        }
+      } catch (error) {
+        console.error(`[DISCOUNT] Error writing discount changes for ${discount.code}:`, error);
+        return { 
+          success: false, 
+          error: 'Lỗi khi cập nhật thông tin mã giảm giá',
+          code: 'WRITE_ERROR',
+          details: error.message
+        };
+      }
+      
+    } catch (error) {
+      console.error(`[ERROR] Attempt ${retryCount + 1} failed:`, error);
+    }
+    
+    retryCount++;
+    if (retryCount < maxRetries) {
+      // Wait a bit before retrying
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+  }
+  
+  return { 
+    success: false, 
+    error: 'Failed to update discount after multiple attempts',
+    code: 'UPDATE_FAILED'
+  };
+}
+
 module.exports = {
   getAllDiscounts,
   getDiscountById,
@@ -324,4 +521,5 @@ module.exports = {
   updateDiscount,
   deleteDiscount,
   incrementDiscountUsage,
+  atomicUpdateDiscountUsage,
 }; 

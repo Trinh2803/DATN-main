@@ -1,40 +1,21 @@
 [
   {
-    "code": "TEST",
-    "name": "test",
-    "description": "",
-    "discountType": "percentage",
-    "discountValue": 12,
-    "minOrderValue": 0,
-    "maxDiscount": 0,
-    "startDate": "2025-08-14T15:20:00.000Z",
-    "endDate": "2025-08-21T15:20:00.000Z",
-    "usageLimit": 1,
-    "usedCount": 0,
-    "usedBy": {},
-    "isActive": true,
-    "applicableProducts": [],
-    "applicableCategories": [],
-    "createdAt": "2025-08-14T15:20:53.792Z",
-    "_id": "1755184853792"
-  },
-  {
-    "code": "SADA",
+    "code": "TEST123",
     "name": "ád",
     "description": "",
     "discountType": "percentage",
-    "discountValue": 31,
+    "discountValue": 67,
     "minOrderValue": 0,
     "maxDiscount": 0,
-    "startDate": "2025-08-14T17:13:00.000Z",
-    "endDate": "2025-08-15T17:13:00.000Z",
+    "startDate": "2025-08-15T13:55:00.000Z",
+    "endDate": "2025-08-16T13:55:00.000Z",
     "usageLimit": 1,
-    "usedCount": 0,
+    "usedCount": 1,
     "usedBy": {},
-    "isActive": true,
+    "isActive": false,
     "applicableProducts": [],
     "applicableCategories": [],
-    "createdAt": "2025-08-14T17:14:05.486Z",
-    "_id": "1755191645486"
+    "createdAt": "2025-08-15T13:55:57.693Z",
+    "_id": "1755266157694"
   }
 ]

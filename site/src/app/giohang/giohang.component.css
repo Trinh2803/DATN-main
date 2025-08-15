@@ -286,6 +286,7 @@ main {
 
 .quantity-input[type=number] {
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 .cart-item-remove {
@@ -332,6 +333,121 @@ main {
   font-size: 18px;
   font-weight: 700;
   color: var(--red);
+}
+
+/* Discount Section Styles */
+.discount-section {
+  margin: 15px 0;
+  padding: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.discount-input {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.discount-input input {
+  flex: 1;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+.discount-input input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.discount-input input.error {
+  border-color: #ff4444;
+}
+
+.apply-discount-btn {
+  padding: 10px 20px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+
+.apply-discount-btn:hover:not(:disabled) {
+  background-color: #e60000;
+}
+
+.apply-discount-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #ff4444;
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+.discount-applied {
+  margin: 15px 0;
+  padding: 12px 15px;
+  background-color: #e8f5e9;
+  border: 1px solid #c8e6c9;
+  border-radius: 8px;
+  color: #2e7d32;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.discount-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.discount-code {
+  font-weight: 600;
+}
+
+.discount-value {
+  font-weight: 700;
+  color: #2e7d32;
+}
+
+.remove-discount {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px;
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.remove-discount:hover {
+  color: #d32f2f;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .discount-input {
+    flex-direction: column;
+  }
+  
+  .apply-discount-btn {
+    width: 100%;
+  }
 }
 
 .checkout-btn {

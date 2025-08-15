@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CartService } from '../cart.service';
+import { DiscountService } from '../services/discount.service';
 import { ProductInterface, Variant } from '../product-interface';
 
 interface CartItem {
@@ -28,9 +29,15 @@ export class GiohangComponent implements OnInit {
   totalPrice = 0;
   orderNote = '';
 
+  discountCode: string = '';
+  discountApplied: boolean = false;
+  discountError: string = '';
+  discountInfo: any = null;
+
   constructor(
     private cartService: CartService,
-    private router: Router
+    private router: Router,
+    private discountService: DiscountService
   ) {}
 
   ngOnInit(): void {
@@ -67,12 +74,15 @@ export class GiohangComponent implements OnInit {
   }
 
   getDiscountedItemPrice(item: CartItem): number {
-    let basePrice = item.selectedVariant ? (item.selectedVariant.salePrice || item.selectedVariant.price) : (item.product.salePrice || item.product.price);
-    if (item.discountInfo) {
-      if (item.discountInfo.discountType === 'percentage') {
-        return Math.round(basePrice * (1 - item.discountInfo.discountValue / 100));
-      } else if (item.discountInfo.discountType === 'fixed') {
-        return Math.max(0, basePrice - item.discountInfo.discountValue);
+    let basePrice = item.selectedVariant ? 
+      (item.selectedVariant.salePrice || item.selectedVariant.price) : 
+      (item.product.salePrice || item.product.price);
+    
+    if (this.discountInfo) {
+      if (this.discountInfo.discountType === 'percentage') {
+        return Math.round(basePrice * (1 - this.discountInfo.discountValue / 100));
+      } else if (this.discountInfo.discountType === 'fixed') {
+        return Math.max(0, basePrice - this.discountInfo.discountValue);
       }
     }
     return basePrice;
@@ -111,7 +121,37 @@ export class GiohangComponent implements OnInit {
     return item.quantity < maxStock;
   }
 
-  // Discount application removed from cart.
+  applyDiscount() {
+    if (!this.discountCode) return;
+
+    this.discountService.applyDiscount(this.discountCode).subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          this.discountInfo = response.discount;
+          this.discountApplied = true;
+          this.discountError = '';
+          this.calculateTotal();
+        } else {
+          this.discountError = response.error || 'Mã giảm giá không hợp lệ';
+          this.discountApplied = false;
+          this.discountInfo = null;
+        }
+      },
+      error: (error) => {
+        this.discountError = error.error?.error || 'Lỗi khi áp dụng mã giảm giá';
+        this.discountApplied = false;
+        this.discountInfo = null;
+      }
+    });
+  }
+
+  removeDiscount() {
+    this.discountCode = '';
+    this.discountApplied = false;
+    this.discountError = '';
+    this.discountInfo = null;
+    this.calculateTotal();
+  }
 
   checkout(): void {
     this.proceedToCheckout();
