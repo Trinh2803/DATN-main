@@ -13,6 +13,9 @@ const orderSchema = new Schema({
       thumbnail: String,
       productId: { type: String },
       productName: String, // Chỉ giữ một lần
+      // Thông tin biến thể (nếu có)
+      variantId: { type: String },
+      size: { type: String },
       quantity: Number,
       price: Number,
       discountInfo: {

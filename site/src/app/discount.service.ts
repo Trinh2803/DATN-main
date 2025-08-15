@@ -50,20 +50,33 @@ export class DiscountService {
     const params: any = {};
     if (productId) params.productId = productId;
     if (categoryId) params.categoryId = categoryId;
-    return this.http.get<{ success: boolean; data: Discount[] }>(`${this.apiUrl}/applicable`, { params });
+    return this.http.get<{ success: boolean; data: Discount[] }>(`${this.apiUrl}/applicable`, { params, headers: this.getAuthHeaders() });
+  }
+
+  // Get auth headers with token
+  private getAuthHeaders() {
+    const token = localStorage.getItem('token');
+    return {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
   }
 
   // Check discount code validity
   checkDiscountCode(code: string, totalAmount: number, productIds: string[]): Observable<DiscountCheckResponse> {
-    return this.http.post<DiscountCheckResponse>(`${this.apiUrl}/check`, {
-      code,
-      totalAmount,
-      productIds
-    });
+    return this.http.post<DiscountCheckResponse>(
+      `${this.apiUrl}/check`, 
+      { code, totalAmount, productIds },
+      { headers: this.getAuthHeaders() }
+    );
   }
 
   // Apply discount to order
-  applyDiscount(discountId: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/apply`, { discountId });
+  applyDiscount(discountId: string, code: string): Observable<any> {
+    return this.http.post(
+      `${this.apiUrl}/apply`, 
+      { code }, // Gửi code thay vì discountId để phù hợp với API backend
+      { headers: this.getAuthHeaders() }
+    );
   }
 }

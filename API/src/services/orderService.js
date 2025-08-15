@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const Order = require('../models/orderModel');
 const Product = require('../models/productModel');
+const Discount = require('../models/discountModel');
 const productService = require('./productService');
-console.log('productService:', productService); // Debug
 
 const getAllOrders = async () => {
   return await Order.find();
@@ -79,6 +79,51 @@ const updateSellCountForOrder = async (items) => {
 };
 
 const createOrder = async (orderData) => {
+  // Suy ra discountInfo từ các item nếu thiếu ở cấp đơn hàng
+  if (!orderData.discountInfo && Array.isArray(orderData.items)) {
+    const fromItem = orderData.items.find((it) => it && it.discountInfo && it.discountInfo._id);
+    if (fromItem) {
+      orderData.discountInfo = {
+        _id: String(fromItem.discountInfo._id),
+        code: fromItem.discountInfo.code,
+      };
+      console.log('[ORDER] Inferred order-level discountInfo from items:', orderData.discountInfo);
+    }
+  }
+
+  // Kiểm tra mã giảm giá trước khi tạo đơn hàng
+  if (orderData.discountInfo?._id) {
+    const discountIdStr = String(orderData.discountInfo._id);
+    console.log('[ORDER] Incoming discountInfo:', orderData.discountInfo);
+    const discount = await Discount.getDiscountById(discountIdStr);
+    
+    if (discount) {
+      const now = new Date();
+      // Kiểm tra thời hạn sử dụng
+      const isWithinTime = (!discount.startDate || now >= new Date(discount.startDate)) && 
+                          (!discount.endDate || now <= new Date(discount.endDate));
+      
+      // Kiểm tra giới hạn sử dụng tổng
+      const isUnderGlobalLimit = !discount.usageLimit || (discount.usedCount || 0) < discount.usageLimit;
+      
+      // Kiểm tra giới hạn sử dụng mỗi người dùng
+      let isUnderUserLimit = true;
+      const userId = orderData.userId;
+      
+      if (userId && discount.usageLimitPerUser) {
+        const usedByUser = (discount.usedBy && discount.usedBy[userId]) || 0;
+        isUnderUserLimit = usedByUser < discount.usageLimitPerUser;
+      }
+      
+      // Nếu mã không còn hiệu lực hoặc đã hết lượt sử dụng
+      if (!discount.isActive || !isWithinTime || !isUnderGlobalLimit || !isUnderUserLimit) {
+        throw new Error('Mã giảm giá không còn khả dụng hoặc đã hết lượt sử dụng');
+      }
+    } else {
+      throw new Error('Mã giảm giá không hợp lệ');
+    }
+  }
+  
   // Xử lý customerAddress
   let customerAddress = orderData.customerAddress || '';
   if (typeof orderData.customerAddress === 'object' && orderData.customerAddress) {
@@ -92,7 +137,7 @@ const createOrder = async (orderData) => {
   }
 
   // Xử lý items để lấy productName từ Product
-const items = await Promise.all(
+  const items = await Promise.all(
     orderData.items.map(async (item) => {
       let productName = item.productName || 'Chưa cập nhật';
       let thumbnail = item.thumbnail || '';
@@ -109,19 +154,51 @@ const items = await Promise.all(
         productId: item.productId,
         productName,
         thumbnail, // Lưu thumbnail vào items
+        // Mang theo thông tin biến thể nếu có (hỗ trợ nhiều tên trường từ FE)
+        // Lưu ý: FE có thể gửi selectedVariant._id (ObjectId) không trùng với variants.id (string). Sẽ ưu tiên resolve bằng size.
+        variantId: item.variantId || item.variant?.id || item.selectedVariant?.id || item.selectedVariant?._id || undefined,
+        size: item.size || item.variant?.size || item.selectedVariant?.size || item.variantSize || undefined,
         quantity: item.quantity,
         price: item.price
       };
     })
   );
 
+  // Tính toán tổng tiền trước khi áp dụng giảm giá
+  const subtotal = items.reduce((sum, item) => sum + item.quantity * item.price, 0);
+  
   // Tạo order data với userId (nếu có)
   const orderDataToSave = {
     ...orderData,
     customerAddress,
     items,
-    total: items.reduce((sum, item) => sum + item.quantity * item.price, 0)
+    subtotal,
+    total: subtotal,
+    discountAmount: 0
   };
+  
+  // Áp dụng mã giảm giá nếu có
+  if (orderData.discountInfo?._id) {
+    const discount = await Discount.getDiscountById(orderData.discountInfo._id);
+    if (discount) {
+      let discountAmount = 0;
+      
+      if (discount.discountType === 'percentage') {
+        // Giảm giá theo phần trăm
+        discountAmount = (subtotal * discount.discountValue) / 100;
+        // Áp dụng giới hạn giảm giá tối đa nếu có
+        if (discount.maxDiscount && discountAmount > discount.maxDiscount) {
+          discountAmount = discount.maxDiscount;
+        }
+      } else {
+        // Giảm giá cố định
+        discountAmount = Math.min(discount.discountValue, subtotal);
+      }
+      
+      orderDataToSave.discountAmount = discountAmount;
+      orderDataToSave.total = Math.max(0, subtotal - discountAmount);
+    }
+  }
 
   // Chỉ thêm userId nếu có
   if (orderData.userId) {
@@ -129,9 +206,108 @@ const items = await Promise.all(
   }
 
   const order = new Order(orderDataToSave);
-  await updateSellCountForOrder(order.items);
-  await order.save();
-  return order;
+  // 1) Validate tồn kho cho tất cả items (hỗ trợ biến thể)
+  for (const item of order.items) {
+    const product = await Product.findById(item.productId).lean();
+    if (!product) {
+      throw new Error(`Không tìm thấy sản phẩm với ID ${item.productId}`);
+    }
+    if (product.variants && product.variants.length > 0) {
+      // Bắt buộc phải có biến thể: chấp nhận variantId hoặc size
+      let variantId = item.variantId;
+      let variant = null;
+      if (variantId) {
+        variant = product.variants.find(v => String(v.id) === String(variantId));
+      } else if (item.size) {
+        variant = product.variants.find(v => String(v.size).toLowerCase() === String(item.size).toLowerCase());
+        if (variant) variantId = variant.id;
+      }
+      if (!variantId || !variant) {
+        throw new Error('Sản phẩm có biến thể, vui lòng chọn biến thể cụ thể để đặt hàng');
+      }
+      if (!variant) {
+        throw new Error('Biến thể không hợp lệ hoặc không tồn tại');
+      }
+      const vStock = typeof variant.stock === 'number' ? variant.stock : 0;
+      if (vStock < item.quantity) {
+        throw new Error(`Biến thể "${variant.size || variant.id}" của sản phẩm "${product.name}" không đủ hàng. Còn: ${vStock}, yêu cầu: ${item.quantity}`);
+      }
+    } else {
+      const currentStock = typeof product.stock === 'number' ? product.stock : 0;
+      if (currentStock < item.quantity) {
+        throw new Error(`Sản phẩm "${product.name}" không đủ hàng. Còn: ${currentStock}, yêu cầu: ${item.quantity}`);
+      }
+    }
+  }
+
+  // 2) Giảm tồn kho trước khi lưu đơn hàng, có rollback nếu lưu đơn thất bại (hỗ trợ biến thể)
+  const decremented = [];
+  try {
+    // Giảm tồn kho với $inc và điều kiện stock >= quantity
+    for (const item of order.items) {
+      let incRes;
+      // Xác định variantId hiệu lực nếu có
+      let effVariantId = item.variantId;
+      if (!effVariantId && item.size) {
+        const prod = await Product.findById(item.productId).lean();
+        const found = prod?.variants?.find(v => String(v.size).toLowerCase() === String(item.size).toLowerCase());
+        if (found) effVariantId = found.id;
+      }
+      if (effVariantId) {
+        // Giảm tồn kho biến thể
+        incRes = await Product.updateOne(
+          { _id: item.productId, 'variants.id': effVariantId, 'variants.stock': { $gte: item.quantity } },
+          { $inc: { 'variants.$.stock': -item.quantity } }
+        );
+        if (!incRes || incRes.modifiedCount !== 1) {
+          throw new Error('Cập nhật tồn kho biến thể thất bại do không đủ hàng hoặc lỗi hệ thống');
+        }
+        decremented.push({ productId: item.productId, variantId: effVariantId, quantity: item.quantity });
+      } else {
+        // Sản phẩm không có biến thể
+        incRes = await Product.updateOne(
+          { _id: item.productId, stock: { $gte: item.quantity } },
+          { $inc: { stock: -item.quantity } }
+        );
+        if (!incRes || incRes.modifiedCount !== 1) {
+          throw new Error('Cập nhật tồn kho thất bại do không đủ hàng hoặc lỗi hệ thống');
+        }
+        decremented.push({ productId: item.productId, quantity: item.quantity });
+      }
+    }
+
+    // Lưu đơn hàng
+    await order.save();
+
+    // Cập nhật sellCount sau khi lưu đơn thành công
+    await updateSellCountForOrder(order.items);
+
+    // Log thông tin về mã giảm giá (nếu có)
+    if (order.discountInfo?._id) {
+      console.log(`[ORDER] Order ${order._id} created with discount: ${order.discountInfo._id}`);
+    }
+
+    return order;
+  } catch (err) {
+    // Rollback tồn kho nếu có lỗi
+    if (decremented.length > 0) {
+      for (const d of decremented) {
+        try {
+          if (d.variantId) {
+            await Product.updateOne(
+              { _id: d.productId, 'variants.id': d.variantId },
+              { $inc: { 'variants.$.stock': d.quantity } }
+            );
+          } else {
+            await Product.updateOne({ _id: d.productId }, { $inc: { stock: d.quantity } });
+          }
+        } catch (rbErr) {
+          console.error('[ORDER][ROLLBACK] Lỗi khi hoàn tác tồn kho cho sản phẩm', d.productId, rbErr);
+        }
+      }
+    }
+    throw err;
+  }
 };
 
 const getPendingOrders = async () => {
