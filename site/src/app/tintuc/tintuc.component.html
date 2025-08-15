@@ -3,12 +3,15 @@
   <aside class="news-sidebar">
     <section class="latest-posts">
       <h3>BÀI VIẾT MỚI NHẤT</h3>
+      <div *ngIf="isLoading">Đang tải...</div>
+      <div *ngIf="error">{{ error }}</div>
+      <div *ngIf="!isLoading && !error && latestPosts.length === 0">Không có bài viết mới.</div>
       <ul>
         <li *ngFor="let post of latestPosts">
           <img [src]="post.image" [alt]="post.title">
           <div>
             <a [routerLink]="['/news', post.id]">{{ post.title }}</a>
-            <span class="category">Media</span>
+            <span class="category">{{ post.category }}</span>
           </div>
         </li>
       </ul>
@@ -27,22 +30,23 @@
   <main class="news-main-content">
     <h2>Media</h2>
     <div class="news-list">
+      <div *ngIf="isLoading">Đang tải...</div>
+      <div *ngIf="error">{{ error }}</div>
+      <div *ngIf="!isLoading && !error && newsItems.length === 0">Không có tin tức nào.</div>
       <div class="news-item" *ngFor="let news of newsItems">
         <img [src]="news.image" [alt]="news.title">
         <div class="news-info">
           <a [routerLink]="['/news', news.id]" class="news-title">{{ news.title }}</a>
-          <div class="news-meta">Media</div>
+          <div class="news-meta">{{ news.category }}</div>
           <p class="news-desc">{{ news.description }}</p>
         </div>
       </div>
     </div>
     <!-- Pagination -->
     <div class="pagination">
-      <a href="#" class="active">1</a>
-      <a href="#">2</a>
-      <a href="#">3</a>
-      <span>...</span>
-      <a href="#">26</a>
+      <a *ngFor="let page of getPages()"
+         [class.active]="page === currentPage"
+         (click)="changePage(page)">{{ page }}</a>
     </div>
     <!-- Footer dịch vụ -->
     <div class="news-footer-services">

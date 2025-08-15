@@ -1131,9 +1131,7 @@ main h2 {
   color: #666;
 }
 
-.dropdown-content ul li a[href*="/userinfo"]::before {
-  content: "\f007";
-}
+
 
 .dropdown-content ul li a[href*="#"]::before {
   content: "\f2f5";

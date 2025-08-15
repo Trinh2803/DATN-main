@@ -11,13 +11,13 @@ var usersRouter = require("./routes/users");
 var categoriesRouter = require("./routes/categories");
 var productsRouter = require("./routes/products");
 var orderssRouter = require("./routes/orders");
-// var payRouter = require("./routes/pay"); // Comment out this line
 const paymentRouter = require("./routes/payment");
 const multer = require("multer");
 const mongoose = require("mongoose");
 const discountsRouter = require("./routes/discounts");
 const wishlistRouter = require("./routes/wishlist");
 const commentsRouter = require("./routes/comments");
+const tintucRouter = require("./routes/tintuc"); // Thêm route tin tức
 
 const viewEngine = require("./config/viewEngine");
 var app = express();
@@ -50,7 +50,7 @@ app.use("/orders", orderssRouter);
 app.use("/api/discounts", discountsRouter);
 app.use("/wishlist", wishlistRouter);
 app.use("/comments", commentsRouter);
-// app.use("/pay", payRouter); // Comment out this line
+app.use("/api/news", tintucRouter); // Thêm route tin tức
 app.use("/payment", paymentRouter);
 
 // catch 404 and forward to error handler
