@@ -27,9 +27,30 @@ exports.createPayment = async (req, res) => {
         const currCode = 'VND';
         const amountInVND = Math.round(parseFloat(amount) * 100);
 
-        // Luôn sử dụng URL trả về được cấu hình trong server để tránh sai cổng/ứng dụng
-        const effectiveReturnUrl = vnp_ReturnUrl;
-        console.log('[VNPay] Using returnUrl (from config):', effectiveReturnUrl);
+        // Xác định returnUrl ưu tiên theo thứ tự: body.returnUrl -> headers.origin/referrer -> config
+        const clientReturnUrl = typeof req.body?.returnUrl === 'string' ? req.body.returnUrl.trim() : '';
+        const headerOrigin = typeof req.headers.origin === 'string' ? req.headers.origin.trim() : '';
+        const headerReferer = typeof req.headers.referer === 'string' ? req.headers.referer.trim() : '';
+
+        let refererOrigin = '';
+        try {
+            if (headerReferer) {
+                const u = new URL(headerReferer);
+                refererOrigin = u.origin;
+            }
+        } catch (_) {}
+
+        let chosenBase = clientReturnUrl || headerOrigin || refererOrigin || vnp_ReturnUrl;
+        let effectiveReturnUrl = chosenBase;
+        try {
+            const u = new URL(chosenBase);
+            if (!u.pathname || u.pathname === '/' || !u.pathname.includes('/payment-result')) {
+                effectiveReturnUrl = `${u.origin}/payment-result`;
+            }
+        } catch (_) {
+            effectiveReturnUrl = vnp_ReturnUrl;
+        }
+        console.log('[VNPay] Using returnUrl:', effectiveReturnUrl);
 
         // Cấu hình tham số gửi đến VNPay
         let vnp_Params = {

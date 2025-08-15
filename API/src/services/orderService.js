@@ -115,12 +115,14 @@ const createOrder = async (orderData) => {
         isUnderUserLimit = usedByUser < discount.usageLimitPerUser;
       }
       
-      // Nếu mã không còn hiệu lực hoặc đã hết lượt sử dụng
+      // Nếu mã không còn hiệu lực hoặc đã hết lượt sử dụng: bỏ qua mã giảm giá nhưng vẫn tạo đơn
       if (!discount.isActive || !isWithinTime || !isUnderGlobalLimit || !isUnderUserLimit) {
-        throw new Error('Mã giảm giá không còn khả dụng hoặc đã hết lượt sử dụng');
+        console.warn('[ORDER] Discount invalid or exhausted at payment time. Ignoring discount and continuing.');
+        delete orderData.discountInfo;
       }
     } else {
-      throw new Error('Mã giảm giá không hợp lệ');
+      console.warn('[ORDER] Discount not found. Ignoring discount and continuing.');
+      delete orderData.discountInfo;
     }
   }
   
