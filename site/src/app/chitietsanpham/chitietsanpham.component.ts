@@ -56,31 +56,41 @@ export class ChiTietSanPhamComponent implements OnInit {
     private discountService: DiscountService
   ) {}
 
-  ngOnInit(): void {
-    const productId = this.route.snapshot.paramMap.get('id');
+ ngOnInit(): void {
+  this.route.paramMap.subscribe(params => {
+    const productId = params.get('id');
+    console.log('Received productId from URL:', productId); // Thêm log để kiểm tra
     if (productId) {
+      this.product = null; // Reset để hiển thị trạng thái tải
+      this.relatedProducts = []; // Reset sản phẩm liên quan
       this.productService.getProductById(productId).subscribe({
         next: (data: ProductInterface) => {
           this.product = data;
           this.selectedVariant = data.selectedVariant || null;
           this.selectedImage = data.thumbnail;
-          console.log('Processed product data:', data);
-          // Lấy sản phẩm liên quan sau khi có thông tin sản phẩm
+          console.log('Processed product data:', data); // Kiểm tra dữ liệu API
           this.loadRelatedProducts();
-          // Load wishlist status
           this.loadWishlistStatus();
-          // Load comments
           this.loadComments();
-          // Load available coupons
           this.loadAvailableCoupons();
         },
         error: (err: any) => {
           console.error('Lỗi khi lấy chi tiết sản phẩm:', err);
-        },
+          Swal.fire({
+            title: 'Lỗi',
+            text: 'Không tìm thấy sản phẩm',
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
+          this.router.navigate(['/sanpham']);
+        }
       });
+    } else {
+      console.error('Không tìm thấy productId trong URL');
+      this.router.navigate(['/sanpham']);
     }
-  }
-
+  });
+}
   private loadWishlistStatus(): void {
     if (!this.product) return;
 
@@ -284,8 +294,9 @@ export class ChiTietSanPhamComponent implements OnInit {
   }
 
   goToProduct(id: string): void {
-    this.router.navigate(['/chitiet', id]);
-  }
+  console.log('Navigating to product with ID:', id); // Kiểm tra ID
+  this.router.navigate(['/chitiet', id]);
+}
 
   // Lấy giá hiện tại của sản phẩm liên quan
   getRelatedProductPrice(product: ProductInterface): number {
