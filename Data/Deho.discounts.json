@@ -10,9 +10,9 @@
     "startDate": "2025-08-15T13:55:00.000Z",
     "endDate": "2025-08-16T13:55:00.000Z",
     "usageLimit": 1,
-    "usedCount": 1,
+    "usedCount": 0,
     "usedBy": {},
-    "isActive": false,
+    "isActive": true,
     "applicableProducts": [],
     "applicableCategories": [],
     "createdAt": "2025-08-15T13:55:57.693Z",
@@ -36,5 +36,24 @@
     "applicableCategories": [],
     "createdAt": "2025-08-15T16:12:42.738Z",
     "_id": "1755274362740"
+  },
+  {
+    "code": "DEMO",
+    "name": "demo",
+    "description": "demo ngay 16",
+    "discountType": "percentage",
+    "discountValue": 100,
+    "minOrderValue": 0,
+    "maxDiscount": 0,
+    "startDate": "2025-08-16T02:53:00.000Z",
+    "endDate": "2025-08-17T02:53:00.000Z",
+    "usageLimit": 1,
+    "usedCount": 1,
+    "usedBy": {},
+    "isActive": false,
+    "applicableProducts": [],
+    "applicableCategories": [],
+    "createdAt": "2025-08-16T02:53:18.169Z",
+    "_id": "1755312798176"
   }
 ]
