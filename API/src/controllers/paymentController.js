@@ -140,7 +140,7 @@ exports.createOrderAfterPayment = async (req, res) => {
             ...orderData,
             paymentMethod: 'vnpay',
             paymentStatus: 'completed',
-            status: 'Đã thanh toán',
+            status: 'Đang chuẩn bị',
             vnpayInfo: {
                 transactionId: vnpayData.vnp_TxnRef,
                 transactionNo: vnpayData.vnp_TransactionNo,

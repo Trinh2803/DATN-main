@@ -5,7 +5,27 @@ const Discount = require('../models/discountModel');
 const productService = require('./productService');
 
 const getAllOrders = async () => {
-  return await Order.find();
+  // 1) Normalize in DB first (idempotent)
+  try {
+    await Order.updateMany(
+      { status: 'Đã thanh toán' },
+      { $set: { status: 'Đang chuẩn bị' } }
+    );
+    await Order.updateMany(
+      { paymentMethod: 'vnpay', paymentStatus: 'completed', status: 'Chờ xác nhận' },
+      { $set: { status: 'Đang chuẩn bị' } }
+    );
+  } catch (_) {}
+
+  // 2) Fetch and return
+  const orders = await Order.find();
+  // 3) Ensure response shows normalized status immediately
+  for (const o of orders) {
+    if (o.status === 'Đã thanh toán' || (o.paymentMethod === 'vnpay' && o.paymentStatus === 'completed' && o.status === 'Chờ xác nhận')) {
+      o.status = 'Đang chuẩn bị';
+    }
+  }
+  return orders;
 };
 
 const getOrderById = async (id) => {
@@ -14,6 +34,11 @@ const getOrderById = async (id) => {
   }
   const order = await Order.findById(id);
   if (!order) throw new Error('Không tìm thấy đơn hàng');
+  // Normalize on read (idempotent)
+  if (order.status === 'Đã thanh toán' || (order.paymentMethod === 'vnpay' && order.paymentStatus === 'completed' && order.status === 'Chờ xác nhận')) {
+    order.status = 'Đang chuẩn bị';
+    try { await order.save(); } catch (_) {}
+  }
   return order;
 };
 
@@ -37,6 +62,17 @@ const updateOrderStatus = async (id, status, adminNote) => {
   }
   
   // Chỉ áp dụng các ràng buộc nghiêm ngặt cho một số trường hợp cụ thể
+  // Ràng buộc thanh toán online (VNPay)
+  if (order.paymentMethod === 'vnpay') {
+    const isPaymentCompleted = order.paymentStatus === 'completed';
+    const advancingStatuses = ['Đang chuẩn bị', 'Đang giao', 'Đã giao', 'Đã hoàn thành'];
+    if (!isPaymentCompleted && advancingStatuses.includes(status)) {
+      throw new Error('Đơn hàng VNPay chưa thanh toán xong không thể chuyển sang trạng thái xử lý/giao hàng');
+    }
+    if (!isPaymentCompleted && status === 'Đã hoàn thành') {
+      throw new Error('Không thể hoàn thành đơn hàng VNPay khi thanh toán chưa thành công');
+    }
+  }
   
   // Ngăn chặn việc chuyển từ trạng thái "Đã hủy" sang trạng thái khác (trừ admin có thể sửa lỗi)
   if (order.status === 'Đã hủy' && status !== 'Đã hủy' && status !== 'Chờ xác nhận') {
@@ -335,6 +371,75 @@ const getOrdersByUserId = async (userId) => {
   });
 };
 
+// Revenue aggregation
+const getRevenue = async ({ granularity = 'day', start, end }) => {
+  const match = {
+    $or: [
+      { status: 'Đã hoàn thành' },
+      { paymentStatus: 'completed' }
+    ]
+  };
+  if (start || end) {
+    match.createdAt = {};
+    if (start) match.createdAt.$gte = new Date(start);
+    if (end) {
+      const d = new Date(end);
+      // include entire day
+      d.setHours(23, 59, 59, 999);
+      match.createdAt.$lte = d;
+    }
+  }
+  try {
+    // Fetch and aggregate in JS (robust against schema variations)
+    const docs = await Order.find(match).lean();
+    const rows = docs.map((o) => {
+      const amount = typeof o.finalAmount === 'number' && o.finalAmount > 0 ? o.finalAmount : (o.total || 0);
+      const date = o.status === 'Đã hoàn thành' ? new Date(o.updatedAt) : new Date(o.createdAt);
+      return { amount, date };
+    }).filter(r => r.amount > 0 && r.date instanceof Date && !isNaN(r.date.getTime()));
+
+  const keyfn = (d) => {
+    const y = d.getFullYear();
+    const m = d.getMonth() + 1;
+    const day = d.getDate();
+    if (granularity === 'month') return `${m}/${y}`;
+    if (granularity === 'quarter') return `Q${Math.ceil(m/3)}/${y}`;
+    return `${String(day).padStart(2,'0')}/${String(m).padStart(2,'0')}/${y}`;
+  };
+
+  const map = new Map();
+  rows.forEach(r => {
+    const k = keyfn(r.date);
+    const cur = map.get(k) || { label: k, revenue: 0, count: 0 };
+    cur.revenue += r.amount;
+    cur.count += 1;
+    map.set(k, cur);
+  });
+
+  // Sort labels chronologically (best effort by parsing)
+  const series = Array.from(map.values()).sort((a,b)=>{
+    const pa = a.label.match(/(\d+)\/(\d+)/);
+    const pb = b.label.match(/(\d+)\/(\d+)/);
+    if (a.label.startsWith('Q') && b.label.startsWith('Q')) {
+      const [qa, ya] = a.label.replace('Q','').split('/').map(Number);
+      const [qb, yb] = b.label.replace('Q','').split('/').map(Number);
+      return ya === yb ? qa - qb : ya - yb;
+    }
+    if (pa && pb) {
+      const ma = Number(pa[1]); const ya = Number(pa[2]);
+      const mb = Number(pb[1]); const yb = Number(pb[2]);
+      return ya === yb ? ma - mb : ya - yb;
+    }
+    return a.label.localeCompare(b.label);
+  });
+
+    const total = series.reduce((s, x) => s + x.revenue, 0);
+    return { granularity, series, total };
+  } catch (e) {
+    return { granularity, series: [], total: 0 };
+  }
+};
+
 module.exports = {
   getAllOrders,
   getOrderById,
@@ -342,5 +447,6 @@ module.exports = {
   createOrder,
   getPendingOrders,
   getCompletedOrders,
-getOrdersByUserId
+getOrdersByUserId,
+getRevenue
 };

@@ -24,6 +24,15 @@ export class ThongkeComponent implements OnInit, AfterViewInit {
   userAvatar: string = '/assets/images/icon.png';
   errorMessage: string | null = null;
 
+  // Revenue stats
+  granularity: 'day'|'month'|'quarter' = 'day';
+  startDate: string = '';
+  endDate: string = '';
+  revenueSeries: { label: string, revenue: number, count: number }[] = [];
+  totalRevenue: number = 0;
+  prevTotalRevenue: number = 0;
+  comparisonDelta: number = 0; // percentage vs prev
+
   constructor(
     private authService: AuthService,
     private orderService: OrderService,
@@ -39,6 +48,7 @@ export class ThongkeComponent implements OnInit, AfterViewInit {
     }
     this.loadOrders();
     this.loadUserAvatar();
+    this.loadRevenue();
   }
 
   ngAfterViewInit(): void {
@@ -46,6 +56,28 @@ export class ThongkeComponent implements OnInit, AfterViewInit {
       const name = ico.classList[1]?.split('-')[1] || '';
       if (name) {
         ico.innerHTML = `<svg width="20" height="20"><use xlink:href="#${ico.classList[1]}" /></svg>`;
+      }
+    });
+  }
+
+  loadRevenue(): void {
+    this.orderService.getRevenue({ granularity: this.granularity, start: this.startDate || undefined, end: this.endDate || undefined }).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          console.log('Revenue data:', res.data);
+          this.revenueSeries = res.data.series;
+          this.totalRevenue = res.data.total;
+          // Simple previous period comparison: take last half vs first half
+          const half = Math.floor(this.revenueSeries.length / 2);
+          const first = this.revenueSeries.slice(0, half).reduce((s, x) => s + x.revenue, 0);
+          const second = this.revenueSeries.slice(half).reduce((s, x) => s + x.revenue, 0);
+          this.prevTotalRevenue = first;
+          const base = first === 0 ? 1 : first;
+          this.comparisonDelta = ((second - first) / base) * 100;
+        }
+      },
+      error: (err) => {
+        console.error('Error loading revenue:', err);
       }
     });
   }

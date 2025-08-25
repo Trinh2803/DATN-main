@@ -8,13 +8,15 @@ const {
   createOrder,
   getPendingOrders,
   getCompletedOrders,
-getUserOrders
+getUserOrders,
+  getRevenue
 } = require('../controllers/orderController');
 
 // Định nghĩa các route cụ thể trước
 router.get('/pending', verifyToken, verifyAdmin, getPendingOrders);
 router.get('/completed', verifyToken, verifyAdmin, getCompletedOrders);
-router.get('/user', verifyToken, getUserOrders); 
+router.get('/user', verifyToken, getUserOrders);
+router.get('/revenue', verifyToken, verifyAdmin, getRevenue);
 
 // Sau đó định nghĩa các route động
 router.get('/', verifyToken, verifyAdmin, getAllOrders);

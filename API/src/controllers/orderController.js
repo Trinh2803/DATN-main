@@ -145,6 +145,19 @@ const getCompletedOrders = async (req, res) => {
   }
 };
 
+const getRevenue = async (req, res) => {
+  try {
+    let { granularity = 'day', start, end } = req.query;
+    const allowed = ['day', 'month', 'quarter'];
+    if (!allowed.includes(granularity)) granularity = 'day';
+    const data = await orderService.getRevenue({ granularity, start, end });
+    return res.status(200).json({ success: true, message: 'Thống kê doanh thu thành công', data });
+  } catch (err) {
+    console.error('[REVENUE] error:', err);
+    return res.status(200).json({ success: true, message: 'Thống kê doanh thu (fallback)', data: { granularity: 'day', series: [], total: 0 } });
+  }
+};
+
 module.exports = {
   getAllOrders,
   getOrderById,
@@ -152,5 +165,6 @@ module.exports = {
   createOrder,
   getPendingOrders,
   getCompletedOrders,
-getUserOrders
+getUserOrders,
+getRevenue
 };

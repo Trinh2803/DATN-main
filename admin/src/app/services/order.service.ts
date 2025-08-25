@@ -21,6 +21,18 @@ export class OrderService {
     return this.http.get<ApiResponse<Order[]>>(`${this.apiUrl}/pending`, { headers });
   }
 
+  getRevenue(params: { granularity: 'day'|'month'|'quarter'; start?: string; end?: string }): Observable<ApiResponse<any>> {
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({
+      'Authorization': token ? `Bearer ${token}` : '',
+      'Content-Type': 'application/json'
+    });
+    const query = new URLSearchParams({ granularity: params.granularity });
+    if (params.start) query.set('start', params.start);
+    if (params.end) query.set('end', params.end);
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/revenue?${query.toString()}`, { headers });
+  }
+
   getCompletedOrders(): Observable<ApiResponse<Order[]>> {
     const token = this.authService.getToken();
     const headers = new HttpHeaders({

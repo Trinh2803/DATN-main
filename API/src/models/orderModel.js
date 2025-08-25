@@ -39,7 +39,7 @@ const orderSchema = new Schema({
   },
   status: {
     type: String,
-    enum: ['Chờ xác nhận', 'Đang chuẩn bị', 'Đang giao', 'Đã giao', 'Đã hủy', 'Đã hoàn thành', 'Đã thanh toán'],
+    enum: ['Chờ xác nhận', 'Đang chuẩn bị', 'Đang giao', 'Đã giao', 'Đã hủy', 'Đã hoàn thành'],
     default: 'Chờ xác nhận'
   },
   adminNote: String,

@@ -37,6 +37,57 @@
         {{ errorMessage }}
       </div>
 
+      <!-- Revenue Section -->
+      <section class="orders-section">
+        <h2>Thống kê doanh thu</h2>
+        <div class="filters-container" style="margin-bottom:12px">
+          <div class="filter-group">
+            <label>Chu kỳ</label>
+            <select [(ngModel)]="granularity" (change)="loadRevenue()" class="filter-select">
+              <option value="day">Theo ngày</option>
+              <option value="month">Theo tháng</option>
+              <option value="quarter">Theo quý</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Từ ngày</label>
+            <input type="date" [(ngModel)]="startDate" (change)="loadRevenue()" class="filter-select" />
+          </div>
+          <div class="filter-group">
+            <label>Đến ngày</label>
+            <input type="date" [(ngModel)]="endDate" (change)="loadRevenue()" class="filter-select" />
+          </div>
+          <div class="filter-group">
+            <label>Tổng doanh thu</label>
+            <div style="font-weight:700;color:#232944">{{ totalRevenue | currency:'VND' }}</div>
+            <div [ngStyle]="{color: comparisonDelta>=0 ? '#2e7d32':'#c62828'}">
+              So với giai đoạn trước: {{ comparisonDelta | number:'1.0-2' }}%
+            </div>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Khoảng</th>
+                <th>Doanh thu</th>
+                <th>Số đơn</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of revenueSeries">
+                <td>{{ row.label }}</td>
+                <td>{{ row.revenue | currency:'VND' }}</td>
+                <td>{{ row.count }}</td>
+              </tr>
+              <tr *ngIf="revenueSeries.length===0">
+                <td colspan="3">Chưa có dữ liệu.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       <section class="orders-section">
         <h2>Đơn hàng đang chờ xử lý</h2>
         <div class="table-wrapper">
