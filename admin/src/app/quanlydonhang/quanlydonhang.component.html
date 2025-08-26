@@ -191,11 +191,14 @@
                 <td>
                   <div class="total-amount">
                     {{ order.total | currency:'VND':'symbol':'1.0-0' }}
+                    <ng-container *ngIf="isPaidOnline(order)">
+                      <span class="paid-note">(Đã thanh toán)</span>
+                    </ng-container>
                   </div>
                 </td>
                 <td>
-                  <div class="status-badge" [class]="getStatusBadgeClass(order.status)">
-                    {{ order.status }}
+                  <div class="status-badge" [class]="getStatusBadgeClass(getDisplayStatus(order))">
+                    {{ getDisplayStatus(order) }}
                   </div>
                 </td>
                 <td>
@@ -216,10 +219,10 @@
                     
                     <!-- Dropdown chỉ hiển thị cho các trạng thái khác (không bao gồm đã hủy và đã hoàn thành) -->
                     <select 
-                      *ngIf="canShowDropdown(order.status)"
+                      *ngIf="canShowDropdown(order.status, order)"
                       class="action-select" 
                       (change)="updateOrderStatus(order._id!, $event)" 
-                      [value]="order.status">
+                      [value]="getDisplayStatus(order)">
                       <option value="Đang chuẩn bị">Đang chuẩn bị</option>
                       <option value="Đang giao">Đang giao</option>
                       <option value="Đã giao">Đã giao</option>
