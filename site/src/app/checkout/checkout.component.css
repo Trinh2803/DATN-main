@@ -513,6 +513,24 @@ body {
   }
 }
 
+/* Toast notification */
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #1f883d;
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 1000;
+  display: none;
+}
+
+.toast.show {
+  display: block;
+}
+
 /* Media queries for responsiveness */
 @media (max-width: 768px) {
   .container {
