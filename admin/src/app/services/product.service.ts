@@ -22,6 +22,7 @@ export interface Product {
   variants?: Variant[];
   categoryId: string;
   discountId?: string;
+  isHidden?: boolean;
   createdAt?: string;
   updatedAt?: string;
   sellCount?: number;
@@ -41,13 +42,20 @@ export class ProductService {
 
   constructor(private http: HttpClient) {}
 
-  getProducts(params: { categoryId?: string; sortBy?: string; order?: string; name?: string } = {}): Observable<Product[]> {
+  getProducts(params: { 
+    categoryId?: string; 
+    sortBy?: string; 
+    order?: string; 
+    name?: string;
+    showHidden?: boolean;
+  } = {}): Observable<Product[]> {
     let url = `${this.apiUrl}/products`;
     const queryParams = new URLSearchParams();
     if (params.categoryId) queryParams.set('categoryId', params.categoryId);
     if (params.sortBy) queryParams.set('sortBy', params.sortBy);
     if (params.order) queryParams.set('order', params.order);
     if (params.name) queryParams.set('name', params.name);
+    if (params.showHidden !== undefined) queryParams.set('showHidden', params.showHidden.toString());
     if (queryParams.toString()) url += `?${queryParams.toString()}`;
 
     const token = localStorage.getItem('adminToken');
@@ -128,8 +136,13 @@ export class ProductService {
   deleteProduct(id: string): Observable<ApiResponse<null>> {
     const token = localStorage.getItem('adminToken');
     if (!token) return throwError(() => new Error('Thiếu token xác thực'));
-    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
+    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' });
 
-    return this.http.delete<ApiResponse<null>>(`${this.apiUrl}/products/${id}`, { headers });
+    // Update the product with isHidden: true using PUT
+    return this.http.put<ApiResponse<null>>(
+      `${this.apiUrl}/products/${id}`,
+      { isHidden: true },
+      { headers }
+    );
   }
 }

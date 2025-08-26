@@ -40,7 +40,13 @@
       <section class="products-section">
         <div class="section-header">
           <h2>Danh sách sản phẩm</h2>
-          <button class="add-button" (click)="showAddForm()">Thêm sản phẩm</button>
+          <div class="header-actions">
+            <label class="toggle-hidden">
+              <input type="checkbox" [(ngModel)]="showHiddenProducts" (change)="toggleShowHidden()">
+              Hiển thị sản phẩm đã ẩn
+            </label>
+            <button class="add-button" (click)="showAddForm()">Thêm sản phẩm</button>
+          </div>
         </div>
         <div class="table-wrapper">
           <table>
@@ -58,7 +64,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let product of displayedProducts; index as i">
+              <tr *ngFor="let product of displayedProducts; index as i" [class.hidden-product]="product.isHidden">
                 <td>{{ (currentPage - 1) * productsPerPage + i + 1 }}</td>
                 <td>{{ product.name }}</td>
                 <td>{{ product.slug }}</td>
@@ -75,7 +81,10 @@
                 </td>
                 <td>
                   <button class="edit-button" (click)="showEditForm(product)">Sửa</button>
-                  <button class="delete-button" (click)="deleteProduct(product._id!)">Xóa</button>
+                  <button class="delete-button" (click)="deleteProduct(product._id!)" [title]="product.isHidden ? 'Hiện sản phẩm' : 'Ẩn sản phẩm'">
+                    <i class="icon" [ngClass]="product.isHidden ? 'icon-eye' : 'icon-eye-off'"></i>
+                    <span>{{ product.isHidden ? 'Hiện' : 'Ẩn' }}</span>
+                  </button>
                 </td>
               </tr>
               <tr *ngIf="displayedProducts.length === 0">
