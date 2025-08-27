@@ -1,4 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../product.service';
 import { CartService } from '../cart.service';
@@ -25,6 +26,8 @@ export class ChiTietSanPhamComponent implements OnInit {
   selectedImage: string | null = null;  //Thêm biến lưu ảnh chính
   relatedProducts: ProductInterface[] = []; // Thêm sản phẩm liên quan
   private wishlistCache = new Map<string, boolean>();
+
+  hasBought: boolean = false;
 
   // Comment properties
   comments: Comment[] = [];
@@ -54,44 +57,56 @@ export class ChiTietSanPhamComponent implements OnInit {
     private cartService: CartService,
     private wishlistService: WishlistService,
     private commentService: CommentService,
-    private discountService: DiscountService
+    private discountService: DiscountService,
+    private http: HttpClient
   ) {}
 
  ngOnInit(): void {
   this.route.paramMap.subscribe(params => {
     const productId = params.get('id');
-    console.log('Received productId from URL:', productId); // Thêm log để kiểm tra
     if (productId) {
-      this.product = null; // Reset để hiển thị trạng thái tải
-      this.relatedProducts = []; // Reset sản phẩm liên quan
+      this.product = null;
+      this.relatedProducts = [];
       this.productService.getProductById(productId).subscribe({
         next: (data: ProductInterface) => {
           this.product = data;
           this.selectedVariant = data.selectedVariant || null;
           this.selectedImage = data.thumbnail;
-          console.log('Processed product data:', data); // Kiểm tra dữ liệu API
           this.loadRelatedProducts();
           this.loadWishlistStatus();
           this.loadComments();
           this.loadAvailableCoupons();
+          this.checkHasBought(productId);
         },
         error: (err: any) => {
-          console.error('Lỗi khi lấy chi tiết sản phẩm:', err);
-          Swal.fire({
-            title: 'Lỗi',
-            text: 'Không tìm thấy sản phẩm',
-            icon: 'error',
-            confirmButtonText: 'OK'
-          });
           this.router.navigate(['/sanpham']);
         }
       });
     } else {
-      console.error('Không tìm thấy productId trong URL');
       this.router.navigate(['/sanpham']);
     }
   });
 }
+
+  checkHasBought(productId: string) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      this.hasBought = false;
+      return;
+    }
+    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
+    this.http.get<{ success: boolean, bought: boolean }>(
+      `http://localhost:3000/api/orders/has-bought/${productId}`,
+      { headers }
+    ).subscribe({
+      next: (res) => {
+        this.hasBought = !!res.bought;
+      },
+      error: () => {
+        this.hasBought = false;
+      }
+    });
+  }
   private loadWishlistStatus(): void {
     if (!this.product) return;
 
@@ -600,55 +615,55 @@ export class ChiTietSanPhamComponent implements OnInit {
 
     const totalAmount = this.getCurrentPrice();
     const productIds = this.product ? [this.product._id] : [];
-    
+
     console.log('Checking discount code:', this.couponCode.trim(), 'for amount:', totalAmount);
-    
+
     // First check if the discount code is valid
     this.discountService.checkDiscountCode(this.couponCode.trim(), totalAmount, productIds).subscribe({
       next: (response: { success: boolean; discount: any, message?: string }) => {
         console.log('Discount check response:', response);
-        
+
         if (response && response.success && response.discount) {
           const discount = response.discount;
-          
+
           // Check if the discount is still active
           if (!discount.isActive) {
             this.couponError = 'Mã giảm giá này đã bị vô hiệu hóa';
             this.isApplyingCoupon = false;
             return;
           }
-          
+
           // Check usage limit
           if (discount.usageLimit && discount.usedCount >= discount.usageLimit) {
             this.couponError = 'Mã giảm giá đã hết lượt sử dụng';
             this.isApplyingCoupon = false;
             return;
           }
-          
+
           // Check date validity
           const now = new Date();
           const startDate = new Date(discount.startDate);
           const endDate = new Date(discount.endDate);
-          
+
           if (now < startDate) {
             this.couponError = 'Mã giảm giá chưa đến thời gian áp dụng';
             this.isApplyingCoupon = false;
             return;
           }
-          
+
           if (now > endDate) {
             this.couponError = 'Mã giảm giá đã hết hạn';
             this.isApplyingCoupon = false;
             return;
           }
-          
+
           // Check minimum order value
           if (discount.minOrderValue && totalAmount < discount.minOrderValue) {
             this.couponError = `Đơn hàng tối thiểu ${discount.minOrderValue.toLocaleString()}đ để áp dụng mã này`;
             this.isApplyingCoupon = false;
             return;
           }
-          
+
           // If all checks pass, call API to apply the discount and increment usage count
           this.discountService.applyDiscount(discount._id, discount.code).subscribe({
             next: (applyResponse: any) => {
@@ -666,7 +681,7 @@ export class ChiTietSanPhamComponent implements OnInit {
               this.isApplyingCoupon = false;
             }
           });
-          
+
         } else {
           this.couponError = response?.message || 'Mã giảm giá không hợp lệ hoặc không thể áp dụng cho sản phẩm này';
           this.isApplyingCoupon = false;
@@ -679,28 +694,28 @@ export class ChiTietSanPhamComponent implements OnInit {
       }
     });
   }
-  
+
   private applyDiscountToProduct(discount: any): void {
     if (!this.product) {
       this.isApplyingCoupon = false;
       return;
     }
-    
+
     // Apply the discount
     this.appliedCoupon = { ...discount }; // Create a new object to trigger change detection
     this.couponCode = '';
     this.couponError = '';
-    
+
     console.log('Applied discount:', this.appliedCoupon);
     console.log('Original price:', this.getCurrentPrice());
     console.log('Discounted price:', this.getFinalPrice());
-    
+
     // Force change detection
     setTimeout(() => {
       this.cdr.detectChanges();
       console.log('Change detection triggered');
     });
-    
+
     Swal.fire({
       title: 'Thành công!',
       text: `Đã áp dụng mã giảm giá ${discount.name} - Giảm ${discount.discountValue}${discount.discountType === 'percentage' ? '%' : 'đ'}`,
@@ -708,7 +723,7 @@ export class ChiTietSanPhamComponent implements OnInit {
       timer: 2000,
       showConfirmButton: false
     });
-    
+
     this.isApplyingCoupon = false;
   }
 
@@ -741,16 +756,16 @@ export class ChiTietSanPhamComponent implements OnInit {
 
   getDiscountAmount(): number {
     if (!this.appliedCoupon || !this.selectedVariant) return 0;
-    
+
     const price = this.selectedVariant.salePrice || this.selectedVariant.price;
     let discount = 0;
-    
+
     console.log('Calculating discount for price:', price, 'with coupon:', this.appliedCoupon);
-    
+
     if (this.appliedCoupon.discountType === 'percentage') {
       // Calculate percentage discount
       discount = price * (this.appliedCoupon.discountValue / 100);
-      
+
       // Apply maximum discount limit if set
       if (this.appliedCoupon.maxDiscount !== undefined && discount > this.appliedCoupon.maxDiscount) {
         console.log('Applying max discount limit:', this.appliedCoupon.maxDiscount);
@@ -760,26 +775,26 @@ export class ChiTietSanPhamComponent implements OnInit {
       // Fixed amount discount
       discount = this.appliedCoupon.discountValue;
     }
-    
+
     // Ensure discount doesn't exceed the product price
     const finalDiscount = Math.min(discount, price);
     console.log('Final discount amount:', finalDiscount);
-    
+
     return finalDiscount;
   }
 
   getFinalPrice(): number {
     const price = this.getCurrentPrice();
     console.log('Calculating final price. Base price:', price);
-    
+
     if (!this.appliedCoupon) {
       console.log('No discount applied, final price:', price);
       return price;
     }
-    
+
     const discount = this.getDiscountAmount();
     const finalPrice = Math.max(0, price - discount);
-    
+
     console.log('Final price after discount:', finalPrice, '(Discount:', discount, ')');
     return finalPrice;
   }

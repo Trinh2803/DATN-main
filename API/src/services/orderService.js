@@ -1,3 +1,11 @@
+
+// Kiểm tra user đã mua sản phẩm này chưa
+const hasUserBoughtProduct = async (userId, productId) => {
+  if (!userId || !productId) return false;
+  const orders = await Order.find({ userId, status: { $in: ['Đã hoàn thành', 'Đã giao'] } });
+  return orders.some(order => order.items.some(item => String(item.productId) === String(productId)));
+};
+
 const mongoose = require('mongoose');
 const Order = require('../models/orderModel');
 const Product = require('../models/productModel');
@@ -461,6 +469,7 @@ module.exports = {
   createOrder,
   getPendingOrders,
   getCompletedOrders,
-getOrdersByUserId,
-getRevenue
+  getOrdersByUserId,
+  getRevenue,
+  hasUserBoughtProduct
 };

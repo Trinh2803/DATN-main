@@ -1,3 +1,14 @@
+// Kiểm tra user đã mua sản phẩm này chưa
+const hasBoughtProduct = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const productId = req.params.productId;
+    const bought = await orderService.hasUserBoughtProduct(userId, productId);
+    res.json({ success: true, bought });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
 const orderService = require('../services/orderService');
 const productService = require('../services/productService');
 
@@ -165,6 +176,7 @@ module.exports = {
   createOrder,
   getPendingOrders,
   getCompletedOrders,
-getUserOrders,
-getRevenue
+  getUserOrders,
+  getRevenue,
+  hasBoughtProduct
 };

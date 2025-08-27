@@ -46,7 +46,7 @@ app.use("/", searchRoutes);
 app.use("/", indexRouter);
 app.use("/categories", categoriesRouter);
 app.use("/products", productsRouter);
-app.use("/orders", orderssRouter);
+app.use("/api/orders", orderssRouter);
 app.use("/api/discounts", discountsRouter);
 app.use("/wishlist", wishlistRouter);
 app.use("/comments", commentsRouter);
