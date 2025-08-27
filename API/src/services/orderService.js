@@ -3,6 +3,7 @@ const Order = require('../models/orderModel');
 const Product = require('../models/productModel');
 const Discount = require('../models/discountModel');
 const productService = require('./productService');
+const { sendOrderConfirmationEmail } = require('../ultils/mailer');
 
 const getAllOrders = async () => {
   // 1) Normalize in DB first (idempotent)
@@ -319,6 +320,19 @@ const createOrder = async (orderData) => {
 
     // Cập nhật sellCount sau khi lưu đơn thành công
     await updateSellCountForOrder(order.items);
+
+    // Gửi email xác nhận đơn hàng (không chặn luồng nếu lỗi)
+    try {
+      const emailTo = order.customerEmail;
+      console.log('[ORDER][MAIL] Attempting to send confirmation', { orderId: order._id, to: emailTo });
+      if (emailTo) {
+        await sendOrderConfirmationEmail(emailTo, order.toObject ? order.toObject() : order);
+      } else {
+        console.warn('[ORDER][MAIL] Skipped sending email: missing customerEmail');
+      }
+    } catch (mailErr) {
+      console.error('[ORDER][MAIL] Gửi email xác nhận thất bại:', mailErr.message);
+    }
 
     // Log thông tin về mã giảm giá (nếu có)
     if (order.discountInfo?._id) {
