@@ -1,0 +1,25 @@
+<!-- src/app/donhangchitiet/donhangchitiet.component.html -->
+<div *ngIf="order; else noOrder">
+  <h2>Chi tiết đơn hàng</h2>
+  <p>Ngày đặt: {{ order.orderDate }}</p>
+  <div *ngFor="let product of order.products">
+    <h3>{{ product.productName }}</h3>
+    <p>Số lượng: {{ product.quantity }} - Giá: {{ product.price }}</p>
+    <img [src]="product.thumbnail" alt="Thumbnail" width="100" />
+
+    <!-- Nút đánh giá sản phẩm -->
+    <button *ngIf="showReviewButton" (click)="openReview(product.productId)">
+      Đánh giá sản phẩm
+    </button>
+
+    <!-- Component review -->
+    <app-product-review
+      *ngIf="showReviewForProduct === product.productId"
+      [productId]="product.productId"
+      [orderId]="order._id"
+    ></app-product-review>
+  </div>
+</div>
+<ng-template #noOrder>
+  <p>Không tìm thấy đơn hàng hoặc có lỗi xảy ra.</p>
+</ng-template>

@@ -23,6 +23,7 @@ export class lichsudonhangComponent implements OnInit {
     if (!this.user) {
       this.router.navigate(['/dangnhap']);
     } else {
+      console.log('User data:', this.user);
       this.loadOrders();
     }
   }
@@ -48,16 +49,19 @@ export class lichsudonhangComponent implements OnInit {
         this.orders = response.data || [];
         this.orders = this.orders.map((order) => {
           console.log('Processing order:', order);
+          const status = order.status ? order.status.trim() : '';
           return {
             ...order,
             orderDate: new Date(order.createdAt).toLocaleDateString('vi-VN'),
+            status: status,
             product: order.items && order.items.length > 0 ? {
+              productId: order.items[0].productId?._id || order.items[0].productId || '',
               productName: order.items[0].productName,
               quantity: order.items[0].quantity,
               image: order.items[0].thumbnail || order.items[0].productId?.thumbnail || ''
             } : {},
           };
-        });
+        }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         console.log('Processed orders:', this.orders);
       },
       (error) => {
@@ -80,8 +84,17 @@ export class lichsudonhangComponent implements OnInit {
     );
   }
 
-  viewOrderDetails(orderId: number): void {
-    this.router.navigate(['/donhang'], { queryParams: { orderId } });
+  viewOrderDetails(orderId: string): void {
+    this.router.navigate([`/donhang/${orderId}`]);
+  }
+
+  reviewProduct(productId: string): void {
+    if (productId) {
+      this.router.navigate([`/chitiet/${productId}`], { queryParams: { review: true } });
+    } else {
+      console.error('Không tìm thấy productId để đánh giá');
+      alert('Không thể mở trang đánh giá do lỗi dữ liệu sản phẩm.');
+    }
   }
 
   logout(): void {

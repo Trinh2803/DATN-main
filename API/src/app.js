@@ -18,6 +18,7 @@ const discountsRouter = require("./routes/discounts");
 const wishlistRouter = require("./routes/wishlist");
 const commentsRouter = require("./routes/comments");
 const tintucRouter = require("./routes/tintuc"); // Thêm route tin tức
+const reviewsRouter = require("./routes/reviews"); // Thêm route đánh giá
 
 const viewEngine = require("./config/viewEngine");
 var app = express();
@@ -51,6 +52,7 @@ app.use("/api/discounts", discountsRouter);
 app.use("/wishlist", wishlistRouter);
 app.use("/comments", commentsRouter);
 app.use("/api/news", tintucRouter); // Thêm route tin tức
+app.use("/api/reviews", reviewsRouter); // Thêm route đánh giá
 app.use("/payment", paymentRouter);
 
 // catch 404 and forward to error handler
