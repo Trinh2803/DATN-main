@@ -14,6 +14,20 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+const sendRegistrationOtpEmail = async (to, otp) => {
+  await transporter.sendMail({
+    from: `"DEHO Support" <${process.env.MAIL_USER}>`,
+    to,
+    subject: 'Mã OTP xác minh đăng ký tài khoản',
+    html: `
+      <h3>Chào mừng bạn đến với DEHO!</h3>
+      <p>Mã xác minh đăng ký của bạn là:</p>
+      <p style="font-size: 20px; font-weight: bold;">${otp}</p>
+      <p>OTP có hiệu lực trong 5 phút. Nếu bạn không yêu cầu, hãy bỏ qua email này.</p>
+    `
+  });
+};
+
 const sendOtpEmail = async (to, otp) => {
   await transporter.sendMail({
     from: `"DEHO Support" <${process.env.MAIL_USER}>`,
@@ -102,5 +116,6 @@ const sendOrderConfirmationEmail = async (to, order) => {
 
 module.exports = {
   sendOtpEmail,
+  sendRegistrationOtpEmail,
   sendOrderConfirmationEmail
 };

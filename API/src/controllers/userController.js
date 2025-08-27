@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const userService = require('../services/userService');
-const sendOtpEmail = require('../ultils/mailer');
+const { sendOtpEmail } = require('../ultils/mailer');
 const bcrypt = require('bcrypt');
 const otpStore = new Map();
 const getAllUsers = async (req, res) => {
@@ -28,7 +28,7 @@ const getUserById = async (req, res) => {
 const register = async (req, res) => {
   try {
     const newUser = await userService.register(req.body);
-    res.status(201).json({ success: true, message: 'Đăng ký thành công', data: newUser });
+    res.status(201).json({ success: true, message: 'Đăng ký thành công. Vui lòng kiểm tra email để xác minh tài khoản', data: newUser });
   } catch (err) {
     console.error('Error in register:', err.message);
     res.status(400).json({ success: false, message: err.message || 'Lỗi khi đăng ký' });
@@ -63,6 +63,17 @@ const login = async (req, res) => {
   } catch (err) {
     console.error('Login error:', err.message);
     res.status(400).json({ success: false, message: err.message || 'Lỗi khi đăng nhập' });
+  }
+};
+
+// Xác minh OTP đăng ký
+const verifyRegistration = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const result = await userService.verifyRegistration(email, otp);
+    res.status(200).json({ success: true, message: result.message });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
   }
 };
 
@@ -154,4 +165,5 @@ module.exports = {
   verifyOtp,
   resetPassword,
   getToken,
+  verifyRegistration,
 };

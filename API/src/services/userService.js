@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const fs = require('fs');
+const { sendRegistrationOtpEmail } = require('../ultils/mailer');
 const SECRET_KEY = process.env.SECRET_KEY || 'your-secret-key-here-make-it-long-and-secure';
 console.log('SECRET_KEY in userService:', SECRET_KEY);
 
@@ -58,15 +59,28 @@ const register = async (userData) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Tạo OTP xác minh đăng ký
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
     const user = new User({
       name,
       email,
       phone,
       password: hashedPassword,
       role: role || 'customer',
+      isVerified: false,
+      verificationOtp: otp,
+      verificationOtpExpires: new Date(Date.now() + 5 * 60 * 1000)
     });
 
     await user.save();
+
+    // Gửi email OTP xác minh
+    try {
+      await sendRegistrationOtpEmail(email, otp);
+    } catch (mailErr) {
+      console.error('Error sending registration OTP:', mailErr.message);
+    }
     console.log('User registered:', user);
 
     return {
@@ -87,6 +101,10 @@ const login = async (email, password) => {
     if (!user) {
       console.log('User not found:', email);
       throw new Error('Tài khoản không tồn tại');
+    }
+
+    if (!user.isVerified) {
+      throw new Error('Tài khoản chưa xác minh email');
     }
 
     let isMatch = false;
@@ -123,6 +141,21 @@ const login = async (email, password) => {
     console.error('Error logging in:', err.message);
     throw new Error(err.message || 'Lỗi khi đăng nhập');
   }
+};
+
+const verifyRegistration = async (email, otp) => {
+  const user = await User.findOne({ email });
+  if (!user) throw new Error('Không tìm thấy người dùng');
+  if (user.isVerified) return { message: 'Tài khoản đã được xác minh' };
+  if (!user.verificationOtp || !user.verificationOtpExpires) throw new Error('Không có OTP xác minh');
+  if (user.verificationOtp !== otp) throw new Error('Mã OTP không hợp lệ');
+  if (Date.now() > new Date(user.verificationOtpExpires).getTime()) throw new Error('Mã OTP đã hết hạn');
+
+  user.isVerified = true;
+  user.verificationOtp = null;
+  user.verificationOtpExpires = null;
+  await user.save();
+  return { message: 'Xác minh email thành công' };
 };
 
 const updateUser = async (userId, updateData, req) => {
@@ -213,4 +246,5 @@ module.exports = {
   changeUserRole,
   getUserByEmail,
   resetPassword,
+  verifyRegistration,
 };
