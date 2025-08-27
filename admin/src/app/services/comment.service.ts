@@ -96,34 +96,46 @@ export class CommentService {
     );
   }
 
-  // Cập nhật trạng thái bình luận (sửa endpoint thành PUT /:id với body { status })
+  // Cập nhật trạng thái bình luận
   updateCommentStatus(id: string, status: Comment['status']): Observable<ApiResponse<Comment>> {
     console.log('[TEST] Gửi request updateCommentStatus:', id, status);
     const headers = this.getAuthHeaders();
     if (!headers) return throwError(() => ({ success: false, message: 'Thiếu token xác thực' } as ApiResponse<Comment>));
 
-    return this.http.put<ApiResponse<Comment>>(`${this.apiUrl}/${id}`, { status }, { headers }).pipe(
+    return this.http.put<ApiResponse<Comment>>(
+      `${this.apiUrl}/${id}/status`, 
+      { status }, 
+      { headers }
+    ).pipe(
       catchError(this.handleError)
     );
   }
 
-  // Trả lời bình luận (sửa endpoint thành PUT /:id với body { replyContent })
+  // Trả lời bình luận
   replyToComment(id: string, content: string): Observable<ApiResponse<Comment>> {
     const headers = this.getAuthHeaders();
     if (!headers) return throwError(() => ({ success: false, message: 'Thiếu token xác thực' } as ApiResponse<Comment>));
 
-    return this.http.put<ApiResponse<Comment>>(`${this.apiUrl}/${id}`, { replyContent: content }, { headers }).pipe(
+    return this.http.put<ApiResponse<Comment>>(
+      `${this.apiUrl}/${id}/reply`, 
+      { content }, 
+      { headers }
+    ).pipe(
       catchError(this.handleError)
     );
   }
 
-  // Chỉnh sửa bình luận (sửa endpoint thành PUT /:id với body { content, rating })
+  // Chỉnh sửa bình luận
   editComment(id: string, updateData: { content?: string; rating?: number }): Observable<ApiResponse<Comment>> {
     console.log('[TEST] Gửi request editComment:', id, updateData);
     const headers = this.getAuthHeaders();
     if (!headers) return throwError(() => ({ success: false, message: 'Thiếu token xác thực' } as ApiResponse<Comment>));
 
-    return this.http.put<ApiResponse<Comment>>(`${this.apiUrl}/${id}`, updateData, { headers }).pipe(
+    return this.http.put<ApiResponse<Comment>>(
+      `${this.apiUrl}/${id}/edit`, 
+      updateData, 
+      { headers }
+    ).pipe(
       catchError(this.handleError)
     );
   }
