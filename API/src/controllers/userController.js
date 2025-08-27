@@ -151,42 +151,62 @@ const changeUserRole = async (req, res) => {
 const requestResetPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    const user = await userService.getUserByEmail(email);
-    if (!user) throw new Error('Email chưa được đăng ký');
-
-    const otp = Math.floor(1000 + Math.random() * 9000).toString();
-    otpStore.set(email, { otp, expiresAt: Date.now() + 5 * 60 * 1000 }); // 5 phút
-
-    await sendOtpEmail(email, otp);
-    res.status(200).json({ success: true, message: 'Đã gửi mã OTP về email' });
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Vui lòng nhập email' });
+    }
+    
+    const result = await userService.requestPasswordReset(email);
+    res.status(200).json(result);
   } catch (err) {
-    res.status(400).json({ success: false, message: err.message });
+    console.error('Error in requestPasswordReset:', err.message);
+    res.status(400).json({ 
+      success: false, 
+      message: err.message || 'Không thể gửi mã OTP. Vui lòng thử lại sau' 
+    });
   }
 };
 
-// Xác minh OTP
-const verifyOtpResetPassword = async (req, res) => {
+// Verify OTP for password reset
+const verifyResetPasswordOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
-    const record = otpStore.get(email);
-    if (!record || record.otp !== otp) throw new Error('Mã OTP không hợp lệ');
-    if (Date.now() > record.expiresAt) throw new Error('Mã OTP đã hết hạn');
-
-    res.status(200).json({ success: true, message: 'OTP hợp lệ' });
+    if (!email || !otp) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Vui lòng nhập đầy đủ email và mã OTP' 
+      });
+    }
+    
+    const result = await userService.verifyResetPasswordOtp(email, otp);
+    res.status(200).json(result);
   } catch (err) {
-    res.status(400).json({ success: false, message: err.message });
+    console.error('Error in verifyResetPasswordOtp:', err.message);
+    res.status(400).json({ 
+      success: false, 
+      message: err.message || 'Xác minh OTP thất bại' 
+    });
   }
 };
 
-// Đặt lại mật khẩu
+// Reset password after OTP verification
 const resetPassword = async (req, res) => {
   try {
     const { email, newPassword } = req.body;
-    const hashed = await bcrypt.hash(newPassword, 10);
-    const updated = await userService.resetPassword(email, hashed);
-    res.status(200).json({ success: true, message: 'Đặt lại mật khẩu thành công' });
+    if (!email || !newPassword) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Vui lòng nhập đầy đủ email và mật khẩu mới' 
+      });
+    }
+    
+    const result = await userService.resetPassword(email, newPassword);
+    res.status(200).json(result);
   } catch (err) {
-    res.status(400).json({ success: false, message: err.message });
+    console.error('Error in resetPassword:', err.message);
+    res.status(400).json({ 
+      success: false, 
+      message: err.message || 'Không thể đặt lại mật khẩu' 
+    });
   }
 };
 
@@ -202,9 +222,9 @@ module.exports = {
   updateUser,
   getUserById,
   changeUserRole,
-  requestResetPassword,
+  requestPasswordReset: requestResetPassword, // Alias for backward compatibility
   verifyOtp,
-  verifyOtpResetPassword,
+  verifyResetPasswordOtp,
   resetPassword,
   getToken,
   sendOtp,

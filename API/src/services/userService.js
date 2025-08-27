@@ -240,12 +240,79 @@ const getUserByEmail = async (email) => {
   return await User.findOne({ email });
 };
 
-const resetPassword = async (email, hashedPassword) => {
-  return await User.findOneAndUpdate(
-    { email },
-    { password: hashedPassword },
-    { new: true }
-  );
+// Request password reset by sending OTP
+const requestPasswordReset = async (email) => {
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new Error('Email không tồn tại');
+    }
+    
+    const otp = generateOtp();
+    const otpExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    
+    user.resetPasswordOtp = otp;
+    user.resetPasswordOtpExpires = otpExpires;
+    await user.save();
+    
+    // Send OTP email
+    await sendOtpEmail(email, otp, 'reset-password');
+    
+    return { success: true, message: 'Mã OTP đã được gửi đến email của bạn' };
+  } catch (error) {
+    console.error('Error in requestPasswordReset:', error);
+    throw new Error('Không thể gửi mã OTP. Vui lòng thử lại sau');
+  }
+};
+
+// Verify OTP for password reset
+const verifyResetPasswordOtp = async (email, otp) => {
+  try {
+    const user = await User.findOne({ 
+      email,
+      resetPasswordOtp: otp,
+      resetPasswordOtpExpires: { $gt: Date.now() }
+    });
+    
+    if (!user) {
+      throw new Error('Mã OTP không hợp lệ hoặc đã hết hạn');
+    }
+    
+    // Clear the OTP after successful verification
+    user.resetPasswordOtp = undefined;
+    user.resetPasswordOtpExpires = undefined;
+    await user.save();
+    
+    return { success: true, message: 'Xác minh OTP thành công' };
+  } catch (error) {
+    console.error('Error in verifyResetPasswordOtp:', error);
+    throw new Error('Xác minh OTP thất bại');
+  }
+};
+
+// Reset password after OTP verification
+const resetPassword = async (email, newPassword) => {
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new Error('Người dùng không tồn tại');
+    }
+    
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    
+    // Update password and clear any reset tokens
+    user.password = hashedPassword;
+    user.resetPasswordOtp = undefined;
+    user.resetPasswordOtpExpires = undefined;
+    
+    await user.save();
+    return { success: true, message: 'Đặt lại mật khẩu thành công' };
+  } catch (error) {
+    console.error('Error in resetPassword:', error);
+    throw new Error('Không thể đặt lại mật khẩu');
+  }
 };
 
 // Send OTP to user's email

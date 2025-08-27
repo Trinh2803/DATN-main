@@ -13,10 +13,12 @@ import { CommonModule } from '@angular/common';
 })
 export class ResetPasswordComponent implements OnInit {
   email: string = '';
+  otp: string = '';
   newPassword: string = '';
   confirmPassword: string = '';
   successMessage: string = '';
   errorMessage: string = '';
+  isLoading: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -27,6 +29,11 @@ export class ResetPasswordComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       this.email = params['email'] || '';
+      this.otp = params['otp'] || '';
+      
+      if (!this.email || !this.otp) {
+        this.router.navigate(['/forgot-password']);
+      }
     });
   }
 
@@ -34,24 +41,37 @@ export class ResetPasswordComponent implements OnInit {
     return !!this.newPassword && !!this.confirmPassword && this.newPassword !== this.confirmPassword;
   }
 
-  submitNewPassword() {
-    this.successMessage = '';
-    this.errorMessage = '';
+  get isFormValid(): boolean {
+    return !this.passwordMismatch && 
+           !!this.newPassword && 
+           this.newPassword.length >= 6 &&
+           !!this.confirmPassword;
+  }
 
+  onSubmit() {
     if (this.passwordMismatch) {
       this.errorMessage = '❌ Mật khẩu xác nhận không khớp!';
       return;
     }
 
-    this.userService.resetPassword(this.email, this.newPassword).subscribe({
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.userService.resetPasswordAfterOtpVerification(this.email, this.newPassword).subscribe({
       next: () => {
+        this.isLoading = false;
         this.successMessage = '✅ Đặt lại mật khẩu thành công! Đang chuyển hướng...';
+        
+        // Redirect to login after 2 seconds
         setTimeout(() => {
           this.router.navigate(['/dangnhap']);
-        }, 1500);
+        }, 2000);
       },
-      error: (err) => {
-        this.errorMessage = err.error?.message || 'Lỗi khi đặt lại mật khẩu!';
+      error: (error) => {
+        this.isLoading = false;
+        this.errorMessage = error.error?.message || 'Đặt lại mật khẩu thất bại. Vui lòng thử lại.';
+        console.error('Reset password error:', error);
       }
     });
   }

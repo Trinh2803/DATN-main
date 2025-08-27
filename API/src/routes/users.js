@@ -8,31 +8,35 @@ const {
   updateUser, 
   getUserById, 
   changeUserRole, 
-  requestResetPassword, 
+  requestPasswordReset, 
   verifyOtp, 
+  verifyResetPasswordOtp,
   resetPassword, 
   verifyRegistration,
   sendOtp
 } = require('../controllers/userController');
-const upload = require('../middlewares/uploadMiddleware'); // Thêm middleware upload
-// Lấy danh sách người dùng (admin only)
-router.get('/', verifyToken, verifyAdmin, getAllUsers);
+const upload = require('../middlewares/uploadMiddleware');
 
-// Đăng ký và đăng nhập (công khai)
+// Admin routes (require admin token)
+router.get('/', verifyToken, verifyAdmin, getAllUsers);
+router.patch('/:id/role', verifyToken, verifyAdmin, changeUserRole);
+
+// Authentication routes (public)
 router.post('/register', register);
 router.post('/login', login);
-router.post('/forgot-password', requestResetPassword);
-// OTP Verification Routes
+
+// Password reset flow
+router.post('/forgot-password', requestPasswordReset); // Step 1: Request OTP
+router.post('/verify-reset-otp', verifyResetPasswordOtp); // Step 2: Verify OTP
+router.post('/reset-password', resetPassword); // Step 3: Set new password
+
+// Email verification flow
 router.post('/send-otp', sendOtp);
 router.post('/verify-otp', verifyOtp);
-router.post('/reset-password', resetPassword);
 router.post('/verify-registration', verifyRegistration);
-// Cập nhật hồ sơ người dùng (yêu cầu token)
-router.put('/profile', verifyToken, upload('uploads').single('avatar'), updateUser); // Sử dụng multer
-// Lấy thông tin người dùng theo ID (yêu cầu token)
-router.get('/:id', verifyToken, getUserById);
 
-// Thay đổi vai trò người dùng (admin only)
-router.patch('/:id/role', verifyToken, verifyAdmin, changeUserRole);
+// User profile routes (require user token)
+router.put('/profile', verifyToken, upload('uploads').single('avatar'), updateUser);
+router.get('/:id', verifyToken, getUserById);
 
 module.exports = router;

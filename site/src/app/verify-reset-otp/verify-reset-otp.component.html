@@ -1,0 +1,77 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="card shadow">
+        <div class="card-body p-4">
+          <h3 class="card-title text-center mb-4">Xác minh OTP</h3>
+          <p class="text-muted text-center mb-4">
+            Chúng tôi đã gửi mã xác minh đến <strong>{{ email }}</strong>.
+            Vui lòng nhập mã 6 chữ số để tiếp tục.
+          </p>
+
+          <form #otpForm="ngForm" (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+              <label for="otp" class="form-label">Mã OTP</label>
+              <input
+                type="text"
+                class="form-control form-control-lg text-center"
+                id="otp"
+                name="otp"
+                [(ngModel)]="otp"
+                placeholder="Nhập mã OTP"
+                maxlength="6"
+                pattern="\d{6}"
+                required
+                [disabled]="isLoading"
+              >
+              <div class="form-text">Nhập mã gồm 6 chữ số</div>
+            </div>
+
+            <!-- Error Message -->
+            <div *ngIf="errorMessage" class="alert alert-danger">
+              {{ errorMessage }}
+            </div>
+
+            <!-- Success Message -->
+            <div *ngIf="successMessage" class="alert alert-success">
+              {{ successMessage }}
+            </div>
+
+            <!-- Submit Button -->
+            <div class="d-grid gap-2">
+              <button 
+                type="submit" 
+                class="btn btn-primary btn-lg"
+                [disabled]="!otp || otp.length !== 6 || isLoading"
+              >
+                <span *ngIf="!isLoading">Xác minh</span>
+                <span *ngIf="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span *ngIf="isLoading"> Đang xử lý...</span>
+              </button>
+            </div>
+          </form>
+
+          <!-- Resend OTP -->
+          <div class="text-center mt-4">
+            <p class="mb-2">Không nhận được mã?</p>
+            <button 
+              type="button" 
+              class="btn btn-link p-0"
+              (click)="resendOtp()"
+              [disabled]="countdown > 0 || isLoading"
+            >
+              Gửi lại mã <span *ngIf="countdown > 0">({{ countdown }}s)</span>
+            </button>
+          </div>
+
+          <!-- Back to login -->
+          <div class="text-center mt-4">
+            <a [routerLink]="['/dangnhap']" class="text-decoration-none">
+              <i class="bi bi-arrow-left"></i> Quay lại đăng nhập
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
