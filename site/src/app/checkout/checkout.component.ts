@@ -15,6 +15,7 @@ interface CartItem {
 }
 
 interface ShippingInfo {
+  email?: string;
   fullName: string;
   phone: string;
   address: string;
@@ -34,7 +35,9 @@ export class CheckoutComponent implements OnInit {
   totalPrice: number = 0;
   orderNote: string = '';
   finalAmount: number = 0;
+  toastVisible: boolean = false;
   shippingInfo: ShippingInfo = {
+    email: '',
     fullName: '',
     phone: '',
     address: '',
@@ -79,6 +82,14 @@ export class CheckoutComponent implements OnInit {
   onCheckout(): void {
     if (!this.shippingInfo.fullName || !this.shippingInfo.phone || !this.shippingInfo.address) {
       alert('Vui lòng điền đầy đủ thông tin giao hàng.');
+      return;
+    }
+
+    // Validate email: required and format
+    const email = (this.shippingInfo.email || '').trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      alert('Vui lòng nhập email hợp lệ để nhận xác nhận đơn hàng.');
       return;
     }
 
@@ -140,8 +151,8 @@ export class CheckoutComponent implements OnInit {
         const orderId = response.data._id;
         console.log('COD Order created with ID:', orderId);
         
-        // Success message
-        alert('Đơn hàng COD đã được tạo thành công! Đang chuyển đến trang đơn hàng...');
+        // Success message + toast
+        this.showToast();
         // Navigate to order detail
         this.router.navigate(['/donhang'], {
           queryParams: { orderId }
@@ -172,7 +183,7 @@ export class CheckoutComponent implements OnInit {
       customerPhone: this.shippingInfo.phone,
       customerAddress: this.shippingInfo.address,
       customerNote: this.orderNote || this.shippingInfo.note,
-      customerEmail: user.email || '',
+      customerEmail: (this.shippingInfo.email && this.shippingInfo.email.trim()) ? this.shippingInfo.email.trim() : (user?.email || ''),
       items: this.cartItems.map(item => ({
         productId: item.product._id,
         quantity: item.quantity,
@@ -214,6 +225,13 @@ export class CheckoutComponent implements OnInit {
       return `${item.selectedVariant.size}`;
     }
     return '';
+  }
+
+  private showToast(): void {
+    this.toastVisible = true;
+    setTimeout(() => {
+      this.toastVisible = false;
+    }, 3000);
   }
 
   // Helpers cho template: tạm tính và tổng cộng sau giảm

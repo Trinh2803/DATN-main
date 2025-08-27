@@ -284,7 +284,7 @@ header {
 .banner-buttons .link-button,
 .banner-buttons .reward-button {
     display: inline-block;
-    padding: 12px 25px;
+    padding: 25px 25px;
     border-radius: 25px;
     text-decoration: none;
     font-weight: bold;
@@ -767,7 +767,7 @@ main h2 {
     line-height: 1.5;
     height: 66px;
     overflow: hidden;
-    display: -webkit-box;   
+    display: -webkit-box;
     -webkit-box-orient: vertical;
 }
 

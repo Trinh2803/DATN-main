@@ -15,10 +15,15 @@ export class AuthService {
   adminLogin(email: string, password: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/users/login`, { email, password }).pipe(
       tap((response: any) => {
-        // Lấy token từ response.token hoặc response.data.token
-        const token = response.token || response.data?.token;
+        console.log('Login response:', response);
+        // Lấy token từ response.data.token
+        const token = response.data?.token;
+        console.log('Token extracted:', token);
         if (response.success && token) {
           localStorage.setItem('adminToken', token);
+          console.log('Token stored in localStorage');
+        } else {
+          console.log('Failed to store token - success:', response.success, 'token:', token);
         }
       })
     );
@@ -26,11 +31,18 @@ export class AuthService {
 
   isAdmin(): boolean {
     const token = this.getToken();
-    if (!token) return false;
+    if (!token) {
+      console.log('No token found');
+      return false;
+    }
 
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      return (payload.role || '').trim().toLowerCase() === 'admin';
+      console.log('Token payload:', payload);
+      console.log('Role from token:', payload.role);
+      const isAdmin = (payload.role || '').trim().toLowerCase() === 'admin';
+      console.log('Is admin:', isAdmin);
+      return isAdmin;
     } catch (err) {
       console.error('Invalid token:', err);
       return false;
@@ -40,29 +52,29 @@ export class AuthService {
   getUserAvatar(): Observable<string | null> {
     const token = this.getToken();
     if (!token) {
-      console.log('No token found');
+      console.log('No token found for avatar');
       return new Observable(observer => observer.next(null));
     }
 
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       const userId = payload.userId;
-      console.log('Token payload:', payload);
-      console.log('User ID from token:', userId);
+      console.log('Token payload for avatar:', payload);
+      console.log('User ID from token for avatar:', userId);
 
       const headers = { 'Authorization': `Bearer ${token}` };
-      console.log('Request headers:', headers);
+      console.log('Request headers for avatar:', headers);
 
       return this.http.get(`${this.apiUrl}/users/${userId}`, { headers }).pipe(
         tap((response: any) => {
-          console.log('User response:', response);
+          console.log('User response for avatar:', response);
           const avatar = response.data?.avatar || null;
           localStorage.setItem('userAvatar', avatar || '');
         }),
         map((response: any) => response.data?.avatar || null)
       );
     } catch (err) {
-      console.error('Invalid token:', err);
+      console.error('Invalid token for avatar:', err);
       return new Observable(observer => observer.next(null));
     }
   }
@@ -81,7 +93,9 @@ export class AuthService {
   }
 
   getToken(): string | null {
-    return localStorage.getItem('adminToken');
+    const token = localStorage.getItem('adminToken');
+    console.log('Getting token from localStorage:', token);
+    return token;
   }
 
   logout(): void {

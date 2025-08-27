@@ -10,6 +10,18 @@ import { Observable } from 'rxjs';
 })
 export class VNPayCallbackService {
 
+  // Determine site base URL (not admin). Allow override via localStorage 'SITE_BASE_URL'
+  private getSiteBaseUrl(): string {
+    const override = localStorage.getItem('SITE_BASE_URL');
+    if (override && /^https?:\/\//.test(override)) {
+      return override.replace(/\/$/, '');
+    }
+    if (!window.location.origin.includes(':4200')) {
+      return window.location.origin;
+    }
+    return 'http://localhost:4300';
+  }
+
   constructor(
     private http: HttpClient,
     private router: Router,
@@ -70,14 +82,14 @@ export class VNPayCallbackService {
     }).then(success => {
       console.log('Navigation to invoice page success:', success);
       if (!success) {
-        console.error('Navigation failed, trying alternative method');
-        // Fallback: sử dụng window.location
-        window.location.href = `/invoice?orderId=${orderId}`;
+        console.error('Navigation failed, trying absolute URL');
+        const target = `${this.getSiteBaseUrl()}/invoice?orderId=${orderId}`;
+        window.location.assign(target);
       }
     }).catch(error => {
       console.error('Navigation error:', error);
-      // Fallback: sử dụng window.location
-      window.location.href = `/invoice?orderId=${orderId}`;
+      const target = `${this.getSiteBaseUrl()}/invoice?orderId=${orderId}`;
+      window.location.assign(target);
     });
   }
 

@@ -46,7 +46,7 @@
             <thead>
               <tr>
                 <th>STT</th>
-                <th>Tên</th>
+                <th>Tên người dùng</th>
                 <th>Email</th>
                 <th>Vai trò</th>
                 <th>Hành động</th>
@@ -57,7 +57,11 @@
                 <td>{{ (currentPage - 1) * usersPerPage + i + 1 }}</td>
                 <td>{{ user.name || 'Chưa cập nhật' }}</td>
                 <td>{{ user.email }}</td>
-                <td>{{ user.role === 'admin' ? 'Quản trị viên' : 'Khách hàng' }}</td>
+                <td>
+                  <span class="badge" [ngClass]="user.role === 'admin' ? 'badge processing' : 'badge completed'">
+                    {{ user.role === 'admin' ? 'Quản trị viên' : 'Khách hàng' }}
+                  </span>
+                </td>
                 <td>
                   <button class="edit-button" (click)="changeUserRole(user._id!, user.role === 'admin' ? 'customer' : 'admin')">
                     {{ user.role === 'admin' ? 'Đặt thành Khách hàng' : 'Đặt thành Quản trị viên' }}

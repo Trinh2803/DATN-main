@@ -64,7 +64,7 @@ export class TrangchuComponent implements OnInit, OnDestroy {
   ];
   slides: Slide[] = [
     {
-      image: './images/banner1.png',
+  image: '/images/banner1.png',
       subtitle: 'Chào mừng bạn đến với cửa hàng',
       title: 'Sản phẩm mới nhất 2025',
       linkButtonText: 'Mua ngay',
@@ -75,7 +75,7 @@ export class TrangchuComponent implements OnInit, OnDestroy {
       detailsUrl: '/details'
     },
     {
-      image: './images/banner2.png',
+  image: '/images/banner2.png',
       subtitle: 'Ưu đãi đặc biệt',
       title: 'Giảm giá lên đến 50%',
       linkButtonText: 'Khám phá ngay',
@@ -86,7 +86,7 @@ export class TrangchuComponent implements OnInit, OnDestroy {
       detailsUrl: '/sale-details'
     },
     {
-      image: './images/banner2.webp',
+  image: '/images/banner2.webp',
       subtitle: 'Bộ sưu tập hot',
       title: 'Xu hướng thời trang mới',
       linkButtonText: 'Xem bộ sưu tập',

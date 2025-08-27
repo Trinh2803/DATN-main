@@ -8,13 +8,18 @@ const {
   createOrder,
   getPendingOrders,
   getCompletedOrders,
-getUserOrders
+  getUserOrders,
+  getRevenue,
+  hasBoughtProduct
 } = require('../controllers/orderController');
+// Kiểm tra user đã mua sản phẩm này chưa (phải đặt trước route động :id)
+router.get('/has-bought/:productId', verifyToken, hasBoughtProduct);
 
 // Định nghĩa các route cụ thể trước
 router.get('/pending', verifyToken, verifyAdmin, getPendingOrders);
 router.get('/completed', verifyToken, verifyAdmin, getCompletedOrders);
-router.get('/user', verifyToken, getUserOrders); 
+router.get('/user', verifyToken, getUserOrders);
+router.get('/revenue', verifyToken, verifyAdmin, getRevenue);
 
 // Sau đó định nghĩa các route động
 router.get('/', verifyToken, verifyAdmin, getAllOrders);

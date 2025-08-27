@@ -2,6 +2,7 @@ import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { forkJoin } from 'rxjs';
 import { CommentService } from '../services/comment.service';
 import { Comment, CommentStats, CommentFilters, ApiResponse } from '../interfaces/comment.interface';
 import Swal from 'sweetalert2';
@@ -380,24 +381,42 @@ export class QuanlybinhluanComponent implements OnInit, AfterViewInit {
       cancelButtonText: 'Hủy',
     }).then((result) => {
       if (result.isConfirmed) {
-        this.commentService.bulkUpdateStatus(this.selectedComments, status).subscribe({
-          next: (response: ApiResponse<any>) => {
-            if (response.success) {
+        // Update each comment status one by one
+        const updateObservables = this.selectedComments.map(commentId => {
+          return this.commentService.updateCommentStatus(commentId, status);
+        });
+
+        // Wait for all updates to complete
+        forkJoin(updateObservables).subscribe({
+          next: (responses: ApiResponse<Comment>[]) => {
+            const success = responses.every(res => res?.success);
+            if (success) {
               this.loadComments();
               this.loadCommentStats();
               this.selectedComments = [];
               this.selectAll = false;
-              Swal.fire('Thành công', 'Cập nhật trạng thái thành công', 'success');
+              Swal.fire('Thành công', `Đã cập nhật trạng thái ${responses.length} bình luận`, 'success');
             } else {
-              this.errorMessage = response.message || 'Lỗi khi cập nhật trạng thái.';
-              Swal.fire('Lỗi', this.errorMessage, 'error');
+              const errorMessages = responses
+                .filter(res => !res.success)
+                .map(res => res.message)
+                .filter(Boolean);
+              
+              if (errorMessages.length > 0) {
+                this.errorMessage = errorMessages.join('\n');
+                Swal.fire('Có lỗi xảy ra', this.errorMessage, 'error');
+              } else {
+                Swal.fire('Thành công', 'Đã cập nhật một số bình luận', 'success');
+                this.loadComments();
+                this.loadCommentStats();
+              }
             }
           },
-          error: (err) => {
-            console.error('Error bulk updating status:', err);
-            this.errorMessage = err.error?.message || err.message || 'Lỗi khi cập nhật trạng thái';
+          error: (err: any) => {
+            console.error('Error updating comments:', err);
+            this.errorMessage = err.error?.message || err.message || 'Lỗi khi cập nhật bình luận';
             Swal.fire('Lỗi', this.errorMessage, 'error');
-          },
+          }
         });
       }
     });

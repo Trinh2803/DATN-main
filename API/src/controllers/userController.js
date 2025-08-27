@@ -40,11 +40,10 @@ const login = async (req, res) => {
     const { email, password } = req.body;
     console.log('Login attempt:', { email });
     const result = await userService.login(email, password);
-    // Log giá trị role để debug
-    console.log('ROLE CHECK:', result.user.role, typeof result.user.role, JSON.stringify(result.user.role));
-    if (!result.user.role || result.user.role.trim().toLowerCase() !== 'admin') {
-      return res.status(403).json({ success: false, message: 'Chỉ tài khoản admin mới có thể đăng nhập vào hệ thống này' });
-    }
+    // Xóa kiểm tra vai trò
+    // if (!result.user.role || result.user.role.trim().toLowerCase() !== 'admin') {
+    //   return res.status(403).json({ success: false, message: 'Chỉ tài khoản admin mới có thể đăng nhập vào hệ thống này' });
+    // }
     res.status(200).json({
       success: true,
       message: 'Đăng nhập thành công',

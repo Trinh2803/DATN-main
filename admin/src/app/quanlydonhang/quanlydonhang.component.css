@@ -91,10 +91,6 @@
   justify-content: space-between;
   padding: 26px 52px 10px 38px;
 }
-
-.header-left {
-}
-
 .page-title {
   font-size: 22px;
   font-weight: bold;
@@ -354,6 +350,17 @@
   overflow-x: auto;
 }
 
+/* Ensure columns have balanced widths */
+.table-wrapper table th:nth-child(3),
+.table-wrapper table td:nth-child(3) {
+  min-width: 220px; /* Contact info column */
+}
+
+.table-wrapper table th:nth-child(4),
+.table-wrapper table td:nth-child(4) {
+  min-width: 200px; /* Total column */
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -418,6 +425,11 @@ tbody tr:hover {
   font-size: 13px;
 }
 
+/* Preserve line breaks for long contact values (like multi-line email on small widths) */
+.contact-value {
+  white-space: normal;
+}
+
 .contact-label {
   font-weight: 600;
   color: #8a94b8;
@@ -434,6 +446,27 @@ tbody tr:hover {
   font-weight: 700;
   color: #2e6cff;
   font-size: 15px;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+/* Paid note next to total */
+.total-amount .paid-note {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #eaf6ee;
+  color: #1e7e34;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  border: 1px solid #cfe9d6;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.02) inset;
+  white-space: nowrap;
 }
 
 /* Status Badge */

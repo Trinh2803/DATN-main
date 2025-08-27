@@ -3,7 +3,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const fs = require('fs');
-const SECRET_KEY = process.env.SECRET_KEY || 'your-secret-key';
+const SECRET_KEY = process.env.SECRET_KEY || 'your-secret-key-here-make-it-long-and-secure';
+console.log('SECRET_KEY in userService:', SECRET_KEY);
 
 const getAllUsers = async (searchQuery) => {
   try {
@@ -99,11 +100,13 @@ const login = async (email, password) => {
       throw new Error('Sai mật khẩu');
     }
 
+    console.log('Creating token with:', { userId: user._id, role: user.role, SECRET_KEY });
     const token = jwt.sign(
       { userId: user._id, role: user.role },
       SECRET_KEY,
       { expiresIn: '1d' }
     );
+    console.log('Token created:', token);
 
     console.log('User logged in:', user.email);
     return {

@@ -166,8 +166,6 @@ table {
   border-spacing: 0;
   font-size: 14px;
 }
-thead tr {
-}
 thead th {
   color: #8a94b8;
   font-weight: 600;
@@ -336,12 +334,6 @@ th {
   min-height: 100vh;
 }
 
-.sidebar {
-  width: 250px;
-  background: #f8f9fa;
-  padding: 20px;
-}
-
 .main-container {
   flex: 1;
   padding: 20px;
@@ -379,17 +371,6 @@ th {
 
 .table-wrapper {
   overflow-x: auto;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th, td {
-  padding: 10px;
-  border: 1px solid #ddd;
-  text-align: left;
 }
 
 .edit-button {

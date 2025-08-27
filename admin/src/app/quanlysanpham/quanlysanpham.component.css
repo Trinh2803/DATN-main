@@ -88,8 +88,8 @@
   align-items: flex-start;
   justify-content: space-between;
   padding: 26px 52px 10px 38px;
-}
-.header-left {
+  gap: 20px;
+  flex-wrap: wrap;
 }
 .page-title {
   font-size: 22px;
@@ -166,8 +166,6 @@ table {
   border-spacing: 0;
   font-size: 14px;
 }
-thead tr {
-}
 thead th {
   color: #8a94b8;
   font-weight: 600;
@@ -242,7 +240,31 @@ tbody tr:first-child td {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.toggle-hidden {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #2d3436;
+}
+
+.toggle-hidden input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
 }
 
 .add-button, .edit-button, .delete-button {
@@ -264,8 +286,71 @@ tbody tr:first-child td {
 }
 
 .delete-button {
-  background-color: #dc3545;
+  background-color: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 80px;
+  justify-content: center;
+}
+
+.delete-button:hover {
+  background-color: #e9ecef;
+  border-color: #ced4da;
+}
+
+.delete-button i {
+  font-size: 12px;
+}
+
+/* Different style when product is hidden */
+.delete-button[hidden] {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+/* Hide text on small screens */
+@media (max-width: 768px) {
+  .delete-button span {
+    display: none;
+  }
+  .delete-button {
+    min-width: auto;
+    padding: 4px 6px;
+  }
+  .delete-button i {
+    margin: 0;
+  }
+}
+
+/* Style for hidden products */
+tr.hidden-product {
+  opacity: 0.7;
+  background-color: #f8f9fa;
+}
+
+tr.hidden-product td {
+  position: relative;
+}
+
+tr.hidden-product td:first-child::before {
+  content: 'Đã ẩn';
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  background: #6c757d;
   color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 500;
 }
 
 .table-wrapper {

@@ -45,8 +45,14 @@ export class QuanlydonhangComponent implements OnInit, AfterViewInit {
   isLoading: boolean = false;
 
   // Hàm xác định các trạng thái hợp lệ tiếp theo
-  getAllowedStatuses(currentStatus: Order['status']): Order['status'][] {
-    switch (currentStatus) {
+  getAllowedStatuses(currentStatus: string): Order['status'][] {
+    // Bao phủ legacy/biến thể: chuẩn hóa và bỏ dấu để nhận diện 'Đã thanh toán'
+    const normalized = (currentStatus || '').trim();
+    const noTone = this.removeVietnameseTones(normalized.toLowerCase());
+    if (noTone.includes('thanh toan') || noTone.includes('da thanh toan')) {
+      return ['Đang chuẩn bị', 'Đang giao', 'Đã hủy'];
+    }
+    switch (normalized as Order['status']) {
       case 'Chờ xác nhận':
         return ['Chờ xác nhận', 'Đang chuẩn bị', 'Đã hủy'];
       case 'Đang chuẩn bị':
@@ -60,8 +66,26 @@ export class QuanlydonhangComponent implements OnInit, AfterViewInit {
       case 'Đã hoàn thành':
         return ['Đã hoàn thành']; // Trạng thái cuối, không thể thay đổi
       default:
-        return [currentStatus];
+        return [normalized as Order['status']];
     }
+  }
+
+  // Bỏ dấu tiếng Việt để so sánh an toàn
+  private removeVietnameseTones(str: string): string {
+    return (str || '')
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      .replace(/đ/g, 'd')
+      .replace(/Đ/g, 'D')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  // Kiểm tra đã thanh toán online để hiển thị ghi chú ở tổng tiền
+  isPaidOnline(order: Order): boolean {
+    const paidByVnpay = order.paymentMethod === 'vnpay' && order.paymentStatus === 'completed';
+    const legacyPaid = this.removeVietnameseTones((order.status || '').toLowerCase()).includes('thanh toan');
+    return !!(paidByVnpay || legacyPaid);
   }
 
   constructor(
@@ -258,9 +282,14 @@ export class QuanlydonhangComponent implements OnInit, AfterViewInit {
     return status !== 'Đã giao' && status !== 'Đã hoàn thành';
   }
 
-  canShowDropdown(status: string): boolean {
-    // Cho phép dropdown cho tất cả trạng thái trừ 'Đã hoàn thành'
-    return status !== 'Đã hoàn thành';
+  canShowDropdown(status: string, order?: Order): boolean {
+    // Ẩn dropdown khi đã hoàn thành
+    if (status === 'Đã hoàn thành') return false;
+    // Nếu là đơn VNPay và chưa thanh toán, không cho phép đổi trạng thái xử lý
+    if (order && order.paymentMethod === 'vnpay' && order.paymentStatus !== 'completed') {
+      return false;
+    }
+    return true;
   }
 
   // Kiểm tra xem có phải đơn hàng VNPay không
@@ -301,6 +330,15 @@ export class QuanlydonhangComponent implements OnInit, AfterViewInit {
     
     if (!currentOrder) {
       Swal.fire('Lỗi', 'Không tìm thấy đơn hàng.', 'error');
+      return;
+    }
+
+    // Nếu đơn VNPay chưa thanh toán, chặn chuyển đổi trạng thái
+    if (currentOrder.paymentMethod === 'vnpay' && currentOrder.paymentStatus !== 'completed') {
+      Swal.fire('Cảnh báo', 'Đơn hàng VNPay chưa thanh toán không thể cập nhật trạng thái xử lý.', 'warning');
+      setTimeout(() => {
+        selectElement.value = currentOrder.status;
+      }, 100);
       return;
     }
 
@@ -471,6 +509,15 @@ export class QuanlydonhangComponent implements OnInit, AfterViewInit {
       case 'Đã hoàn thành': return 'badge-completed';
       default: return 'badge-secondary';
     }
+  }
+
+  // Hiển thị trạng thái chuẩn hóa: mọi đơn đã thanh toán sẽ coi là 'Đang chuẩn bị'
+  getDisplayStatus(order: Order): Order['status'] {
+    const paidOnline = order.paymentMethod === 'vnpay' && order.paymentStatus === 'completed';
+    const isLegacyPaid = this.removeVietnameseTones((order.status || '').toLowerCase()).includes('thanh toan');
+    if (paidOnline && order.status === 'Chờ xác nhận') return 'Đang chuẩn bị';
+    if (isLegacyPaid) return 'Đang chuẩn bị';
+    return order.status;
   }
 
   formatDate(dateString: string): string {

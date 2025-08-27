@@ -14,11 +14,27 @@ export class OrderService {
 
   getPendingOrders(): Observable<ApiResponse<Order[]>> {
     const token = this.authService.getToken();
+    console.log('Token for pending orders:', token);
     const headers = new HttpHeaders({
       'Authorization': token ? `Bearer ${token}` : '',
       'Content-Type': 'application/json'
     });
+    console.log('Headers for pending orders:', headers);
     return this.http.get<ApiResponse<Order[]>>(`${this.apiUrl}/pending`, { headers });
+  }
+
+  getRevenue(params: { granularity: 'day'|'month'|'quarter'; start?: string; end?: string }): Observable<ApiResponse<any>> {
+    const token = this.authService.getToken();
+    console.log('Token for revenue:', token);
+    const headers = new HttpHeaders({
+      'Authorization': token ? `Bearer ${token}` : '',
+      'Content-Type': 'application/json'
+    });
+    console.log('Headers for revenue:', headers);
+    const query = new URLSearchParams({ granularity: params.granularity });
+    if (params.start) query.set('start', params.start);
+    if (params.end) query.set('end', params.end);
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/revenue?${query.toString()}`, { headers });
   }
 
   getCompletedOrders(): Observable<ApiResponse<Order[]>> {
@@ -40,23 +56,25 @@ export class OrderService {
   }
 
   getOrders(): Observable<ApiResponse<Order[]>> {
-    const token = localStorage.getItem('adminToken');
+    const token = this.authService.getToken();
     if (!token) {
       return throwError(() => new Error('Thiếu token xác thực'));
     }
     const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`,
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
     });
     return this.http.get<ApiResponse<Order[]>>(this.apiUrl, { headers });
   }
 
   updateOrderStatus(id: string, status: Order['status']): Observable<ApiResponse<Order>> {
-    const token = localStorage.getItem('adminToken');
+    const token = this.authService.getToken();
     if (!token) {
       return throwError(() => new Error('Thiếu token xác thực'));
     }
     const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`,
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
     });
     return this.http.put<ApiResponse<Order>>(`${this.apiUrl}/${id}`, { status }, { headers });
   }

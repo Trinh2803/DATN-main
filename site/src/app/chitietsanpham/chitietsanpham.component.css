@@ -373,6 +373,7 @@ a {
   justify-content: center;
   opacity: 0;
   transition: opacity 0.3s ease;
+  pointer-events: none; /* Ngăn overlay chặn sự kiện click */
 }
 
 .related-product-card:hover .related-product-overlay {
@@ -388,6 +389,7 @@ a {
   border-radius: 20px;
   background-color: transparent;
   transition: all 0.3s ease;
+  pointer-events: auto; /* Cho phép nút "Xem chi tiết" nhận sự kiện click */
 }
 
 .view-details:hover {
@@ -681,22 +683,22 @@ a {
   .coupon-input-wrapper {
     flex-direction: column;
   }
-  
+
   .apply-coupon-btn {
     width: 100%;
   }
-  
+
   .coupon-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
   }
-  
+
   .coupon-badge {
     margin-right: 0;
     align-self: flex-end;
   }
-  
+
   .coupon-action {
     align-self: flex-end;
   }
@@ -707,17 +709,17 @@ a {
     padding: 15px;
     margin: 20px 0;
   }
-  
+
   .coupon-item {
     padding: 12px;
   }
-  
+
   .applied-coupon {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
   }
-  
+
   .remove-coupon-btn {
     align-self: flex-end;
   }
@@ -1430,44 +1432,44 @@ a {
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .comments-title::before,
   .comments-title::after {
     display: none;
   }
-  
+
   .rating-summary {
     flex-direction: column;
     gap: 30px;
     text-align: center;
     padding: 25px;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
     gap: 20px;
   }
-  
+
   .comments-filter {
     justify-content: center;
   }
-  
+
   .comment-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
   }
-  
+
   .comment-rating {
     align-self: flex-end;
   }
-  
+
   .rating-input {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
   }
-  
+
   .user-avatar {
     width: 45px;
     height: 45px;
@@ -1480,24 +1482,24 @@ a {
     margin-top: 40px;
     padding: 30px 0;
   }
-  
+
   .comment-form-container,
   .rating-summary {
     padding: 20px;
   }
-  
+
   .comments-title {
     font-size: 24px;
   }
-  
+
   .rating-number {
     font-size: 42px;
   }
-  
+
   .comment-item {
     padding: 20px;
   }
-  
+
   .form-title {
     font-size: 22px;
   }
@@ -1540,16 +1542,16 @@ a {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 15px;
   }
-  
+
   .related-product-image {
     height: 150px;
   }
-  
+
   .related-product-name {
     font-size: 14px;
     height: 40px;
   }
-  
+
   .related-product-price .current-price {
     font-size: 16px;
   }

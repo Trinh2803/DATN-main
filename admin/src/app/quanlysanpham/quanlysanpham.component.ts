@@ -20,6 +20,7 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
   displayedProducts: Product[] = [];
   categories: Category[] = [];
   searchQuery: string = '';
+  showHiddenProducts: boolean = false;
   userAvatar: string = '/assets/images/icon.png';
   errorMessage: string | null = null;
   showForm: boolean = false;
@@ -76,7 +77,10 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
 
   loadData(): void {
     forkJoin({
-      products: this.productService.getProducts({ name: this.searchQuery }),
+      products: this.productService.getProducts({ 
+        name: this.searchQuery,
+        showHidden: this.showHiddenProducts 
+      }),
       categories: this.categoryService.getCategories()
     }).subscribe({
       next: ({ products, categories }) => {
@@ -301,27 +305,64 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
     }
   }
 
+  toggleShowHidden(): void {
+    this.showHiddenProducts = !this.showHiddenProducts;
+    this.loadData();
+  }
+
   deleteProduct(id: string): void {
-    if (confirm('Bạn có chắc muốn xóa sản phẩm này?')) {
+    const product = this.products.find(p => p._id === id);
+    if (!product) {
+      this.errorMessage = 'Không tìm thấy sản phẩm';
+      return;
+    }
+
+    const action = product.isHidden ? 'hiện' : 'ẩn';
+    const message = `Bạn có chắc muốn ${action} sản phẩm "${product.name}"? ${!product.isHidden ? '\n\nSản phẩm sẽ không hiển thị trên trang người dùng nhưng vẫn được lưu trong hệ thống.' : ''}`;
+    
+    if (confirm(message)) {
+      // Show loading state
+      const originalState = {...product};
+      
+      // Optimistically update the UI
+      product.isHidden = !product.isHidden;
+      
       this.productService.deleteProduct(id).subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.loadData();
+        next: (response: any) => {
+          if (response?.success) {
+            // Success - UI already updated
             this.errorMessage = null;
+            alert(`Đã ${action} sản phẩm thành công`);
           } else {
-            this.errorMessage = response.message || 'Lỗi khi xóa sản phẩm.';
+            // Revert the UI on error
+            const index = this.products.findIndex(p => p._id === id);
+            if (index !== -1) {
+              this.products[index] = originalState;
+            }
+            this.errorMessage = response?.message || `Lỗi khi ${action} sản phẩm.`;
           }
         },
-        error: (err) => {
-          console.error('Lỗi khi xóa sản phẩm:', err);
+        error: (err: any) => {
+          console.error(`Lỗi khi ${action} sản phẩm:`, err);
+          
+          // Revert the UI on error
+          const index = this.products.findIndex(p => p._id === id);
+          if (index !== -1) {
+            this.products[index] = originalState;
+          }
 
-          // Xử lý lỗi xác thực
+          // Handle authentication errors
           if (err.status === 401 || err.status === 403 || err.message === 'Thiếu token xác thực') {
             this.handleAuthError();
             return;
           }
 
-          this.errorMessage = err.error?.message || err.message || 'Lỗi khi xóa sản phẩm: Không xác định';
+          // Show appropriate error message
+          if (err.status === 404) {
+            this.errorMessage = 'Không tìm thấy API cập nhật sản phẩm. Vui lòng kiểm tra lại kết nối hoặc liên hệ quản trị viên.';
+          } else {
+            this.errorMessage = err.error?.message || err.message || `Lỗi khi ${action} sản phẩm: Không xác định`;
+          }
         }
       });
     }
@@ -332,6 +373,40 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
     this.currentProduct = this.resetProduct();
   }
 
+  private resetProduct(): Product & { thumbnailFile?: File; imageFiles?: File[]; thumbnailUrl?: string; imageUrls?: string[] } {
+    return {
+      _id: '',
+      name: '',
+      slug: '',
+      description: '',
+      price: 0,
+      salePrice: undefined,
+      thumbnail: '',
+      images: [],
+      variants: [],
+      categoryId: '',
+      thumbnailFile: undefined,
+      imageFiles: undefined,
+      thumbnailUrl: undefined,
+      imageUrls: undefined,
+      isHidden: false
+    };
+  }
+
+  private validateProduct(): boolean {
+    return !!(this.currentProduct?.name &&
+      this.currentProduct.slug &&
+      this.currentProduct.description &&
+      this.currentProduct.price > 0 &&
+      this.currentProduct.categoryId &&
+      this.currentProduct.variants?.every((v: any) => v.size && v.price > 0 && v.stock >= 0)
+    );
+  }
+
+  private generateId(): string {
+    return Math.random().toString(36).substr(2, 24);
+  }
+
   logout(): void {
     localStorage.removeItem('adminToken');
     localStorage.removeItem('userAvatar');
@@ -340,6 +415,11 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
   }
 
   updatePagination(): void {
+    if (!this.filteredProducts) {
+      this.totalPages = 1;
+      this.displayedProducts = [];
+      return;
+    }
     this.totalPages = Math.ceil(this.filteredProducts.length / this.productsPerPage);
     const startIndex = (this.currentPage - 1) * this.productsPerPage;
     const endIndex = startIndex + this.productsPerPage;
@@ -373,40 +453,7 @@ export class QuanlysanphamComponent implements OnInit, AfterViewInit {
     return pages;
   }
 
-  private resetProduct(): Product & { thumbnailFile?: File; imageFiles?: File[]; thumbnailUrl?: string; imageUrls?: string[] } {
-    return {
-      name: '',
-      slug: '',
-      description: '',
-      price: 0,
-      salePrice: undefined,
-      thumbnail: '',
-      images: [],
-      variants: [],
-      categoryId: '',
-      thumbnailFile: undefined,
-      imageFiles: undefined,
-      thumbnailUrl: undefined,
-      imageUrls: undefined
-    };
-  }
-
-  private validateProduct(): boolean {
-    return !!(
-      this.currentProduct.name &&
-      this.currentProduct.slug &&
-      this.currentProduct.description &&
-      this.currentProduct.price > 0 &&
-      this.currentProduct.categoryId &&
-      this.currentProduct.variants?.every(v => v.size && v.price > 0 && v.stock >= 0)
-    );
-  }
-
-  private generateId(): string {
-    return Math.random().toString(36).substr(2, 24);
-  }
-
   trackByVariantId(index: number, variant: Variant): string {
-    return variant._id;
+    return variant._id || index.toString();
   }
 }
