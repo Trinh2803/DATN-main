@@ -8,7 +8,7 @@ import { AuthService } from './auth.service';
   providedIn: 'root',
 })
 export class OrderService {
-  private apiUrl = 'http://localhost:3000/orders';
+  private apiUrl = 'http://localhost:3000/api/orders';
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
@@ -39,10 +39,15 @@ export class OrderService {
 
   getCompletedOrders(): Observable<ApiResponse<Order[]>> {
     const token = this.authService.getToken();
+    console.log('Getting completed orders with token:', token);
+    if (!token) {
+      return throwError(() => new Error('Thiếu token xác thực'));
+    }
     const headers = new HttpHeaders({
-      'Authorization': token ? `Bearer ${token}` : '',
+      'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
+    console.log('Headers for completed orders:', headers.keys());
     return this.http.get<ApiResponse<Order[]>>(`${this.apiUrl}/completed`, { headers });
   }
 
@@ -57,6 +62,7 @@ export class OrderService {
 
   getOrders(): Observable<ApiResponse<Order[]>> {
     const token = this.authService.getToken();
+    console.log('Getting orders with token:', token);
     if (!token) {
       return throwError(() => new Error('Thiếu token xác thực'));
     }
@@ -64,6 +70,7 @@ export class OrderService {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
+    console.log('Headers for get orders:', headers.keys());
     return this.http.get<ApiResponse<Order[]>>(this.apiUrl, { headers });
   }
 
