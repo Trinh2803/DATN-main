@@ -45,7 +45,7 @@ export class CheckoutComponent implements OnInit {
     shippingMethod: 'free',
     paymentMethod: 'cod',
   };
-  private apiUrl = 'http://localhost:3000/orders';
+  private apiUrl = 'http://localhost:3000/api/orders';
 
   constructor(
     private cartService: CartService,
@@ -140,26 +140,62 @@ export class CheckoutComponent implements OnInit {
   private processCODOrder(): void {
     const orderData = this.prepareOrderData();
     const token = localStorage.getItem('token');
+    
+    if (!token) {
+      alert('Vui lòng đăng nhập để đặt hàng');
+      this.router.navigate(['/dangnhap'], { queryParams: { returnUrl: '/checkout' } });
+      return;
+    }
+
     const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`,
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
     });
+
+    console.log('Sending order data:', orderData);
+    console.log('API URL:', this.apiUrl);
 
     this.http.post(this.apiUrl, orderData, { headers }).subscribe({
       next: (response: any) => {
+        console.log('Order creation response:', response);
+        
+        if (!response.success) {
+          alert('Đặt hàng không thành công: ' + response.message);
+          return;
+        }
+
         this.cartService.clearCart();
         localStorage.removeItem('pendingOrder');
-        const orderId = response.data._id;
-        console.log('COD Order created with ID:', orderId);
+        const orderId = response.data?._id;
         
-        // Success message + toast
+        if (!orderId) {
+          console.error('Order created but no ID returned:', response);
+          alert('Đặt hàng thành công nhưng không thể xem chi tiết đơn hàng');
+          this.router.navigate(['/lichsudonhang']);
+          return;
+        }
+
+        console.log('COD Order created successfully with ID:', orderId);
         this.showToast();
-        // Navigate to order detail
         this.router.navigate(['/donhang'], {
           queryParams: { orderId }
         });
       },
       error: (err) => {
-        alert('Đặt hàng thất bại: ' + (err.error?.message || 'Vui lòng thử lại sau'));
+        console.error('Order creation error:', err);
+        let errorMessage = 'Đặt hàng thất bại';
+        
+        if (err.status === 401 || err.status === 403) {
+          errorMessage = 'Vui lòng đăng nhập lại để đặt hàng';
+          localStorage.removeItem('token');
+          this.router.navigate(['/dangnhap'], { queryParams: { returnUrl: '/checkout' } });
+        } else if (err.status === 404) {
+          errorMessage = 'Không thể kết nối đến server. Vui lòng thử lại sau';
+        } else if (err.error?.message) {
+          errorMessage = err.error.message;
+        }
+        
+        alert(errorMessage);
       },
     });
   }

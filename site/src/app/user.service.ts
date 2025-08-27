@@ -84,7 +84,7 @@ export class UserService {
   getOrders(): Observable<any> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    return this.http.get(`${this.apiUrlT}/orders/user`, { headers });
+    return this.http.get(`${this.apiUrlT}/api/orders/user`, { headers });
   }
 
   // Gửi OTP về email

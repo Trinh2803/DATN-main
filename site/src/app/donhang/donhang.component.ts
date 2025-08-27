@@ -40,7 +40,7 @@ interface OrderData {
 })
 export class DonhangComponent implements OnInit {
   order: OrderData | null = null;
-  private apiUrl = 'http://localhost:3000/orders';
+  private apiUrl = 'http://localhost:3000/api/orders';
 
   constructor(
     private router: Router,
