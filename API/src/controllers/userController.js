@@ -3,6 +3,7 @@ const userService = require('../services/userService');
 const { sendOtpEmail } = require('../ultils/mailer');
 const bcrypt = require('bcrypt');
 const otpStore = new Map();
+
 const getAllUsers = async (req, res) => {
   try {
     const { search } = req.query; // Lấy searchQuery từ query params
@@ -66,6 +67,44 @@ const login = async (req, res) => {
   }
 };
 
+// Send OTP to user's email
+const sendOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Vui lòng nhập email' });
+    }
+
+    const result = await userService.sendOtp(email);
+    res.status(200).json(result);
+  } catch (err) {
+    console.error('Error sending OTP:', err.message);
+    res.status(400).json({ success: false, message: err.message });
+  }
+};
+
+// Verify OTP
+const verifyOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Vui lòng nhập đầy đủ email và mã OTP' 
+      });
+    }
+
+    const result = await userService.verifyOtp(email, otp);
+    res.status(200).json(result);
+  } catch (err) {
+    console.error('Error verifying OTP:', err.message);
+    res.status(400).json({ 
+      success: false, 
+      message: err.message || 'Lỗi xác minh OTP' 
+    });
+  }
+};
+
 // Xác minh OTP đăng ký
 const verifyRegistration = async (req, res) => {
   try {
@@ -108,6 +147,7 @@ const changeUserRole = async (req, res) => {
     res.status(400).json({ success: false, message: err.message || 'Lỗi khi thay đổi vai trò' });
   }
 };
+
 const requestResetPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -125,7 +165,7 @@ const requestResetPassword = async (req, res) => {
 };
 
 // Xác minh OTP
-const verifyOtp = async (req, res) => {
+const verifyOtpResetPassword = async (req, res) => {
   try {
     const { email, otp } = req.body;
     const record = otpStore.get(email);
@@ -158,12 +198,14 @@ module.exports = {
   getAllUsers,
   register,
   login,
+  verifyRegistration,
   updateUser,
   getUserById,
   changeUserRole,
   requestResetPassword,
   verifyOtp,
+  verifyOtpResetPassword,
   resetPassword,
   getToken,
-  verifyRegistration,
+  sendOtp,
 };

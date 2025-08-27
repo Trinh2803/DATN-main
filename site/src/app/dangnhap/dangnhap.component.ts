@@ -38,35 +38,31 @@ export class DangnhapComponent {
         next: (response) => {
           console.log('Login API Response:', response);
           this.errorMessage = '';
-          const token = response?.data?.token;
-          const user = response?.data?.user;
-          if (token && user) {
-            localStorage.setItem('token', token);
-            if (this.user.remember) {
-              localStorage.setItem('user', JSON.stringify(user));
-              console.log('User stored:', localStorage.getItem('user'));
-            } else {
-              localStorage.removeItem('user');
-            }
-            console.log('Token stored:', localStorage.getItem('token'));
-            this.userService.updateUser(user);
+            
+          // The service now handles token and user storage
+          this.userService.updateUser(response.user || response.data?.user);
 
-            const fromRegister = this.route.snapshot.queryParams['fromRegister'] === 'true';
-            let returnUrl = '/';
-            if (!fromRegister) {
-              returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-            }
-
-            setTimeout(() => {
-              this.router.navigate([returnUrl]);
-            }, 2000);
-          } else {
-            this.errorMessage = 'Không nhận được token hoặc thông tin người dùng từ server!';
+          const fromRegister = this.route.snapshot.queryParams['fromRegister'] === 'true';
+          let returnUrl = '/';
+          if (!fromRegister) {
+            returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
           }
+
+          // Show success message and redirect
+          this.successMessage = 'Đăng nhập thành công! Đang chuyển hướng...';
+          setTimeout(() => {
+            this.router.navigate([returnUrl]);
+          }, 1000);
         },
         error: (error) => {
           console.error('Lỗi đăng nhập:', error);
-          this.errorMessage = error.error?.message || 'Đăng nhập thất bại! Vui lòng kiểm tra email hoặc mật khẩu.';
+          if (error.status === 400) {
+            this.errorMessage = 'Email hoặc mật khẩu không chính xác. Vui lòng thử lại.';
+          } else if (error.status === 401) {
+            this.errorMessage = 'Tài khoản chưa được kích hoạt. Vui lòng kiểm tra email của bạn.';
+          } else {
+            this.errorMessage = error.error?.message || 'Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại sau.';
+          }
         },
       });
     } else {

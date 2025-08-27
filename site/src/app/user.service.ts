@@ -26,11 +26,24 @@ export class UserService {
   // Đăng nhập
   login(credentials: { email: string; password: string }): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, credentials).pipe(
-      tap((response: any) => {
-        if (response.success && response.token) {
-          localStorage.setItem('token', response.token);
-          localStorage.setItem('user', JSON.stringify(response.user));
-          this.userSubject.next(response.user);
+      tap({
+        next: (response: any) => {
+          // Handle both response formats for backward compatibility
+          const token = response?.token || response?.data?.token;
+          const user = response?.user || response?.data?.user;
+          
+          if (token && user) {
+            localStorage.setItem('token', token);
+            localStorage.setItem('user', JSON.stringify(user));
+            this.userSubject.next(user);
+          } else {
+            console.error('Invalid response format from server:', response);
+            throw new Error('Invalid response format from server');
+          }
+        },
+        error: (error) => {
+          console.error('Login error:', error);
+          throw error; // Re-throw to let the component handle it
         }
       })
     );
@@ -89,7 +102,22 @@ export class UserService {
 
   // Gửi OTP về email
   sendOtp(email: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/forgot-password`, { email });
+    return this.http.post(`${this.apiUrl}/send-otp`, { email });
+  }
+
+  // Gửi lại OTP
+  resendOtp(email: string): Observable<any> {
+    return this.sendOtp(email);
+  }
+
+  // Xác minh OTP đăng ký
+  verifyRegistration(email: string, otp: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/verify-registration`, { email, otp });
+  }
+
+  // Xác minh OTP
+  verifyEmail(email: string, otp: string): Observable<any> {
+    return this.verifyOtp(email, otp);
   }
 
   // Xác minh mã OTP

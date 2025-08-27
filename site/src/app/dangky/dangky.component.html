@@ -1,92 +1,96 @@
 <div class="all">
 <div class="container">
   <div class="left-section">
-    <h1>Tạo tài khoản</h1>
-    <p>Đăng ký tài khoản chỉ trong 1 phút để tích lũy điểm và nhận ưu đãi từ DEHO.</p>
+    <h1>{{ showOtpForm ? 'Xác minh tài khoản' : 'Tạo tài khoản' }}</h1>
+    <p *ngIf="!showOtpForm">Đăng ký tài khoản chỉ trong 1 phút để tích lũy điểm và nhận ưu đãi từ DEHO.</p>
+    <p *ngIf="showOtpForm">Nhập mã OTP đã được gửi đến email của bạn để xác minh tài khoản.</p>
     <div class="divider"></div>
     <p>Đã có tài khoản? <a [routerLink]="['/dangnhap']">Đăng nhập ngay</a></p>
   </div>
   <div class="right-section">
-    <h3>Đăng kí bằng email</h3>
-    <form #registerForm="ngForm" (ngSubmit)="onSubmit(registerForm)">
-      <input
-        type="text"
-        placeholder="Họ tên"
-        name="name"
-        [(ngModel)]="user.name"
-        #name="ngModel"
-        required
-        minlength="3"
-      />
-      <small class="text-danger" *ngIf="name.invalid && name.touched">
-        ❌ Họ tên tối thiểu 3 ký tự!
-      </small>
+    <h3 *ngIf="!showOtpForm">Đăng ký bằng email</h3>
+    <h3 *ngIf="showOtpForm">Nhập mã xác minh</h3>
+    
+    <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
+      <!-- Registration Form -->
+      <div *ngIf="!showOtpForm">
+        <input
+          type="text"
+          formControlName="name"
+          placeholder="Họ tên"
+        />
+        <small class="text-danger" *ngIf="registrationForm.get('name')?.invalid && registrationForm.get('name')?.touched">
+          ❌ Họ tên tối thiểu 3 ký tự!
+        </small>
 
-      <input
-        type="tel"
-        placeholder="Số điện thoại"
-        name="phone"
-        [(ngModel)]="user.phone"
-        #phone="ngModel"
-        required
-        pattern="^[0-9]{10}$"
-      />
-      <small class="text-danger" *ngIf="phone.invalid && phone.touched">
-        ❌ Số điện thoại phải có 10 chữ số!
-      </small>
+        <input
+          type="tel"
+          formControlName="phone"
+          placeholder="Số điện thoại"
+        />
+        <small class="text-danger" *ngIf="registrationForm.get('phone')?.invalid && registrationForm.get('phone')?.touched">
+          ❌ Số điện thoại không hợp lệ!
+        </small>
 
-      <input
-        type="email"
-        placeholder="Email"
-        name="email"
-        [(ngModel)]="user.email"
-        #email="ngModel"
-        required
-        email
-      />
-      <small class="text-danger" *ngIf="email.invalid && email.touched">
-        ❌ Email không hợp lệ!
-      </small>
+        <input
+          type="email"
+          formControlName="email"
+          placeholder="Email"
+        />
+        <small class="text-danger" *ngIf="registrationForm.get('email')?.invalid && registrationForm.get('email')?.touched">
+          ❌ Email không hợp lệ!
+        </small>
 
-      <input
-        type="password"
-        placeholder="Mật khẩu"
-        name="password"
-        [(ngModel)]="user.password"
-        #password="ngModel"
-        required
-        minlength="6"
-      />
-      <small class="text-danger" *ngIf="password.invalid && password.touched">
-        ❌ Mật khẩu tối thiểu 6 ký tự!
-      </small>
+        <input
+          type="password"
+          formControlName="password"
+          placeholder="Mật khẩu"
+        />
+        <small class="text-danger" *ngIf="registrationForm.get('password')?.invalid && registrationForm.get('password')?.touched">
+          ❌ Mật khẩu tối thiểu 6 ký tự!
+        </small>
 
-      <input
-        type="password"
-        placeholder="Xác nhận mật khẩu"
-        name="confirmPassword"
-        [(ngModel)]="user.confirmPassword"
-        #confirmPassword="ngModel"
-        required
-        minlength="6"
-      />
-      <small class="text-danger" *ngIf="confirmPassword.invalid && confirmPassword.touched">
-        ❌ Xác nhận mật khẩu không hợp lệ!
-      </small>
-      <small class="text-danger" *ngIf="user.password !== user.confirmPassword && confirmPassword.touched">
-        ❌ Mật khẩu và xác nhận không khớp!
-      </small>
+        <input
+          type="password"
+          formControlName="confirmPassword"
+          placeholder="Xác nhận mật khẩu"
+        />
+        <small class="text-danger" *ngIf="registrationForm.hasError('mismatch')">
+          ❌ Mật khẩu không khớp!
+        </small>
+      </div>
+
+      <!-- OTP Verification Form -->
+      <div *ngIf="showOtpForm" class="otp-form">
+        <div class="otp-inputs">
+          <input
+            type="text"
+            formControlName="otp"
+            placeholder="Nhập mã OTP"
+            maxlength="6"
+            class="otp-input"
+          />
+        </div>
+        <p class="resend-otp">
+          Chưa nhận được mã? 
+          <a href="javascript:void(0)" 
+             (click)="resendOtp()" 
+             [class.disabled]="countdown > 0">
+            Gửi lại mã {{ countdown > 0 ? '(' + countdown + 's)' : '' }}
+          </a>
+        </p>
+      </div>
 
       <button
         type="submit"
         class="btn-register"
-        [disabled]="registerForm.invalid"
+        [disabled]="registrationForm.invalid || (showOtpForm && !registrationForm.get('otp')?.value)"
       >
-        Đăng ký ngay
+        {{ showOtpForm ? 'Xác minh' : 'Đăng ký ngay' }}
       </button>
     </form>
 
-    <p *ngIf="submitted && !errorMessage" class="text-success text-center mt-3">
+    <p *ngIf="successMessage" class="text-success text-center mt-3">
       {{ successMessage }}
     </p>
     <p *ngIf="errorMessage" class="text-danger text-center mt-3">

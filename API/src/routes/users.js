@@ -1,7 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const { verifyToken, verifyAdmin } = require('../middlewares/authMiddleware');
-const { getAllUsers, login, register, updateUser, getUserById, changeUserRole, requestResetPassword, verifyOtp,  resetPassword, verifyRegistration } = require('../controllers/userController');
+const { 
+  getAllUsers, 
+  login, 
+  register, 
+  updateUser, 
+  getUserById, 
+  changeUserRole, 
+  requestResetPassword, 
+  verifyOtp, 
+  resetPassword, 
+  verifyRegistration,
+  sendOtp
+} = require('../controllers/userController');
 const upload = require('../middlewares/uploadMiddleware'); // Thêm middleware upload
 // Lấy danh sách người dùng (admin only)
 router.get('/', verifyToken, verifyAdmin, getAllUsers);
@@ -10,6 +22,8 @@ router.get('/', verifyToken, verifyAdmin, getAllUsers);
 router.post('/register', register);
 router.post('/login', login);
 router.post('/forgot-password', requestResetPassword);
+// OTP Verification Routes
+router.post('/send-otp', sendOtp);
 router.post('/verify-otp', verifyOtp);
 router.post('/reset-password', resetPassword);
 router.post('/verify-registration', verifyRegistration);
