@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../product.service';
@@ -11,7 +11,6 @@ import { CommentService } from '../comment.service';
 import { Comment } from '../interfaces/comment.interface';
 import Swal from 'sweetalert2';
 import { DiscountService, Discount } from '../discount.service';
-import { forkJoin } from 'rxjs';
 
 @Component({
   standalone: true,
@@ -21,16 +20,16 @@ import { forkJoin } from 'rxjs';
   styleUrls: ['./chitietsanpham.component.css'],
 })
 export class ChiTietSanPhamComponent implements OnInit {
-  @ViewChild('commentsSection', { static: false }) commentsSection!: ElementRef;
   product: ProductInterface | null = null;
   selectedVariant: Variant | null = null;
   quantity: number = 1;
-  selectedImage: string | null = null;
-  relatedProducts: ProductInterface[] = [];
+  selectedImage: string | null = null;  //Thêm biến lưu ảnh chính
+  relatedProducts: ProductInterface[] = []; // Thêm sản phẩm liên quan
   private wishlistCache = new Map<string, boolean>();
 
   hasBought: boolean = false;
 
+  // Comment properties
   comments: Comment[] = [];
   averageRating: number = 0;
   commentFilter: string | number = 'all';
@@ -43,6 +42,7 @@ export class ChiTietSanPhamComponent implements OnInit {
     content: ''
   };
 
+  // Coupon properties
   couponCode: string = '';
   appliedCoupon: any = null;
   availableCoupons: any[] = [];
@@ -61,37 +61,22 @@ export class ChiTietSanPhamComponent implements OnInit {
     private http: HttpClient
   ) {}
 
-  ngOnInit(): void {
+ ngOnInit(): void {
   this.route.paramMap.subscribe(params => {
     const productId = params.get('id');
     if (productId) {
       this.product = null;
       this.relatedProducts = [];
-      
-      // Gọi các API cần thiết đồng thời
-      forkJoin({
-        product: this.productService.getProductById(productId),
-        hasBought: this.http.get<{ success: boolean, bought: boolean }>(
-          `http://localhost:3000/api/orders/has-bought/${productId}`,
-          { headers: new HttpHeaders({ 'Authorization': `Bearer ${localStorage.getItem('token')}` }) }
-        )
-      }).subscribe({
-        next: ({ product, hasBought }) => {
-          this.product = product;
-          this.selectedVariant = product.selectedVariant || null;
-          this.selectedImage = product.thumbnail;
-          this.hasBought = !!hasBought.bought; // Cập nhật hasBought
+      this.productService.getProductById(productId).subscribe({
+        next: (data: ProductInterface) => {
+          this.product = data;
+          this.selectedVariant = data.selectedVariant || null;
+          this.selectedImage = data.thumbnail;
           this.loadRelatedProducts();
           this.loadWishlistStatus();
           this.loadComments();
           this.loadAvailableCoupons();
-
-          // Kiểm tra query parameter để cuộn đến phần đánh giá
-          this.route.queryParams.subscribe(queryParams => {
-            if (queryParams['review'] === 'true') {
-              this.scrollToComments();
-            }
-          });
+          this.checkHasBought(productId);
         },
         error: (err: any) => {
           this.router.navigate(['/sanpham']);
@@ -102,23 +87,6 @@ export class ChiTietSanPhamComponent implements OnInit {
     }
   });
 }
-  scrollToComments(): void {
-    setTimeout(() => {
-      if (this.commentsSection && this.hasBought) {
-        this.commentsSection.nativeElement.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-        });
-      } else if (!this.hasBought) {
-        Swal.fire({
-          title: 'Thông báo',
-          text: 'Bạn cần mua sản phẩm này để có thể đánh giá!',
-          icon: 'info',
-          confirmButtonText: 'OK',
-        });
-      }
-    }, 100); // Delay để đảm bảo DOM đã sẵn sàng
-  }
 
   checkHasBought(productId: string) {
     const token = localStorage.getItem('token');
@@ -139,7 +107,6 @@ export class ChiTietSanPhamComponent implements OnInit {
       }
     });
   }
-
   private loadWishlistStatus(): void {
     if (!this.product) return;
 
@@ -176,6 +143,7 @@ export class ChiTietSanPhamComponent implements OnInit {
       );
     }
     if (this.product) {
+      // Nếu có biến thể, kiểm tra xem có biến thể nào có giảm giá không (đồng nhất với trang chủ)
       if (this.product.variants && this.product.variants.length > 0) {
         return this.product.variants.some(v => v.salePrice && v.salePrice < v.price);
       }
@@ -201,6 +169,7 @@ export class ChiTietSanPhamComponent implements OnInit {
       );
     }
     if (this.product) {
+      // Nếu có biến thể, tìm % giảm giá cao nhất (đồng nhất với trang chủ)
       if (this.product.variants && this.product.variants.length > 0) {
         const maxDiscount = Math.max(...this.product.variants.map(v => {
           if (!v.salePrice || v.salePrice >= v.price) return 0;
@@ -245,6 +214,7 @@ export class ChiTietSanPhamComponent implements OnInit {
       productToAdd.selectedVariant = this.selectedVariant;
     }
 
+    // Đưa appliedCoupon vào cart item nếu có
     this.cartService.addToCartWithQuantity(productToAdd, this.quantity, this.appliedCoupon || undefined);
     Swal.fire({
       title: 'Thành công',
@@ -262,6 +232,7 @@ export class ChiTietSanPhamComponent implements OnInit {
       productToAdd.selectedVariant = this.selectedVariant;
     }
 
+    // Đưa appliedCoupon vào cart item nếu có
     this.cartService.addToCartWithQuantity(productToAdd, this.quantity, this.appliedCoupon || undefined);
     this.router.navigate(['/checkout']);
   }
@@ -316,17 +287,21 @@ export class ChiTietSanPhamComponent implements OnInit {
 
     this.productService.getAllProducts().subscribe({
       next: (products: ProductInterface[]) => {
+        // Lọc sản phẩm cùng danh mục, loại bỏ sản phẩm hiện tại và chỉ lấy sản phẩm còn hàng
         this.relatedProducts = products
           .filter((p: ProductInterface) => {
             if (p.categoryId !== this.product!.categoryId || p._id === this.product!._id) return false;
+            // Nếu không có trường stock thì vẫn hiển thị
             if (typeof p.stock !== 'number' && !p.variants) return true;
+            // Nếu có stock thì kiểm tra còn hàng
             if (typeof p.stock === 'number' && p.stock > 0) return true;
+            // Nếu có variants thì kiểm tra từng variant
             if (p.variants && Array.isArray(p.variants)) {
               return p.variants.some((v: any) => typeof v.stock !== 'number' || v.stock > 0);
             }
             return false;
           })
-          .slice(0, 4);
+          .slice(0, 4); // Chỉ lấy 4 sản phẩm liên quan
       },
       error: (err: any) => {
         console.error('Error loading related products:', err);
@@ -335,10 +310,11 @@ export class ChiTietSanPhamComponent implements OnInit {
   }
 
   goToProduct(id: string): void {
-    console.log('Navigating to product with ID:', id);
-    this.router.navigate(['/chitiet', id]);
-  }
+  console.log('Navigating to product with ID:', id); // Kiểm tra ID
+  this.router.navigate(['/chitiet', id]);
+}
 
+  // Lấy giá hiện tại của sản phẩm liên quan
   getRelatedProductPrice(product: ProductInterface): number {
     if (product.variants && product.variants.length > 0) {
       const minPrice = Math.min(...product.variants.map(v => v.salePrice || v.price));
@@ -347,6 +323,7 @@ export class ChiTietSanPhamComponent implements OnInit {
     return product.salePrice || product.price;
   }
 
+  // Lấy giá gốc của sản phẩm liên quan
   getRelatedProductOriginalPrice(product: ProductInterface): number {
     if (product.variants && product.variants.length > 0) {
       const minOriginalPrice = Math.min(...product.variants.map(v => v.price));
@@ -355,6 +332,7 @@ export class ChiTietSanPhamComponent implements OnInit {
     return product.price;
   }
 
+  // Kiểm tra sản phẩm liên quan có giảm giá không
   isRelatedProductOnSale(product: ProductInterface): boolean {
     if (product.variants && product.variants.length > 0) {
       return product.variants.some(v => v.salePrice && v.salePrice < v.price);
@@ -362,6 +340,7 @@ export class ChiTietSanPhamComponent implements OnInit {
     return product.salePrice != null && product.salePrice < product.price;
   }
 
+  // Xử lý lỗi ảnh
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
     if (img) {
@@ -369,6 +348,7 @@ export class ChiTietSanPhamComponent implements OnInit {
     }
   }
 
+  // Wishlist methods
   toggleFavorite(): void {
     if (!this.product) return;
 
@@ -386,6 +366,7 @@ export class ChiTietSanPhamComponent implements OnInit {
     const isCurrentlyInWishlist = this.wishlistCache.get(this.product._id) || false;
 
     if (isCurrentlyInWishlist) {
+      // Xóa khỏi wishlist
       this.wishlistService.removeFromWishlist(this.product._id).subscribe({
         next: (response) => {
           if (response.success) {
@@ -407,6 +388,7 @@ export class ChiTietSanPhamComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error removing from wishlist:', err);
+          // Check if token is expired
           if (err.status === 401 || err.status === 403) {
             Swal.fire({
               title: 'Phiên đăng nhập hết hạn',
@@ -414,6 +396,7 @@ export class ChiTietSanPhamComponent implements OnInit {
               icon: 'warning',
               confirmButtonText: 'OK'
             });
+            // Clear token and redirect to login
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             this.router.navigate(['/dangnhap']);
@@ -428,6 +411,7 @@ export class ChiTietSanPhamComponent implements OnInit {
         }
       });
     } else {
+      // Thêm vào wishlist
       this.wishlistService.addToWishlist(this.product._id).subscribe({
         next: (response) => {
           if (response.success) {
@@ -449,6 +433,7 @@ export class ChiTietSanPhamComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error adding to wishlist:', err);
+          // Check if token is expired
           if (err.status === 401 || err.status === 403) {
             Swal.fire({
               title: 'Phiên đăng nhập hết hạn',
@@ -456,6 +441,7 @@ export class ChiTietSanPhamComponent implements OnInit {
               icon: 'warning',
               confirmButtonText: 'OK'
             });
+            // Clear token and redirect to login
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             this.router.navigate(['/dangnhap']);
@@ -477,6 +463,7 @@ export class ChiTietSanPhamComponent implements OnInit {
     return this.wishlistCache.get(this.product._id) || false;
   }
 
+  // Comment methods
   loadComments(): void {
     if (this.product?._id) {
       this.commentService.getCommentsByProduct(this.product._id).subscribe({
@@ -538,6 +525,7 @@ export class ChiTietSanPhamComponent implements OnInit {
             icon: 'success',
             confirmButtonText: 'OK'
           });
+          // Reset form
           this.newComment = {
             userName: '',
             userEmail: '',
@@ -591,6 +579,7 @@ export class ChiTietSanPhamComponent implements OnInit {
     });
   }
 
+  // Coupon methods
   loadAvailableCoupons(): void {
     if (!this.product) {
       this.availableCoupons = [];
@@ -615,6 +604,7 @@ export class ChiTietSanPhamComponent implements OnInit {
       return;
     }
 
+    // Don't allow applying if already applied
     if (this.appliedCoupon) {
       this.couponError = 'Mỗi đơn hàng chỉ được áp dụng một mã giảm giá';
       return;
@@ -628,6 +618,7 @@ export class ChiTietSanPhamComponent implements OnInit {
 
     console.log('Checking discount code:', this.couponCode.trim(), 'for amount:', totalAmount);
 
+    // First check if the discount code is valid
     this.discountService.checkDiscountCode(this.couponCode.trim(), totalAmount, productIds).subscribe({
       next: (response: { success: boolean; discount: any, message?: string }) => {
         console.log('Discount check response:', response);
@@ -635,18 +626,21 @@ export class ChiTietSanPhamComponent implements OnInit {
         if (response && response.success && response.discount) {
           const discount = response.discount;
 
+          // Check if the discount is still active
           if (!discount.isActive) {
             this.couponError = 'Mã giảm giá này đã bị vô hiệu hóa';
             this.isApplyingCoupon = false;
             return;
           }
 
+          // Check usage limit
           if (discount.usageLimit && discount.usedCount >= discount.usageLimit) {
             this.couponError = 'Mã giảm giá đã hết lượt sử dụng';
             this.isApplyingCoupon = false;
             return;
           }
 
+          // Check date validity
           const now = new Date();
           const startDate = new Date(discount.startDate);
           const endDate = new Date(discount.endDate);
@@ -663,15 +657,18 @@ export class ChiTietSanPhamComponent implements OnInit {
             return;
           }
 
+          // Check minimum order value
           if (discount.minOrderValue && totalAmount < discount.minOrderValue) {
             this.couponError = `Đơn hàng tối thiểu ${discount.minOrderValue.toLocaleString()}đ để áp dụng mã này`;
             this.isApplyingCoupon = false;
             return;
           }
 
+          // If all checks pass, call API to apply the discount and increment usage count
           this.discountService.applyDiscount(discount._id, discount.code).subscribe({
             next: (applyResponse: any) => {
               if (applyResponse.success) {
+                // Only apply the discount to UI after successful backend update
                 this.applyDiscountToProduct(discount);
               } else {
                 this.couponError = applyResponse.message || 'Không thể áp dụng mã giảm giá';
@@ -704,7 +701,8 @@ export class ChiTietSanPhamComponent implements OnInit {
       return;
     }
 
-    this.appliedCoupon = { ...discount };
+    // Apply the discount
+    this.appliedCoupon = { ...discount }; // Create a new object to trigger change detection
     this.couponCode = '';
     this.couponError = '';
 
@@ -712,6 +710,7 @@ export class ChiTietSanPhamComponent implements OnInit {
     console.log('Original price:', this.getCurrentPrice());
     console.log('Discounted price:', this.getFinalPrice());
 
+    // Force change detection
     setTimeout(() => {
       this.cdr.detectChanges();
       console.log('Change detection triggered');
@@ -764,16 +763,20 @@ export class ChiTietSanPhamComponent implements OnInit {
     console.log('Calculating discount for price:', price, 'with coupon:', this.appliedCoupon);
 
     if (this.appliedCoupon.discountType === 'percentage') {
+      // Calculate percentage discount
       discount = price * (this.appliedCoupon.discountValue / 100);
 
+      // Apply maximum discount limit if set
       if (this.appliedCoupon.maxDiscount !== undefined && discount > this.appliedCoupon.maxDiscount) {
         console.log('Applying max discount limit:', this.appliedCoupon.maxDiscount);
         discount = this.appliedCoupon.maxDiscount;
       }
     } else {
+      // Fixed amount discount
       discount = this.appliedCoupon.discountValue;
     }
 
+    // Ensure discount doesn't exceed the product price
     const finalDiscount = Math.min(discount, price);
     console.log('Final discount amount:', finalDiscount);
 
