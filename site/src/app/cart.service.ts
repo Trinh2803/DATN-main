@@ -36,6 +36,19 @@ export class CartService {
     console.log('CartService: Cart saved successfully');
   }
 
+  getAppliedDiscount() {
+    const discount = localStorage.getItem('appliedDiscount');
+    return discount ? JSON.parse(discount) : null;
+  }
+
+  removeAppliedDiscount() {
+    localStorage.removeItem('appliedDiscount');
+  }
+
+  clearAppliedDiscount() {
+    localStorage.removeItem('appliedDiscount');
+  }
+
   addToCart(product: ProductInterface, discountInfo?: any) {
     const existingItem = this.cartItems.find((item) =>
       item.product._id === product._id &&
@@ -121,11 +134,29 @@ export class CartService {
 
   getTotalPrice(): number {
     return this.cartItems.reduce((total, item) => {
-      const price = item.selectedVariant?.salePrice ||
-                   item.selectedVariant?.price ||
-                   item.product.salePrice ||
-                   item.product.price;
-      return total + price * item.quantity;
+      let price = item.selectedVariant?.salePrice ||
+                 item.selectedVariant?.price ||
+                 item.product.salePrice ||
+                 item.product.price;
+      
+      // Apply discount if exists
+      if (item.discountInfo) {
+        if (item.discountInfo.discountType === 'percentage') {
+          const discount = price * (item.discountInfo.discountValue / 100);
+          // Apply max discount if set
+          if (item.discountInfo.maxDiscount !== undefined) {
+            price -= Math.min(discount, item.discountInfo.maxDiscount);
+          } else {
+            price -= discount;
+          }
+        } else if (item.discountInfo.discountType === 'fixed') {
+          price -= item.discountInfo.discountValue;
+        }
+        // Ensure price doesn't go below 0
+        price = Math.max(0, price);
+      }
+      
+      return total + (price * item.quantity);
     }, 0);
   }
 
