@@ -1,0 +1,91 @@
+/* Action Buttons Styling */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+/* Edit Button */
+.edit-button {
+  background-color: #2e6cff;
+  color: white;
+  border-color: #2e6cff;
+}
+
+.edit-button:hover {
+  background-color: #1a5bff;
+  border-color: #1a5bff;
+}
+
+/* Delete Button */
+.delete-button {
+  background-color: #ff4757;
+  color: white;
+  border-color: #ff4757;
+}
+
+.delete-button:hover {
+  background-color: #ff6b81;
+  border-color: #ff6b81;
+}
+
+/* View Button */
+.view-button {
+  background-color: #2ed573;
+  color: white;
+  border-color: #2ed573;
+}
+
+.view-button:hover {
+  background-color: #20bf6b;
+  border-color: #20bf6b;
+}
+
+/* Hide/Show Button */
+.hide-button {
+  background-color: #ffa502;
+  color: white;
+  border-color: #ffa502;
+}
+
+.hide-button:hover {
+  background-color: #e67e22;
+  border-color: #e67e22;
+}
+
+/* Icon Styling */
+.action-button i {
+  margin-right: 4px;
+  font-size: 14px;
+}
+
+/* Button Group */
+.button-group {
+  display: flex;
+  gap: 6px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .action-buttons {
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .action-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
