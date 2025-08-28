@@ -26,8 +26,7 @@ body {
   color: var(--text-primary);
 }
 .all {
-  margin: 40px;
-}
+margin:40px ;}
 
 .dashboard-container {
   background: linear-gradient(120deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.05));
@@ -179,8 +178,6 @@ body {
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid #e5e7eb;
-  vertical-align: middle; /* Căn giữa dọc tất cả ô */
-  min-height: 60px; /* Chiều cao tối thiểu để đồng đều */
 }
 
 .dashboard-grid th {
@@ -204,7 +201,6 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 60px; /* Đảm bảo chiều cao đồng đều */
 }
 
 .product-cell img {
@@ -212,40 +208,21 @@ body {
   height: 50px;
   border-radius: 8px;
   object-fit: cover;
-  flex-shrink: 0; /* Ngăn ảnh co lại */
 }
 
 .product-cell span {
   font-size: 14px;
   color: #2d2d2d;
-  line-height: 1.5; /* Căn chỉnh chữ đồng đều */
 }
 
 /* Action Buttons */
-.action-cell {
-  display: flex;
-  align-items: center;
-  min-height: 60px; /* Đồng bộ chiều cao với product-cell */
-}
-
-.action-buttons {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  justify-content: flex-start;
-}
-
 .action-btn {
-  width: 120px; /* Chiều rộng cố định */
-  padding: 8px 12px; /* Padding đồng nhất */
+  padding: 8px 16px;
   border: none;
   border-radius: 6px;
   font-size: 14px;
-  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  text-align: center;
-  line-height: 1.5; /* Đảm bảo chiều cao chữ đồng đều */
 }
 
 .action-btn.view-details {
@@ -255,15 +232,6 @@ body {
 
 .action-btn.view-details:hover {
   background-color: #0f766e;
-}
-
-.action-btn.review-product {
-  background-color: #316df3;
-  color: #ffffff;
-}
-
-.action-btn.review-product:hover {
-  background-color: #2a5cc7;
 }
 
 /* Responsive Design */
@@ -277,30 +245,10 @@ body {
   .dashboard-grid td {
     font-size: 12px;
     padding: 8px;
-    min-height: 50px; /* Giảm chiều cao tối thiểu trên màn hình nhỏ */
-  }
-
-  .product-cell {
-    min-height: 50px; /* Đồng bộ trên màn hình nhỏ */
   }
 
   .product-cell img {
     width: 40px;
     height: 40px;
-  }
-
-  .action-cell {
-    min-height: 50px; /* Đồng bộ trên màn hình nhỏ */
-  }
-
-  .action-buttons {
-    flex-direction: row; /* Giữ ngang hàng */
-    gap: 6px;
-  }
-
-  .action-btn {
-    width: 100px; /* Giảm chiều rộng */
-    padding: 6px 8px;
-    font-size: 12px;
   }
 }

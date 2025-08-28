@@ -68,13 +68,22 @@
   color: #232944;
 }
 
-.menu-item i {
+.menu-item i,
+.menu-item .icon {
   width: 20px;
   height: 20px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px; /* Tăng kích thước icon để rõ ràng hơn */
+  font-size: 18px;
+  color: #8a94b8; /* Màu mặc định cho icon */
+}
+
+.menu-item:hover i,
+.menu-item:hover .icon,
+.menu-item.active i,
+.menu-item.active .icon {
+  color: #2e6cff; /* Màu khi hover hoặc active */
 }
 
 .sidebar-bottom {
@@ -96,8 +105,18 @@
   cursor: pointer;
 }
 
+.logout i,
+.logout .icon {
+  color: #b3b8c5;
+}
+
 .logout:hover {
-  color: #232944;
+  color: #2e6cff;
+}
+
+.logout:hover i,
+.logout:hover .icon {
+  color: #2e6cff;
 }
 
 .logout i {
