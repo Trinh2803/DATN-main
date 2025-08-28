@@ -25,15 +25,6 @@
         </svg>
         <span>Lịch sử đơn hàng</span>
       </a>
-      <!-- <a href="#" class="menu-item">
-        <svg viewBox="0 0 24 24" width="20" height="20">
-          <rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
-          <line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="1.5"/>
-          <line x1="7" y1="14" x2="17" y2="14" stroke="currentColor" stroke-width="1.5"/>
-          <line x1="7" y1="17" x2="13" y2="17" stroke="currentColor" stroke-width="1.5"/>
-        </svg>
-        <span>Cài đặt</span>
-      </a> -->
     </nav>
 
     <div class="sidebar-footer">
@@ -62,7 +53,7 @@
             <th>Ngày đặt hàng</th>
             <th>Tổng tiền</th>
             <th>Trạng thái</th>
-            <th></th>
+            <th>Hành động</th>
           </tr>
         </thead>
         <tbody>
@@ -81,11 +72,18 @@
             <td>{{ order.orderDate }}</td>
             <td>{{ order.finalAmount ? (order.finalAmount | number:'1.0-0') : (order.total | number:'1.0-0') }} VNĐ</td>
             <td>{{ order.status }}</td>
-            <td>
-              <button class="action-btn view-details" (click)="viewOrderDetails(order._id)">
-                Xem chi tiết
-              </button>
-            </td>
+            <td class="action-cell">
+  <div class="action-buttons">
+    <button class="action-btn view-details" (click)="viewOrderDetails(order._id)">
+      Xem chi tiết
+    </button>
+    <button *ngIf="order.status === 'Đã hoàn thành'" 
+            class="action-btn review-product" 
+            (click)="reviewProduct(order.product.productId)">
+      Đánh giá sản phẩm
+    </button>
+  </div>
+</td>
           </tr>
           <tr *ngIf="!orders || orders.length === 0">
             <td colspan="6" style="text-align: center;">Không có đơn hàng nào.</td>
