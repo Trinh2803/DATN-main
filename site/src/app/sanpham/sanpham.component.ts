@@ -76,10 +76,17 @@ export class SanphamComponent implements OnInit {
           this.displayedProducts = [];
           return;
         }
-        this.allProducts = products;
-        this.filteredProducts = [...products];
+        
+        // Lọc sản phẩm còn hàng (quantity > 0 hoặc không có quantity)
+        const availableProducts = products.filter(product => 
+          (product.quantity ?? 1) > 0
+        );
+        
+        this.allProducts = availableProducts;
+        this.filteredProducts = [...availableProducts];
         this.updatePagination();
-        if (products.length === 0) {
+        
+        if (availableProducts.length === 0) {
           this.errorMessage = 'Không có sản phẩm nào để hiển thị.';
         } else if (this.displayedProducts.length === 0) {
           this.errorMessage = 'Không có sản phẩm nào hợp lệ để hiển thị.';
@@ -103,10 +110,15 @@ export class SanphamComponent implements OnInit {
     if (categoryId) {
       this.productService.getProductsByCategory(categoryId).subscribe({
         next: (products) => {
-          this.allProducts = products;
-          this.filteredProducts = [...products];
+          // Lọc sản phẩm còn hàng (quantity > 0 hoặc không có quantity)
+          const availableProducts = products.filter(product => 
+            (product.quantity ?? 1) > 0
+          );
+          
+          this.allProducts = availableProducts;
+          this.filteredProducts = [...availableProducts];
           this.updatePagination();
-          this.errorMessage = products.length === 0 ? 'Không có sản phẩm nào trong danh mục này.' : '';
+          this.errorMessage = availableProducts.length === 0 ? 'Không có sản phẩm nào trong danh mục này.' : '';
         },
         error: (error) => {
           console.error('Error fetching products by category:', error);
@@ -129,10 +141,15 @@ onSortChange(order: 'asc' | 'desc' | ''): void {
       // Nếu có danh mục được chọn, gọi API với danh mục và sắp xếp giá
       this.productService.getProductsByCategoryAndPriceSort(this.selectedCategory, order).subscribe({
         next: (products) => {
-          this.allProducts = products;
-          this.filteredProducts = [...products];
+          // Lọc sản phẩm còn hàng (quantity > 0 hoặc không có quantity)
+          const availableProducts = products.filter(product => 
+            (product.quantity ?? 1) > 0
+          );
+          
+          this.allProducts = availableProducts;
+          this.filteredProducts = [...availableProducts];
           this.updatePagination();
-          this.errorMessage = products.length === 0 ? 'Không có sản phẩm nào trong danh mục này.' : '';
+          this.errorMessage = availableProducts.length === 0 ? 'Không có sản phẩm nào trong danh mục này.' : '';
         },
         error: (error) => {
           console.error('Error fetching products by category and sort:', error);
@@ -145,8 +162,13 @@ onSortChange(order: 'asc' | 'desc' | ''): void {
       // Nếu không có danh mục được chọn, chỉ sắp xếp theo giá
       this.productService.getProductsByPriceSort(order).subscribe({
         next: (products) => {
-          this.allProducts = products;
-          this.filteredProducts = [...products];
+          // Lọc sản phẩm còn hàng (quantity > 0 hoặc không có quantity)
+          const availableProducts = products.filter(product => 
+            (product.quantity ?? 1) > 0
+          );
+          
+          this.allProducts = availableProducts;
+          this.filteredProducts = [...availableProducts];
           this.updatePagination();
           this.errorMessage = products.length === 0 ? 'Không có sản phẩm nào để sắp xếp.' : '';
         },

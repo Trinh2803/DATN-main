@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { UserService } from '../user.service';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-reset-password',
@@ -48,7 +49,16 @@ export class ResetPasswordComponent implements OnInit {
            !!this.confirmPassword;
   }
 
-  onSubmit() {
+  onSubmit(form: NgForm) {
+    // Kiểm tra form hợp lệ
+    if (form.invalid) {
+      Object.keys(form.controls).forEach(field => {
+        const control = form.controls[field];
+        control.markAsTouched({ onlySelf: true });
+      });
+      return;
+    }
+
     if (this.passwordMismatch) {
       this.errorMessage = '❌ Mật khẩu xác nhận không khớp!';
       return;
@@ -58,20 +68,37 @@ export class ResetPasswordComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    this.userService.resetPasswordAfterOtpVerification(this.email, this.newPassword).subscribe({
-      next: () => {
+    // Gọi service reset mật khẩu
+    this.userService.resetPassword(this.email, this.newPassword, this.otp).subscribe({
+      next: (response: any) => {
         this.isLoading = false;
-        this.successMessage = '✅ Đặt lại mật khẩu thành công! Đang chuyển hướng...';
-        
-        // Redirect to login after 2 seconds
-        setTimeout(() => {
-          this.router.navigate(['/dangnhap']);
-        }, 2000);
+        if (response && response.success) {
+          this.successMessage = '✅ Đặt lại mật khẩu thành công! Đang chuyển hướng...';
+          
+          // Redirect to login after 2 seconds
+          setTimeout(() => {
+            this.router.navigate(['/dangnhap']);
+          }, 2000);
+        } else {
+          this.errorMessage = response?.message || 'Đặt lại mật khẩu thất bại. Vui lòng thử lại.';
+        }
       },
-      error: (error) => {
+      error: (error: HttpErrorResponse) => {
         this.isLoading = false;
-        this.errorMessage = error.error?.message || 'Đặt lại mật khẩu thất bại. Vui lòng thử lại.';
-        console.error('Reset password error:', error);
+        console.error('Lỗi khi đặt lại mật khẩu:', error);
+        
+        // Xử lý thông báo lỗi chi tiết
+        if (error.status === 400) {
+          this.errorMessage = 'Yêu cầu không hợp lệ. Vui lòng kiểm tra lại thông tin.';
+        } else if (error.status === 404) {
+          this.errorMessage = 'Không tìm thấy yêu cầu đặt lại mật khẩu. Vui lòng thử lại.';
+        } else if (error.status === 410) {
+          this.errorMessage = 'Mã OTP đã hết hạn. Vui lòng yêu cầu gửi lại mã.';
+        } else if (error.error?.message) {
+          this.errorMessage = error.error.message;
+        } else {
+          this.errorMessage = 'Có lỗi xảy ra khi đặt lại mật khẩu. Vui lòng thử lại sau.';
+        }
       }
     });
   }

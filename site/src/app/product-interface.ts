@@ -12,6 +12,8 @@ export interface ProductInterface {
   price: number;
   salePrice?: number | null;
   stock?: number;
+  quantity?: number; // Số lượng tồn kho
+  sold?: number; // Số lượng đã bán
   createdAt?: string | Date;
   thumbnail: string;
   images?: string[];
@@ -23,6 +25,7 @@ export interface ProductInterface {
   description: string;
   variants?: Variant[];
   selectedVariant?: Variant;
+  isHot?: boolean; // Cờ đánh dấu sản phẩm hot
 }
 
 export interface CategoryInterface {

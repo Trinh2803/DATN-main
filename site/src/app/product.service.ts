@@ -13,24 +13,39 @@ export class ProductService {
 
   constructor(private http: HttpClient) {}
 
-  // Lấy tất cả sản phẩm
+  // Lấy tất cả sản phẩm (chỉ lấy sản phẩm còn hàng)
   getAllProducts(): Observable<ProductInterface[]> {
-    return this.http.get<ProductInterface[]>(this.apiUrl);
+    return this.http.get<ProductInterface[]>(this.apiUrl).pipe(
+      map(products => products.filter(product => (product.quantity ?? 1) > 0))
+    );
   }
 
-  // Lấy sản phẩm giảm giá
+  // Lấy sản phẩm giảm giá (chỉ lấy sản phẩm còn hàng)
   getSaleProducts(): Observable<ProductInterface[]> {
-    return this.http.get<ProductInterface[]>(`${this.apiUrl}/sale?limit=8`);
+    return this.http.get<ProductInterface[]>(`${this.apiUrl}/sale?limit=8`).pipe(
+      map(products => products.filter(product => (product.quantity ?? 1) > 0))
+    );
   }
 
-  // Lấy sản phẩm mới
+  // Lấy sản phẩm mới (chỉ lấy sản phẩm còn hàng)
   getNewProducts(): Observable<ProductInterface[]> {
-    return this.http.get<ProductInterface[]>(`${this.apiUrl}/new?limit=8`);
+    return this.http.get<ProductInterface[]>(`${this.apiUrl}/new?limit=8`).pipe(
+      map(products => products.filter(product => (product.quantity ?? 1) > 0))
+    );
   }
 
-  // Lấy sản phẩm hot
+  // Lấy sản phẩm hot (sản phẩm bán chạy, còn hàng)
   getHotProducts(): Observable<ProductInterface[]> {
-    return this.http.get<ProductInterface[]>(`${this.apiUrl}/hot?limit=8`);
+    return this.http.get<ProductInterface[]>(`${this.apiUrl}/hot?limit=8`).pipe(
+      map(products => {
+        // Lọc bỏ sản phẩm hết hàng (quantity > 0 hoặc không có quantity)
+        // Sắp xếp theo số lượng bán được (sold) giảm dần
+        return products
+          .filter(product => (product.quantity ?? 1) > 0) // Nếu quantity là undefined, coi như còn hàng
+          .sort((a, b) => (b.sold || 0) - (a.sold || 0))
+          .slice(0, 8); // Giới hạn 8 sản phẩm
+      })
+    );
   }
 
   // Lấy danh mục
@@ -44,31 +59,39 @@ export class ProductService {
     );
   }
 
-  // Lọc sản phẩm theo giá
+  // Lọc sản phẩm theo giá (chỉ lấy sản phẩm còn hàng)
   getProductsByPriceSort(sortOrder: 'asc' | 'desc'): Observable<ProductInterface[]> {
     let params = new HttpParams().set('sortBy', 'price').set('order', sortOrder);
-    return this.http.get<ProductInterface[]>(this.apiUrl, { params });
+    return this.http.get<ProductInterface[]>(this.apiUrl, { params }).pipe(
+      map(products => products.filter(product => (product.quantity ?? 1) > 0))
+    );
   }
 
-  // Lọc sản phẩm theo danh mục và sắp xếp theo giá
+  // Lọc sản phẩm theo danh mục và sắp xếp theo giá (chỉ lấy sản phẩm còn hàng)
   getProductsByCategoryAndPriceSort(categoryId: string, sortOrder: 'asc' | 'desc'): Observable<ProductInterface[]> {
     let params = new HttpParams()
       .set('categoryId', categoryId)
       .set('sortBy', 'price')
       .set('order', sortOrder);
-    return this.http.get<ProductInterface[]>(this.apiUrl, { params });
+    return this.http.get<ProductInterface[]>(this.apiUrl, { params }).pipe(
+      map(products => products.filter(product => (product.quantity ?? 1) > 0))
+    );
   }
 
-  // Tìm kiếm sản phẩm theo tên
+  // Tìm kiếm sản phẩm theo tên (chỉ lấy sản phẩm còn hàng)
   searchProductsByName(name: string): Observable<ProductInterface[]> {
     let params = new HttpParams().set('name', name);
-    return this.http.get<ProductInterface[]>(this.apiUrl, { params });
+    return this.http.get<ProductInterface[]>(this.apiUrl, { params }).pipe(
+      map(products => products.filter(product => (product.quantity ?? 1) > 0))
+    );
   }
 
-  // Lọc sản phẩm theo danh mục
+  // Lọc sản phẩm theo danh mục (chỉ lấy sản phẩm còn hàng)
   getProductsByCategory(categoryId: string): Observable<ProductInterface[]> {
     let params = new HttpParams().set('categoryId', categoryId);
-    return this.http.get<ProductInterface[]>(this.apiUrl, { params });
+    return this.http.get<ProductInterface[]>(this.apiUrl, { params }).pipe(
+      map(products => products.filter(product => (product.quantity ?? 1) > 0))
+    );
   }
 
   // Tìm kiếm danh mục theo tên

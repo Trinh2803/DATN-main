@@ -5,7 +5,13 @@ const path = require('path');
 // Lấy tất cả sản phẩm
 const getAllProducts = async ({ categoryId, sortBy, order, name } = {}) => {
   try {
-    let query = {};
+    let query = {
+      $or: [
+        { quantity: { $gt: 0 } },
+        { quantity: { $exists: false } }
+      ]
+    };
+    
     if (categoryId) {
       query.categoryId = categoryId;
     }
@@ -45,7 +51,15 @@ const getSaleProducts = async (limit) => {
       .aggregate([
         {
           $match: {
-            salePrice: { $exists: true, $ne: 0 }
+            $and: [
+              { salePrice: { $exists: true, $ne: 0 } },
+              {
+                $or: [
+                  { quantity: { $gt: 0 } },
+                  { quantity: { $exists: false } }
+                ]
+              }
+            ]
           }
         },
         {
@@ -181,6 +195,15 @@ const updateSellCount = async (productId, quantity) => {
 const getHotProducts = async (limit) => {
   try {
     const products = await Product.aggregate([
+      // Lọc sản phẩm còn hàng (quantity > 0 hoặc không có quantity)
+      {
+        $match: {
+          $or: [
+            { quantity: { $gt: 0 } },
+            { quantity: { $exists: false } }
+          ]
+        }
+      },
       // Sắp xếp sản phẩm theo `sellCount` giảm dần
       { $sort: { sellCount: -1 } },
 
