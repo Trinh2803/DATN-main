@@ -1,5 +1,5 @@
 
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { OrderService } from '../services/order.service';
 import { Router, RouterModule } from '@angular/router';
@@ -14,6 +14,7 @@ import Swal from 'sweetalert2';
   imports: [CommonModule, ReactiveFormsModule, RouterModule, FormsModule],
   templateUrl: './thongke.component.html',
   styleUrls: ['./thongke.component.css'],
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class ThongkeComponent implements OnInit, AfterViewInit {
   pendingOrders: Order[] = [];

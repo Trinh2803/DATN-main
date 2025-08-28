@@ -405,12 +405,14 @@ export class QuanlygiamgiaComponent implements OnInit, AfterViewInit {
   }
 
   // Kiểm tra sản phẩm đã được chọn
-  isProductSelected(productId: string): boolean {
+  isProductSelected(productId: string | undefined): boolean {
+    if (!productId) return false;
     return this.selectedProducts.some(p => p._id === productId);
   }
 
   // Kiểm tra danh mục đã được chọn
-  isCategorySelected(categoryId: string): boolean {
+  isCategorySelected(categoryId: string | undefined): boolean {
+    if (!categoryId) return false;
     return this.selectedCategories.some(c => c._id === categoryId);
   }
 }
