@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { BehaviorSubject, Observable, tap, catchError, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -98,6 +98,26 @@ export class UserService {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
     return this.http.get(`${this.apiUrlT}/api/orders/user`, { headers });
+  }
+
+  // Request password reset OTP
+  requestPasswordReset(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/forgot-password`, { email }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Password reset request failed:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  // Verify password reset OTP
+  verifyResetPasswordOtp(email: string, otp: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/verify-reset-otp`, { email, otp });
+  }
+
+  // Reset password after OTP verification
+  resetPasswordAfterOtpVerification(email: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/reset-password`, { email, newPassword });
   }
 
   // Gửi OTP về email

@@ -11,6 +11,7 @@ import { DonhangComponent } from './donhang/donhang.component';
 import { lichsudonhangComponent } from './lichsudonhang/lichsudonhang.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { VerifyOtpComponent } from './verify-otp/verify-otp.component';
+import { VerifyResetOtpComponent } from './verify-reset-otp/verify-reset-otp.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { TintucComponent } from './tintuc/tintuc.component';
 import { NewsDetailComponent } from './news-detail/news-detail.component';
@@ -27,17 +28,32 @@ export const routes: Routes = [
   { path: 'chitietsanpham/:id', component: ChiTietSanPhamComponent },
   { path: 'product/:id', component: ChiTietSanPhamComponent },
   { path: 'giohang', component: GiohangComponent },
-  { path: 'forgot-password', component: ForgotPasswordComponent },
-  { path: 'verify-otp', component: VerifyOtpComponent },
-  { path: 'reset-password', component: ResetPasswordComponent },
+  
+  // Authentication routes
   { path: 'dangky', component: DangkyComponent },
   { path: 'dangnhap', component: DangnhapComponent },
+  
+  // Password reset flow
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'verify-reset-otp', component: VerifyResetOtpComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
+  
+  // Email verification (for registration)
+  { path: 'verify-otp', component: VerifyOtpComponent },
+  
+  // User routes
   { path: 'userinfo', component: UserInfoComponent },
+  { path: 'lichsudonhang', component: lichsudonhangComponent },
+  
+  // Order and checkout
   { path: 'checkout', component: CheckoutComponent },
   { path: 'donhang', component: DonhangComponent },
-  { path: 'lichsudonhang', component: lichsudonhangComponent },
+  
+  // Content
   { path: 'news', component: TintucComponent },
   { path: 'news/:id', component: NewsDetailComponent },
+  
+  // Other features
   { path: 'wishlist', component: WishlistComponent },
   { path: 'payment', component: PaymentComponent },
   { path: 'payment-result', component: PaymentResultComponent },
