@@ -365,7 +365,7 @@ const verifyOtp = async (email, otp) => {
     return { success: true, message: 'Xác minh email thành công' };
   } catch (err) {
     console.error('Error verifying OTP:', err.message);
-    throw new Error(err.message || 'Xác minh thất bại. Vui lòng thử lại');
+    throw new Error(err.message || 'Xác minh OTP thất bại');
   }
 };
 
@@ -377,6 +377,8 @@ module.exports = {
   getUserById,
   changeUserRole,
   getUserByEmail,
+  requestPasswordReset,
+  verifyResetPasswordOtp,
   resetPassword,
   verifyRegistration,
   sendOtp,

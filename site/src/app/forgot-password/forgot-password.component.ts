@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -9,7 +9,7 @@ import { UserService } from '../user.service';
   templateUrl: './forgot-password.component.html',
   styleUrls: ['./forgot-password.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule]
+  imports: [CommonModule, FormsModule, RouterModule],
 })
 export class ForgotPasswordComponent {
   email: string = '';
@@ -17,10 +17,23 @@ export class ForgotPasswordComponent {
   errorMessage = '';
   isLoading = false;
 
-  constructor(private userService: UserService, private router: Router) {}
+  private userService = inject(UserService);
+  private router = inject(Router);
 
   submitEmail(form: NgForm) {
     if (form.invalid) {
+      // Đánh dấu tất cả các trường là touched để hiển thị thông báo lỗi
+      Object.keys(form.controls).forEach(field => {
+        const control = form.controls[field];
+        control.markAsTouched({ onlySelf: true });
+      });
+      return;
+    }
+
+    // Kiểm tra email hợp lệ
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.email)) {
+      this.errorMessage = 'Vui lòng nhập địa chỉ email hợp lệ';
       return;
     }
 
@@ -31,18 +44,32 @@ export class ForgotPasswordComponent {
     this.userService.requestPasswordReset(this.email).subscribe({
       next: (response: any) => {
         this.isLoading = false;
-        this.successMessage = '✅ Mã OTP đã được gửi về email của bạn!';
-        // Navigate to verify OTP page with email as query param
-        setTimeout(() => {
-          this.router.navigate(['/verify-reset-otp'], {
-            queryParams: { email: this.email }
-          });
-        }, 1500);
+        if (response && response.success) {
+          this.successMessage = '✅ Mã OTP đã được gửi về email của bạn! Vui lòng kiểm tra hộp thư đến.';
+          // Chuyển hướng sau 1.5 giây
+          setTimeout(() => {
+            this.router.navigate(['/verify-reset-otp'], {
+              queryParams: { email: this.email }
+            });
+          }, 1500);
+        } else {
+          this.errorMessage = response?.message || 'Có lỗi xảy ra khi gửi mã OTP. Vui lòng thử lại sau.';
+        }
       },
-      error: (err: any) => {
+      error: (error: any) => {
         this.isLoading = false;
-        this.errorMessage = err.error?.message || 'Có lỗi xảy ra khi gửi mã OTP. Vui lòng thử lại sau.';
-        console.error('Error requesting password reset:', err);
+        console.error('Lỗi khi yêu cầu đặt lại mật khẩu:', error);
+        
+        // Xử lý thông báo lỗi chi tiết hơn
+        if (error.status === 404) {
+          this.errorMessage = 'Không tìm thấy tài khoản với email này.';
+        } else if (error.status === 429) {
+          this.errorMessage = 'Bạn đã yêu cầu mã OTP quá nhiều lần. Vui lòng thử lại sau 5 phút.';
+        } else if (error.error && error.error.message) {
+          this.errorMessage = error.error.message;
+        } else {
+          this.errorMessage = 'Có lỗi xảy ra khi gửi mã OTP. Vui lòng thử lại sau.';
+        }
       }
     });
   }

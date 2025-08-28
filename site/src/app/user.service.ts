@@ -100,53 +100,130 @@ export class UserService {
     return this.http.get(`${this.apiUrlT}/api/orders/user`, { headers });
   }
 
-  // Request password reset OTP
+  /**
+   * Gửi yêu cầu đặt lại mật khẩu
+   * @param email Email cần đặt lại mật khẩu
+   * @returns Observable với kết quả
+   */
   requestPasswordReset(email: string): Observable<any> {
+    if (!email) {
+      return throwError(() => new Error('Email là bắt buộc'));
+    }
+    
+    // Sử dụng apiUrl để gọi đến /users/forgot-password
     return this.http.post(`${this.apiUrl}/forgot-password`, { email }).pipe(
       catchError((error: HttpErrorResponse) => {
-        console.error('Password reset request failed:', error);
-        return throwError(() => error);
+        console.error('Yêu cầu đặt lại mật khẩu thất bại:', error);
+        let errorMessage = 'Có lỗi xảy ra khi gửi yêu cầu đặt lại mật khẩu';
+        
+        if (error.status === 404) {
+          errorMessage = 'Không tìm thấy tài khoản với email này';
+        } else if (error.status === 400) {
+          errorMessage = error.error?.message || 'Yêu cầu không hợp lệ';
+        } else if (error.status === 429) {
+          errorMessage = 'Bạn đã yêu cầu quá nhiều lần. Vui lòng thử lại sau 5 phút';
+        } else if (error.error?.message) {
+          errorMessage = error.error.message;
+        }
+        
+        return throwError(() => ({
+          status: error.status,
+          message: errorMessage
+        }));
       })
     );
   }
 
-  // Verify password reset OTP
   verifyResetPasswordOtp(email: string, otp: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/verify-reset-otp`, { email, otp });
+    if (!email || !otp) {
+      return throwError(() => new Error('Email và mã OTP là bắt buộc'));
+    }
+    
+    return this.http.post(`${this.apiUrl}/verify-reset-otp`, { email, otp }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Xác minh OTP thất bại:', error);
+        let errorMessage = 'Có lỗi xảy ra khi xác minh mã OTP';
+        
+        if (error.status === 400) {
+          errorMessage = 'Mã OTP không hợp lệ hoặc đã hết hạn';
+        } else if (error.error?.message) {
+          errorMessage = error.error.message;
+        }
+        
+        return throwError(() => ({
+          status: error.status,
+          message: errorMessage
+        }));
+      })
+    );
   }
 
-  // Reset password after OTP verification
-  resetPasswordAfterOtpVerification(email: string, newPassword: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/reset-password`, { email, newPassword });
+  /**
+   * Đặt lại mật khẩu mới sau khi xác minh OTP
+   */
+  resetPassword(email: string, newPassword: string, otp?: string): Observable<any> {
+    if (!email || !newPassword) {
+      return throwError(() => new Error('Email và mật khẩu mới là bắt buộc'));
+    }
+    
+    const payload = otp 
+      ? { email, newPassword, otp } 
+      : { email, newPassword };
+    
+    return this.http.post(`${this.apiUrl}/reset-password`, payload).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Đặt lại mật khẩu thất bại:', error);
+        let errorMessage = 'Có lỗi xảy ra khi đặt lại mật khẩu';
+        
+        if (error.status === 400) {
+          errorMessage = 'Yêu cầu không hợp lệ';
+        } else if (error.status === 404) {
+          errorMessage = 'Không tìm thấy yêu cầu đặt lại mật khẩu';
+        } else if (error.error?.message) {
+          errorMessage = error.error.message;
+        }
+        
+        return throwError(() => ({
+          status: error.status,
+          message: errorMessage
+        }));
+      })
+    );
   }
 
-  // Gửi OTP về email
+  // Các phương thức OTP khác
   sendOtp(email: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/send-otp`, { email });
+    return this.http.post(`${this.apiUrl}/send-otp`, { email }).pipe(
+      catchError(this.handleError('Gửi OTP'))
+    );
   }
 
-  // Gửi lại OTP
   resendOtp(email: string): Observable<any> {
     return this.sendOtp(email);
   }
 
-  // Xác minh OTP đăng ký
   verifyRegistration(email: string, otp: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/verify-registration`, { email, otp });
+    return this.verifyOtp(email, otp);
   }
 
-  // Xác minh OTP
   verifyEmail(email: string, otp: string): Observable<any> {
     return this.verifyOtp(email, otp);
   }
 
-  // Xác minh mã OTP
   verifyOtp(email: string, otp: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/verify-otp`, { email, otp });
+    return this.http.post(`${this.apiUrl}/verify-otp`, { email, otp }).pipe(
+      catchError(this.handleError('Xác minh OTP'))
+    );
   }
 
-  // Đặt lại mật khẩu mới
-  resetPassword(email: string, newPassword: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/reset-password`, { email, newPassword });
+  // Xử lý lỗi chung
+  private handleError(operation = 'operation') {
+    return (error: HttpErrorResponse) => {
+      console.error(`${operation} thất bại:`, error);
+      return throwError(() => ({
+        status: error.status,
+        message: error.error?.message || `Có lỗi xảy ra khi ${operation.toLowerCase()}`
+      }));
+    };
   }
 }
