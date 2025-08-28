@@ -48,7 +48,7 @@ app.use("/categories", categoriesRouter);
 app.use("/products", productsRouter);
 app.use("/api/orders", orderssRouter);
 app.use("/api/discounts", discountsRouter);
-app.use("/wishlist", wishlistRouter);
+app.use("/wishlist", wishlistRouter); // Add wishlist router
 app.use("/comments", commentsRouter);
 app.use("/api/news", tintucRouter); // Thêm route tin tức
 app.use("/payment", paymentRouter);
