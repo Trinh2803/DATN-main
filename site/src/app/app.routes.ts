@@ -58,4 +58,5 @@ export const routes: Routes = [
   { path: 'payment', component: PaymentComponent },
   { path: 'payment-result', component: PaymentResultComponent },
   { path: 'invoice', component: InvoiceComponent },
+  { path: 'donhang/:id', loadChildren: () => import('./donhangchitiet/donhangchitiet.module').then(m => m.DonhangchitietModule) },
 ];
