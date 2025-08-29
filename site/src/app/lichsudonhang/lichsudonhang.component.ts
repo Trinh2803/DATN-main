@@ -84,6 +84,15 @@ export class lichsudonhangComponent implements OnInit {
     this.router.navigate(['/donhang'], { queryParams: { orderId } });
   }
 
+  goToProductComment(productId: string): void {
+    if (productId) {
+      this.router.navigate(['/chitiet', productId], { fragment: 'comments' });
+    } else {
+      console.error('Không tìm thấy ID sản phẩm');
+      alert('Không thể mở trang bình luận. Vui lòng thử lại sau.');
+    }
+  }
+
   logout(): void {
     this.userService.clearUser();
     this.router.navigate(['/dangnhap']);
