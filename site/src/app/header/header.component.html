@@ -10,8 +10,11 @@
 <header>
   <div class="container">
     <div class="top-header">
+      <button class="mobile-menu-toggle" (click)="toggleMobileMenu()">
+        <i class="fas fa-bars"></i>
+      </button>
       <div class="logo">
-        <a href="/"><img src="./images/logo.png" alt="Moho"></a>
+        <a href="/"><img src="./images/logo.png" alt="Deho Logo"></a>
       </div>
       <div class="search-box">
         <form (ngSubmit)="onSearch()">
@@ -63,14 +66,27 @@
         </div>
       </div>
     </div>
+    
     <nav class="main-nav">
-      <ul>
-        <li class="has-dropdown"><a routerLink="/">Trang Chủ</a></li>
-        <li class="has-dropdown"><a routerLink="/sanpham">Sản Phẩm</a></li>
-        <li class="has-dropdown"><a href="#">Liên Hệ</a></li>
-        <li class="has-dropdown"><a routerLink="/news">Tin tức</a></li> <!-- Sửa thành routerLink -->
-      </ul>
+      <div>
+          <ul>
+              <li><a href="#">Trang Chủ</a></li>
+              <li><a href="#">Sản Phẩm</a></li>
+              <li><a href="#">Liên Hệ</a></li>
+              <li><a href="#">Tin tức</a></li>
+          </ul>
+      </div>
     </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" [ngClass]="{'show': isMenuOpen}">
+      <ul>
+        <li><a routerLink="/" (click)="closeMobileMenu()">Trang Chủ</a></li>
+        <li><a routerLink="/sanpham" (click)="closeMobileMenu()">Sản Phẩm</a></li>
+        <li><a href="#" (click)="closeMobileMenu()">Liên Hệ</a></li>
+        <li><a routerLink="/news" (click)="closeMobileMenu()">Tin tức</a></li>
+      </ul>
+    </div>
   </div>
 </header>
 </body>

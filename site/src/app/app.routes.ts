@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { TrangchuComponent } from './trangchu/trangchu.component';
 import { SanphamComponent } from './sanpham/sanpham.component';
-import { ChiTietSanPhamComponent } from './chitietsanpham/chitietsanpham.component';
+import { ChiTietSanPhamComponent } from './chitietsanpham';
 import { GiohangComponent } from './giohang/giohang.component';
 import { DangkyComponent } from './dangky/dangky.component';
 import { DangnhapComponent } from './dangnhap/dangnhap.component';
@@ -28,31 +28,31 @@ export const routes: Routes = [
   { path: 'chitietsanpham/:id', component: ChiTietSanPhamComponent },
   { path: 'product/:id', component: ChiTietSanPhamComponent },
   { path: 'giohang', component: GiohangComponent },
-  
+
   // Authentication routes
   { path: 'dangky', component: DangkyComponent },
   { path: 'dangnhap', component: DangnhapComponent },
-  
+
   // Password reset flow
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'verify-reset-otp', component: VerifyResetOtpComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
-  
+
   // Email verification (for registration)
   { path: 'verify-otp', component: VerifyOtpComponent },
-  
+
   // User routes
   { path: 'userinfo', component: UserInfoComponent },
   { path: 'lichsudonhang', component: lichsudonhangComponent },
-  
+
   // Order and checkout
   { path: 'checkout', component: CheckoutComponent },
   { path: 'donhang', component: DonhangComponent },
-  
+
   // Content
   { path: 'news', component: TintucComponent },
   { path: 'news/:id', component: NewsDetailComponent },
-  
+
   // Other features
   { path: 'wishlist', component: WishlistComponent },
   { path: 'payment', component: PaymentComponent },
