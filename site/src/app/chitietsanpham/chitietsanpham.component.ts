@@ -23,13 +23,10 @@ export class ChiTietSanPhamComponent implements OnInit {
   product: ProductInterface | null = null;
   selectedVariant: Variant | null = null;
   quantity: number = 1;
-  selectedImage: string | null = null;  //Thêm biến lưu ảnh chính
-  relatedProducts: ProductInterface[] = []; // Thêm sản phẩm liên quan
+  selectedImage: string | null = null;
+  relatedProducts: ProductInterface[] = [];
   private wishlistCache = new Map<string, boolean>();
-
   hasBought: boolean = false;
-
-  // Comment properties
   comments: Comment[] = [];
   averageRating: number = 0;
   commentFilter: string | number = 'all';
@@ -62,31 +59,42 @@ export class ChiTietSanPhamComponent implements OnInit {
   ) {}
 
  ngOnInit(): void {
-  this.route.paramMap.subscribe(params => {
-    const productId = params.get('id');
-    if (productId) {
-      this.product = null;
-      this.relatedProducts = [];
-      this.productService.getProductById(productId).subscribe({
-        next: (data: ProductInterface) => {
-          this.product = data;
-          this.selectedVariant = data.selectedVariant || null;
-          this.selectedImage = data.thumbnail;
-          this.loadRelatedProducts();
-          this.loadWishlistStatus();
-          this.loadComments();
-          this.loadAvailableCoupons();
-          this.checkHasBought(productId);
-        },
-        error: (err: any) => {
-          this.router.navigate(['/sanpham']);
-        }
-      });
-    } else {
-      this.router.navigate(['/sanpham']);
-    }
-  });
-}
+    this.route.paramMap.subscribe(params => {
+      const productId = params.get('id');
+      if (productId) {
+        this.product = null;
+        this.relatedProducts = [];
+        this.productService.getProductById(productId).subscribe({
+          next: (data: ProductInterface) => {
+            this.product = data;
+            this.selectedVariant = data.selectedVariant || null;
+            this.selectedImage = data.thumbnail;
+            this.loadRelatedProducts();
+            this.loadWishlistStatus();
+            this.loadComments();
+            this.loadAvailableCoupons();
+            this.checkHasBought(productId);
+            // Cuộn đến phần đánh giá nếu có fragment
+            this.route.fragment.subscribe(fragment => {
+              if (fragment === 'comments-section') {
+                setTimeout(() => {
+                  const element = document.getElementById('comments-section');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }, 500); // Đợi 500ms để đảm bảo DOM được render
+              }
+            });
+          },
+          error: (err: any) => {
+            this.router.navigate(['/sanpham']);
+          }
+        });
+      } else {
+        this.router.navigate(['/sanpham']);
+      }
+    });
+  }
 
   checkHasBought(productId: string) {
     const token = localStorage.getItem('token');

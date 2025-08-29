@@ -11,10 +11,11 @@ const {
   editComment,
   deleteComment,
   getCommentStats,
-  bulkUpdateStatus
+  bulkUpdateStatus,
+  getCommentByUserAndProduct
 } = require('../controllers/commentController');
 
-// Routes cho admin (yêu cầu xác thực)
+// Routes cho admin (yêu cầu xác thực và quyền admin)
 router.get('/stats', verifyToken, verifyAdmin, getCommentStats);
 router.get('/', verifyToken, verifyAdmin, getAllComments);
 router.get('/:id', verifyToken, verifyAdmin, getCommentById);
@@ -24,8 +25,11 @@ router.put('/:id/edit', verifyToken, verifyAdmin, editComment);
 router.delete('/:id', verifyToken, verifyAdmin, deleteComment);
 router.post('/bulk-update', verifyToken, verifyAdmin, bulkUpdateStatus);
 
+// Routes cho người dùng đã đăng nhập
+router.get('/user-product/:productId', verifyToken, getCommentByUserAndProduct);
+router.post('/', verifyToken, createComment);
+
 // Routes cho public (không yêu cầu xác thực)
 router.get('/product/:productId', getCommentsByProduct);
-router.post('/', createComment); // Có thể tạo bình luận không cần đăng nhập
 
-module.exports = router; 
+module.exports = router;

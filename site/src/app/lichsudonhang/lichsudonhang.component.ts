@@ -3,6 +3,7 @@ import { UserService } from '../user.service';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { CommentService } from '../comment.service'; // Thêm import
 
 @Component({
   selector: 'app-order-history',
@@ -15,7 +16,11 @@ export class lichsudonhangComponent implements OnInit {
   user: any = null;
   orders: any[] = [];
 
-  constructor(private userService: UserService, private router: Router) {}
+  constructor(
+    private userService: UserService,
+    private router: Router,
+    private commentService: CommentService // Thêm dependency
+  ) {}
 
   ngOnInit(): void {
     const userData = localStorage.getItem('user');
@@ -48,15 +53,32 @@ export class lichsudonhangComponent implements OnInit {
         this.orders = response.data || [];
         this.orders = this.orders.map((order) => {
           console.log('Processing order:', order);
-          return {
+          const processedOrder = {
             ...order,
             orderDate: new Date(order.createdAt).toLocaleDateString('vi-VN'),
             product: order.items && order.items.length > 0 ? {
+              productId: order.items[0].productId?._id || order.items[0].productId, // Lấy productId
               productName: order.items[0].productName,
               quantity: order.items[0].quantity,
               image: order.items[0].thumbnail || order.items[0].productId?.thumbnail || ''
             } : {},
+            hasCommented: false // Thêm thuộc tính hasCommented
           };
+
+          // Kiểm tra xem người dùng đã đánh giá sản phẩm chưa
+          if (processedOrder.product.productId) {
+            this.commentService.getCommentByUserAndProduct(processedOrder.product.productId).subscribe({
+              next: (res) => {
+                processedOrder.hasCommented = res.success && !!res.data; // Nếu có bình luận, đặt hasCommented = true
+              },
+              error: (err) => {
+                console.error('Error checking comment status:', err);
+                processedOrder.hasCommented = false;
+              }
+            });
+          }
+
+          return processedOrder;
         });
         console.log('Processed orders:', this.orders);
       },
@@ -82,6 +104,11 @@ export class lichsudonhangComponent implements OnInit {
 
   viewOrderDetails(orderId: number): void {
     this.router.navigate(['/donhang'], { queryParams: { orderId } });
+  }
+
+  reviewProduct(productId: string): void {
+    // Chuyển hướng đến trang chi tiết sản phẩm với tham số để cuộn đến phần đánh giá
+    this.router.navigate(['/chitiet', productId], { fragment: 'comments-section' });
   }
 
   logout(): void {
