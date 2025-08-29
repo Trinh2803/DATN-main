@@ -1,17 +1,16 @@
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule, DatePipe } from '@angular/common';
-import { NgChartsModule } from 'ng2-charts';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 @NgModule({
-  // ...
   imports: [
-    // ... các module khác
     FormsModule,
-    CommonModule,
-    NgChartsModule
+    CommonModule
   ],
-  providers: [DatePipe],
-  // ...
+  providers: [
+    DatePipe,
+    provideCharts(withDefaultRegisterables())
+  ]
 })
 export class AppModule { }

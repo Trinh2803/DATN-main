@@ -5,8 +5,8 @@ import { Router, RouterModule } from '@angular/router';
 import { Order, ApiResponse } from '../interfaces/order-response.interface';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule, registerLocaleData } from '@angular/common';
-import { NgChartsModule, BaseChartDirective, NgChartsConfiguration } from 'ng2-charts';
-import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
+import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
+import { ChartConfiguration, ChartData, ChartType, registerables } from 'chart.js';
 import Swal from 'sweetalert2';
 import localeVi from '@angular/common/locales/vi';
 import { Subscription } from 'rxjs';
@@ -22,11 +22,9 @@ registerLocaleData(localeVi);
     ReactiveFormsModule, 
     RouterModule, 
     FormsModule, 
-    NgChartsModule
+    BaseChartDirective
   ],
-  providers: [
-    { provide: NgChartsConfiguration, useValue: { type: 'line' } }
-  ],
+  providers: [provideCharts(withDefaultRegisterables())],
   templateUrl: './thongke.component.html',
   styleUrls: ['./thongke.component.css'],
   schemas: [NO_ERRORS_SCHEMA]
@@ -43,7 +41,7 @@ export class ThongkeComponent implements OnInit, AfterViewInit, OnDestroy {
   errorMessage: string | null = null;
   
   // Chart properties
-  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
+  @ViewChild(BaseChartDirective, { static: true }) chart?: BaseChartDirective;
   public lineChartType: ChartType = 'line';
   public lineChartOptions: ChartConfiguration['options'];
   public lineChartData: ChartData<'line'>;
