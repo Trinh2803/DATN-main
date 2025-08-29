@@ -96,6 +96,23 @@
             </div>
           </div>
         </div>
+        
+        <!-- Biểu đồ doanh thu -->
+        <div class="chart-container">
+          <div class="chart-title">
+            <i class="fas fa-chart-line"></i>
+            <span>Biểu đồ doanh thu theo {{granularity === 'day' ? 'ngày' : granularity === 'month' ? 'tháng' : 'quý'}}</span>
+          </div>
+          <div style="position: relative; height: 400px;">
+            <canvas baseChart
+              [type]="lineChartType"
+              [data]="lineChartData"
+              [options]="lineChartOptions">
+            </canvas>
+          </div>
+        </div>
+        
+        <!-- Bảng dữ liệu doanh thu -->
         <div class="table-wrapper">
           <table>
             <thead>
