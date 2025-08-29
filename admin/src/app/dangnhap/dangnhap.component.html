@@ -8,9 +8,11 @@
       <div class="desc">Vui lòng đăng nhập để tiếp tục</div>
 
       <!-- Hiển thị thông báo lỗi form -->
-      <div *ngIf="formError" class="error-message">
-        {{ formError }}
-      </div>
+      @if (formError) {
+        <div class="error-message">
+          {{ formError }}
+        </div>
+      }
 
       <form class="login-form" (ngSubmit)="login()">
         <label class="input-label">Email</label>

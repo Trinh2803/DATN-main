@@ -1,13 +1,13 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { CategoryService, Category, ApiResponse } from '../services/category.service';
 
 @Component({
   selector: 'app-quanlydanhmuc',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, FormsModule],
+  imports: [ReactiveFormsModule, RouterModule, FormsModule],
   templateUrl: './quanlydanhmuc.component.html',
   styleUrls: ['./quanlydanhmuc.component.css'],
 })

@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { DiscountService, Discount } from '../services/discount.service';
@@ -9,7 +9,7 @@ import { CategoryService, Category } from '../services/category.service';
 @Component({
   selector: 'app-quanlygiamgia',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [FormsModule, RouterModule],
   templateUrl: './quanlygiamgia.component.html',
   styleUrls: ['./quanlygiamgia.component.css']
 })

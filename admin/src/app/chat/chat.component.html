@@ -3,19 +3,23 @@
     <i class="fas fa-comments"></i>
   </button>
 
-  <div class="chat-window" *ngIf="isChatOpen">
-    <div class="chat-header">
-      <h4>Chat với Client</h4>
-      <button class="close-btn" (click)="toggleChat()">X</button>
-    </div>
-    <div class="chat-body">
-      <div class="message" *ngFor="let msg of messages">
-        <strong>{{msg.from}}:</strong> {{msg.message}}
+  @if (isChatOpen) {
+    <div class="chat-window">
+      <div class="chat-header">
+        <h4>Chat với Client</h4>
+        <button class="close-btn" (click)="toggleChat()">X</button>
+      </div>
+      <div class="chat-body">
+        @for (msg of messages; track msg) {
+          <div class="message">
+            <strong>{{msg.from}}:</strong> {{msg.message}}
+          </div>
+        }
+      </div>
+      <div class="chat-footer">
+        <input type="text" [(ngModel)]="newMessage" placeholder="Nhập tin nhắn..." (keyup.enter)="sendMessage()">
+        <button (click)="sendMessage()">Gửi</button>
       </div>
     </div>
-    <div class="chat-footer">
-      <input type="text" [(ngModel)]="newMessage" placeholder="Nhập tin nhắn..." (keyup.enter)="sendMessage()">
-      <button (click)="sendMessage()">Gửi</button>
-    </div>
-  </div>
+  }
 </div>

@@ -23,69 +23,74 @@
         <div class="breadcrumb">Home / Đơn hàng / Chi tiết</div>
       </div>
       <div class="header-right">
-       <img class="avatar" src="/images/avt.png" alt="avatar">
+        <img class="avatar" src="/images/avt.png" alt="avatar">
       </div>
     </header>
 
     <main class="dashboard-content">
-      <div *ngIf="errorMessage" class="alert alert-danger">
-        {{ errorMessage }}
-      </div>
+      @if (errorMessage) {
+        <div class="alert alert-danger">
+          {{ errorMessage }}
+        </div>
+      }
 
       <section class="order-detail-section">
-        <div *ngIf="order; else loading">
-          <h2>Thông tin đơn hàng</h2>
-          <div class="order-info">
-            <div class="info-group">
-              <h3>Thông tin khách hàng</h3>
-              <p><strong>Tên:</strong> {{ order.customerName || 'Chưa cập nhật' }}</p>
-              <p><strong>Email:</strong> {{ order.customerEmail || 'Chưa cập nhật' }}</p>
-              <p><strong>Số điện thoại:</strong> {{ order.customerPhone || 'Chưa cập nhật' }}</p>
-              <p><strong>Địa chỉ:</strong> {{ order.customerAddress || 'Chưa cập nhật' }}</p>
-              <p><strong>Ghi chú khách hàng:</strong> {{ order.customerNote || 'Không có' }}</p>
+        @if (order) {
+          <div>
+            <h2>Thông tin đơn hàng</h2>
+            <div class="order-info">
+              <div class="info-group">
+                <h3>Thông tin khách hàng</h3>
+                <p><strong>Tên:</strong> {{ order.customerName || 'Chưa cập nhật' }}</p>
+                <p><strong>Email:</strong> {{ order.customerEmail || 'Chưa cập nhật' }}</p>
+                <p><strong>Số điện thoại:</strong> {{ order.customerPhone || 'Chưa cập nhật' }}</p>
+                <p><strong>Địa chỉ:</strong> {{ order.customerAddress || 'Chưa cập nhật' }}</p>
+                <p><strong>Ghi chú khách hàng:</strong> {{ order.customerNote || 'Không có' }}</p>
+              </div>
+              <div class="info-group">
+                <h3>Thông tin đơn hàng</h3>
+                <p><strong>Tổng tiền:</strong> {{ order.total | currency:'VND' }}</p>
+                <p><strong>Trạng thái:</strong> {{ order.status }}</p>
+              </div>
             </div>
-            <div class="info-group">
-              <h3>Thông tin đơn hàng</h3>
-              <p><strong>Tổng tiền:</strong> {{ order.total | currency:'VND' }}</p>
-              <p><strong>Trạng thái:</strong> {{ order.status }}</p>
+            <h3>Danh sách sản phẩm</h3>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>STT</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Số lượng</th>
+                    <th>Giá</th>
+                    <th>Tổng</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of order.items; track item; let i = $index) {
+                    <tr>
+                      <td>{{ i + 1 }}</td>
+                      <td>{{ item.productName || 'Chưa cập nhật' }}</td>
+                      <td>{{ item.quantity }}</td>
+                      <td>{{ item.price | currency:'VND' }}</td>
+                      <td>{{ item.quantity * item.price | currency:'VND' }}</td>
+                    </tr>
+                  }
+                  @if (order.items.length === 0) {
+                    <tr>
+                      <td colspan="5">Không có sản phẩm nào.</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            <div class="back-button-container">
+              <button class="back-button" [routerLink]="['/quanlydonhang']">Quay lại</button>
             </div>
           </div>
-
-          <h3>Danh sách sản phẩm</h3>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>STT</th>
-                  <th>Tên sản phẩm</th>
-                  <th>Số lượng</th>
-                  <th>Giá</th>
-                  <th>Tổng</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let item of order.items; index as i">
-                  <td>{{ i + 1 }}</td>
-                  <td>{{ item.productName || 'Chưa cập nhật' }}</td>
-                  <td>{{ item.quantity }}</td>
-                  <td>{{ item.price | currency:'VND' }}</td>
-                  <td>{{ item.quantity * item.price | currency:'VND' }}</td>
-                </tr>
-                <tr *ngIf="order.items.length === 0">
-                  <td colspan="5">Không có sản phẩm nào.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="back-button-container">
-            <button class="back-button" [routerLink]="['/quanlydonhang']">Quay lại</button>
-          </div>
-        </div>
-
-        <ng-template #loading>
+        } @else {
           <p>Đang tải chi tiết đơn hàng...</p>
-        </ng-template>
+        }
+
       </section>
     </main>
   </div>

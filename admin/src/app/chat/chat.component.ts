@@ -1,14 +1,14 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ChatService } from '../services/chat.service';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-chat',
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css'],
   standalone: true,
-  imports: [FormsModule, CommonModule, ReactiveFormsModule], // Import FormsModule trực tiếp để sử dụng ngModel
+  imports: [FormsModule, ReactiveFormsModule], // Import FormsModule trực tiếp để sử dụng ngModel
 })
 export class ChatComponent implements OnInit, OnDestroy {
   isChatOpen = false;

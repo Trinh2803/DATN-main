@@ -64,13 +64,17 @@
     </header>
 
     <main class="dashboard-content">
-      <div *ngIf="errorMessage" class="alert alert-danger">
-        {{ errorMessage }}
-      </div>
+      @if (errorMessage) {
+        <div class="alert alert-danger">
+          {{ errorMessage }}
+        </div>
+      }
 
-      <div *ngIf="successMessage" class="alert alert-success">
-        {{ successMessage }}
-      </div>
+      @if (successMessage) {
+        <div class="alert alert-success">
+          {{ successMessage }}
+        </div>
+      }
 
       <div class="section-header">
         <h2>Danh sách mã giảm giá</h2>
@@ -84,539 +88,562 @@
       </div>
 
       <!-- Add/Edit Form -->
-      <div class="form-overlay" *ngIf="showForm">
-        <div class="form-container">
-          <div class="form-header">
-            <h3>{{ isEditing ? 'Chỉnh sửa mã giảm giá' : 'Thêm mã giảm giá mới' }}</h3>
-            <button class="btn-close" (click)="hideForm()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
-          </div>
-
-          <form (ngSubmit)="saveDiscount()" #discountForm="ngForm">
-            <div class="form-row">
-              <div class="form-group">
-                <label for="code">Mã giảm giá *</label>
-                <input 
-                  type="text" 
-                  id="code" 
-                  name="code" 
-                  [(ngModel)]="newDiscount.code" 
-                  required 
-                  placeholder="VD: WELCOME10"
-                  [disabled]="loading">
-              </div>
-              <div class="form-group">
-                <label for="name">Tên mã giảm giá *</label>
-                <input 
-                  type="text" 
-                  id="name" 
-                  name="name" 
-                  [(ngModel)]="newDiscount.name" 
-                  required 
-                  placeholder="VD: Giảm giá chào mừng"
-                  [disabled]="loading">
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="description">Mô tả</label>
-              <textarea 
-                id="description" 
-                name="description" 
-                [(ngModel)]="newDiscount.description" 
-                placeholder="Mô tả chi tiết về mã giảm giá"
-                [disabled]="loading"></textarea>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="discountType">Loại giảm giá *</label>
-                <select 
-                  id="discountType" 
-                  name="discountType" 
-                  [(ngModel)]="newDiscount.discountType" 
-                  required
-                  [disabled]="loading">
-                  <option value="percentage">Phần trăm (%)</option>
-                  <option value="fixed">Số tiền cố định (VNĐ)</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="discountValue">Giá trị giảm giá *</label>
-                <input 
-                  type="number" 
-                  id="discountValue" 
-                  name="discountValue" 
-                  [(ngModel)]="newDiscount.discountValue" 
-                  required 
-                  [min]="0"
-                  [max]="newDiscount.discountType === 'percentage' ? 100 : null"
-                  [placeholder]="newDiscount.discountType === 'percentage' ? 'VD: 10' : 'VD: 50000'"
-                  [disabled]="loading">
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="minOrderValue">Giá trị đơn hàng tối thiểu</label>
-                <input 
-                  type="number" 
-                  id="minOrderValue" 
-                  name="minOrderValue" 
-                  [(ngModel)]="newDiscount.minOrderValue" 
-                  [min]="0"
-                  placeholder="VD: 500000"
-                  [disabled]="loading">
-              </div>
-              <div class="form-group" *ngIf="newDiscount.discountType === 'percentage'">
-                <label for="maxDiscount">Giảm giá tối đa</label>
-                <input 
-                  type="number" 
-                  id="maxDiscount" 
-                  name="maxDiscount" 
-                  [(ngModel)]="newDiscount.maxDiscount" 
-                  [min]="0"
-                  placeholder="VD: 100000"
-                  [disabled]="loading">
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="startDate">Ngày bắt đầu *</label>
-                <input 
-                  type="datetime-local" 
-                  id="startDate" 
-                  name="startDate" 
-                  [(ngModel)]="newDiscount.startDate" 
-                  required
-                  [disabled]="loading">
-              </div>
-              <div class="form-group">
-                <label for="endDate">Ngày kết thúc *</label>
-                <input 
-                  type="datetime-local" 
-                  id="endDate" 
-                  name="endDate" 
-                  [(ngModel)]="newDiscount.endDate" 
-                  required
-                  [disabled]="loading">
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="usageLimit">Giới hạn sử dụng</label>
-                <input 
-                  type="number" 
-                  id="usageLimit" 
-                  name="usageLimit" 
-                  [(ngModel)]="newDiscount.usageLimit" 
-                  [min]="0"
-                  placeholder="VD: 100 (0 = không giới hạn)"
-                  [disabled]="loading">
-              </div>
-              <div class="form-group">
-                <label class="checkbox-label">
-                  <input 
-                    type="checkbox" 
-                    [(ngModel)]="newDiscount.isActive" 
-                    name="isActive"
-                    [disabled]="loading">
-                  <span class="checkmark"></span>
-                  Kích hoạt mã giảm giá
-                </label>
-              </div>
-            </div>
-
-            <!-- Chọn sản phẩm áp dụng -->
-            <div class="form-group">
-              <label>Sản phẩm áp dụng</label>
-              <div class="selection-container">
-                <div class="selected-items">
-                  <div class="selected-item" *ngFor="let product of selectedProducts">
-                    <span class="item-name">{{ product.name }}</span>
-                    <button type="button" class="btn-remove" (click)="removeProduct(product._id!)">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
-                    </button>
-                  </div>
-                  <div class="selected-item" *ngFor="let category of selectedCategories">
-                    <span class="item-name">Danh mục: {{ category.name }}</span>
-                    <button type="button" class="btn-remove" (click)="removeCategory(category._id!)">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
-                    </button>
-                  </div>
-                  <div class="no-items" *ngIf="selectedProducts.length === 0 && selectedCategories.length === 0">
-                    Chưa chọn sản phẩm hoặc danh mục nào
-                  </div>
-                </div>
-                <div class="selection-buttons">
-                  <button type="button" class="btn-select" (click)="showProductSelectionModal()">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <line x1="12" y1="5" x2="12" y2="19"></line>
-                      <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                    Chọn sản phẩm
-                  </button>
-                  <button type="button" class="btn-select" (click)="showCategorySelectionModal()">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-                      <line x1="12" y1="11" x2="12" y2="17"></line>
-                      <line x1="9" y1="14" x2="15" y2="14"></line>
-                    </svg>
-                    Chọn danh mục
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-actions">
-              <button type="button" class="btn-cancel" (click)="hideForm()" [disabled]="loading">
+      @if (showForm) {
+        <div class="form-overlay">
+          <div class="form-container">
+            <div class="form-header">
+              <h3>{{ isEditing ? 'Chỉnh sửa mã giảm giá' : 'Thêm mã giảm giá mới' }}</h3>
+              <button class="btn-close" (click)="hideForm()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
                   <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
-                Hủy bỏ
-              </button>
-              <button type="submit" class="btn-save" [disabled]="loading || !discountForm.form.valid">
-                <span *ngIf="loading">
-                  <svg class="spinner" width="16" height="16" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="4" stroke-dasharray="31.4 31.4">
-                      <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
-                    </circle>
-                  </svg>
-                </span>
-                <span *ngIf="!loading">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                    <polyline points="7 3 7 8 15 8"></polyline>
-                  </svg>
-                  {{ isEditing ? 'Cập nhật' : 'Thêm mới' }}
-                </span>
               </button>
             </div>
-          </form>
-        </div>
-      </div>
-      <!-- Discount List -->
-      <div class="content">
-        <div class="loading" *ngIf="loading && !showForm">
-          <div class="spinner"></div>
-          <p>Đang tải dữ liệu...</p>
-        </div>
-
-        <ng-container *ngIf="!loading && filteredDiscounts.length > 0">
-          <div class="discount-list">
-            <ng-container *ngFor="let discount of filteredDiscounts">
-              <div class="discount-item">
-                <div class="discount-header">
-                  <div class="discount-code">
-                    <h4>{{ discount.code }}</h4>
-                    <span class="discount-name">{{ discount.name }}</span>
+            <form (ngSubmit)="saveDiscount()" #discountForm="ngForm">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="code">Mã giảm giá *</label>
+                  <input
+                    type="text"
+                    id="code"
+                    name="code"
+                    [(ngModel)]="newDiscount.code"
+                    required
+                    placeholder="VD: WELCOME10"
+                    [disabled]="loading">
                   </div>
-                  <div class="action-buttons">
-                    <button 
-                      class="action-button" 
-                      [class.view-button]="discount.isActive"
-                      [class.hide-button]="!discount.isActive"
-                      (click)="toggleActive(discount)"
-                      [disabled]="loading"
-                      type="button">
-                      <ng-container *ngIf="discount.isActive; else inactiveIcon">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                          <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                        </svg>
-                        <span>Hoạt động</span>
-                      </ng-container>
-                      <ng-template #inactiveIcon>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <path d="M18 6L6 18"></path>
-                          <path d="M6 6l12 12"></path>
-                        </svg>
-                        <span>Vô hiệu</span>
-                      </ng-template>
-                    </button>
-                    <button 
-                      class="action-button edit-button" 
-                      (click)="showEditForm(discount)" 
-                      [disabled]="loading"
-                      title="Chỉnh sửa"
-                      type="button">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                      </svg>
-                      <span>Sửa</span>
-                    </button>
-                    <button 
-                      class="action-button delete-button" 
-                      (click)="deleteDiscount(discount._id || '')" 
-                      [disabled]="loading"
-                      title="Xóa"
-                      type="button">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                      </svg>
-                      <span>Xóa</span>
-                    </button>
-                  </div>
-                </div>
-                
-                <div class="discount-details">
-                  <div class="detail-row">
-                    <div class="detail-item">
-                      <span class="label">Mô tả:</span>
-                      <span class="value">{{ discount.description || 'Không có mô tả' }}</span>
+                  <div class="form-group">
+                    <label for="name">Tên mã giảm giá *</label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      [(ngModel)]="newDiscount.name"
+                      required
+                      placeholder="VD: Giảm giá chào mừng"
+                      [disabled]="loading">
                     </div>
                   </div>
-                  
-                  <div class="detail-row">
-                    <div class="detail-item">
-                      <span class="label">Loại giảm giá:</span>
-                      <span class="value">{{ getDiscountTypeText(discount.discountType) }}</span>
-                    </div>
-                    <div class="detail-item">
-                      <span class="label">Giá trị:</span>
-                      <span class="value">
-                        {{ discount.discountType === 'percentage' ? discount.discountValue + '%' : formatCurrency(discount.discountValue) }}
-                      </span>
-                    </div>
+                  <div class="form-group">
+                    <label for="description">Mô tả</label>
+                    <textarea
+                      id="description"
+                      name="description"
+                      [(ngModel)]="newDiscount.description"
+                      placeholder="Mô tả chi tiết về mã giảm giá"
+                    [disabled]="loading"></textarea>
                   </div>
-                  
-                  <div class="detail-row">
-                    <div class="detail-item">
-                      <span class="label">Đơn hàng tối thiểu:</span>
-                      <span class="value">{{ formatCurrency(discount.minOrderValue) }}</span>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="discountType">Loại giảm giá *</label>
+                      <select
+                        id="discountType"
+                        name="discountType"
+                        [(ngModel)]="newDiscount.discountType"
+                        required
+                        [disabled]="loading">
+                        <option value="percentage">Phần trăm (%)</option>
+                        <option value="fixed">Số tiền cố định (VNĐ)</option>
+                      </select>
                     </div>
-                    <div class="detail-item" *ngIf="discount.maxDiscount">
-                      <span class="label">Giảm tối đa:</span>
-                      <span class="value">{{ formatCurrency(discount.maxDiscount) }}</span>
-                    </div>
-                  </div>
-                  
-                  <div class="detail-row">
-                    <div class="detail-item">
-                      <span class="label">Thời hạn:</span>
-                      <span class="value">{{ formatDate(discount.startDate) }} - {{ formatDate(discount.endDate) }}</span>
-                    </div>
-                    <div class="detail-item">
-                      <span class="label">Đã sử dụng:</span>
-                      <span class="value">{{ discount.usedCount }}/{{ discount.usageLimit || '∞' }}</span>
-                    </div>
-                  </div>
-                  
-                  <div class="detail-row">
-                    <div class="detail-item">
-                      <span class="label">Trạng thái:</span>
-                      <span class="value" [class]="getStatusClass(discount.isActive)">
-                        {{ getStatusText(discount.isActive) }}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div class="detail-row" *ngIf="discount.applicableProducts.length > 0 || discount.applicableCategories.length > 0">
-                    <div class="detail-item">
-                      <span class="label">Áp dụng cho:</span>
-                      <div class="applicable-items">
-                        <span class="applicable-count" *ngIf="discount.applicableProducts.length > 0">
-                          {{ discount.applicableProducts.length }} sản phẩm
-                        </span>
-                        <span class="applicable-count" *ngIf="discount.applicableCategories.length > 0">
-                          {{ discount.applicableCategories.length }} danh mục
-                        </span>
+                    <div class="form-group">
+                      <label for="discountValue">Giá trị giảm giá *</label>
+                      <input
+                        type="number"
+                        id="discountValue"
+                        name="discountValue"
+                        [(ngModel)]="newDiscount.discountValue"
+                        required
+                        [min]="0"
+                        [max]="newDiscount.discountType === 'percentage' ? 100 : null"
+                        [placeholder]="newDiscount.discountType === 'percentage' ? 'VD: 10' : 'VD: 50000'"
+                        [disabled]="loading">
                       </div>
                     </div>
-                  </div>
-                  
-                  <div class="detail-row" *ngIf="discount.applicableProducts.length > 0">
-                    <div class="detail-item full-width">
-                      <span class="label">Sản phẩm áp dụng:</span>
-                      <div class="product-tags">
-                        <span class="product-tag" *ngFor="let productId of discount.applicableProducts">
-                          {{ getProductName(productId) }}
-                        </span>
-                      </div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label for="minOrderValue">Giá trị đơn hàng tối thiểu</label>
+                        <input
+                          type="number"
+                          id="minOrderValue"
+                          name="minOrderValue"
+                          [(ngModel)]="newDiscount.minOrderValue"
+                          [min]="0"
+                          placeholder="VD: 500000"
+                          [disabled]="loading">
+                        </div>
+                        @if (newDiscount.discountType === 'percentage') {
+                          <div class="form-group">
+                            <label for="maxDiscount">Giảm giá tối đa</label>
+                            <input
+                              type="number"
+                              id="maxDiscount"
+                              name="maxDiscount"
+                              [(ngModel)]="newDiscount.maxDiscount"
+                              [min]="0"
+                              placeholder="VD: 100000"
+                              [disabled]="loading">
+                            </div>
+                          }
+                        </div>
+                        <div class="form-row">
+                          <div class="form-group">
+                            <label for="startDate">Ngày bắt đầu *</label>
+                            <input
+                              type="datetime-local"
+                              id="startDate"
+                              name="startDate"
+                              [(ngModel)]="newDiscount.startDate"
+                              required
+                              [disabled]="loading">
+                            </div>
+                            <div class="form-group">
+                              <label for="endDate">Ngày kết thúc *</label>
+                              <input
+                                type="datetime-local"
+                                id="endDate"
+                                name="endDate"
+                                [(ngModel)]="newDiscount.endDate"
+                                required
+                                [disabled]="loading">
+                              </div>
+                            </div>
+                            <div class="form-row">
+                              <div class="form-group">
+                                <label for="usageLimit">Giới hạn sử dụng</label>
+                                <input
+                                  type="number"
+                                  id="usageLimit"
+                                  name="usageLimit"
+                                  [(ngModel)]="newDiscount.usageLimit"
+                                  [min]="0"
+                                  placeholder="VD: 100 (0 = không giới hạn)"
+                                  [disabled]="loading">
+                                </div>
+                                <div class="form-group">
+                                  <label class="checkbox-label">
+                                    <input
+                                      type="checkbox"
+                                      [(ngModel)]="newDiscount.isActive"
+                                      name="isActive"
+                                      [disabled]="loading">
+                                      <span class="checkmark"></span>
+                                      Kích hoạt mã giảm giá
+                                    </label>
+                                  </div>
+                                </div>
+                                <!-- Chọn sản phẩm áp dụng -->
+                                <div class="form-group">
+                                  <label>Sản phẩm áp dụng</label>
+                                  <div class="selection-container">
+                                    <div class="selected-items">
+                                      @for (product of selectedProducts; track product) {
+                                        <div class="selected-item">
+                                          <span class="item-name">{{ product.name }}</span>
+                                          <button type="button" class="btn-remove" (click)="removeProduct(product._id!)">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                              <line x1="18" y1="6" x2="6" y2="18"></line>
+                                              <line x1="6" y1="6" x2="18" y2="18"></line>
+                                            </svg>
+                                          </button>
+                                        </div>
+                                      }
+                                      @for (category of selectedCategories; track category) {
+                                        <div class="selected-item">
+                                          <span class="item-name">Danh mục: {{ category.name }}</span>
+                                          <button type="button" class="btn-remove" (click)="removeCategory(category._id!)">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                              <line x1="18" y1="6" x2="6" y2="18"></line>
+                                              <line x1="6" y1="6" x2="18" y2="18"></line>
+                                            </svg>
+                                          </button>
+                                        </div>
+                                      }
+                                      @if (selectedProducts.length === 0 && selectedCategories.length === 0) {
+                                        <div class="no-items">
+                                          Chưa chọn sản phẩm hoặc danh mục nào
+                                        </div>
+                                      }
+                                    </div>
+                                    <div class="selection-buttons">
+                                      <button type="button" class="btn-select" (click)="showProductSelectionModal()">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                          <line x1="12" y1="5" x2="12" y2="19"></line>
+                                          <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        </svg>
+                                        Chọn sản phẩm
+                                      </button>
+                                      <button type="button" class="btn-select" (click)="showCategorySelectionModal()">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                                          <line x1="12" y1="11" x2="12" y2="17"></line>
+                                          <line x1="9" y1="14" x2="15" y2="14"></line>
+                                        </svg>
+                                        Chọn danh mục
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="form-actions">
+                                  <button type="button" class="btn-cancel" (click)="hideForm()" [disabled]="loading">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                    Hủy bỏ
+                                  </button>
+                                  <button type="submit" class="btn-save" [disabled]="loading || !discountForm.form.valid">
+                                    @if (loading) {
+                                      <span>
+                                        <svg class="spinner" width="16" height="16" viewBox="0 0 24 24">
+                                          <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="4" stroke-dasharray="31.4 31.4">
+                                            <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
+                                          </circle>
+                                        </svg>
+                                      </span>
+                                    }
+                                    @if (!loading) {
+                                      <span>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                          <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                          <polyline points="7 3 7 8 15 8"></polyline>
+                                        </svg>
+                                        {{ isEditing ? 'Cập nhật' : 'Thêm mới' }}
+                                      </span>
+                                    }
+                                  </button>
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                        }
+                        <!-- Discount List -->
+                        <div class="content">
+                          @if (loading && !showForm) {
+                            <div class="loading">
+                              <div class="spinner"></div>
+                              <p>Đang tải dữ liệu...</p>
+                            </div>
+                          }
+
+                          @if (!loading && filteredDiscounts.length > 0) {
+                            <div class="discount-list">
+                              @for (discount of filteredDiscounts; track discount) {
+                                <div class="discount-item">
+                                  <div class="discount-header">
+                                    <div class="discount-code">
+                                      <h4>{{ discount.code }}</h4>
+                                      <span class="discount-name">{{ discount.name }}</span>
+                                    </div>
+                                    <div class="action-buttons">
+                                      <button
+                                        class="action-button"
+                                        [class.view-button]="discount.isActive"
+                                        [class.hide-button]="!discount.isActive"
+                                        (click)="toggleActive(discount)"
+                                        [disabled]="loading"
+                                        type="button">
+                                        @if (discount.isActive) {
+                                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                          </svg>
+                                          <span>Hoạt động</span>
+                                        } @else {
+                                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M18 6L6 18"></path>
+                                            <path d="M6 6l12 12"></path>
+                                          </svg>
+                                          <span>Vô hiệu</span>
+                                        }
+                                      </button>
+                                      <button
+                                        class="action-button edit-button"
+                                        (click)="showEditForm(discount)"
+                                        [disabled]="loading"
+                                        title="Chỉnh sửa"
+                                        type="button">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                        </svg>
+                                        <span>Sửa</span>
+                                      </button>
+                                      <button
+                                        class="action-button delete-button"
+                                        (click)="deleteDiscount(discount._id || '')"
+                                        [disabled]="loading"
+                                        title="Xóa"
+                                        type="button">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                          <polyline points="3 6 5 6 21 6"></polyline>
+                                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                        </svg>
+                                        <span>Xóa</span>
+                                      </button>
+                                    </div>
+                                  </div>
+                                  <div class="discount-details">
+                                    <div class="detail-row">
+                                      <div class="detail-item">
+                                        <span class="label">Mô tả:</span>
+                                        <span class="value">{{ discount.description || 'Không có mô tả' }}</span>
+                                      </div>
+                                    </div>
+                                    <div class="detail-row">
+                                      <div class="detail-item">
+                                        <span class="label">Loại giảm giá:</span>
+                                        <span class="value">{{ getDiscountTypeText(discount.discountType) }}</span>
+                                      </div>
+                                      <div class="detail-item">
+                                        <span class="label">Giá trị:</span>
+                                        <span class="value">
+                                          {{ discount.discountType === 'percentage' ? discount.discountValue + '%' : formatCurrency(discount.discountValue) }}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div class="detail-row">
+                                      <div class="detail-item">
+                                        <span class="label">Đơn hàng tối thiểu:</span>
+                                        <span class="value">{{ formatCurrency(discount.minOrderValue) }}</span>
+                                      </div>
+                                      @if (discount.maxDiscount) {
+                                        <div class="detail-item">
+                                          <span class="label">Giảm tối đa:</span>
+                                          <span class="value">{{ formatCurrency(discount.maxDiscount) }}</span>
+                                        </div>
+                                      }
+                                    </div>
+                                    <div class="detail-row">
+                                      <div class="detail-item">
+                                        <span class="label">Thời hạn:</span>
+                                        <span class="value">{{ formatDate(discount.startDate) }} - {{ formatDate(discount.endDate) }}</span>
+                                      </div>
+                                      <div class="detail-item">
+                                        <span class="label">Đã sử dụng:</span>
+                                        <span class="value">{{ discount.usedCount }}/{{ discount.usageLimit || '∞' }}</span>
+                                      </div>
+                                    </div>
+                                    <div class="detail-row">
+                                      <div class="detail-item">
+                                        <span class="label">Trạng thái:</span>
+                                        <span class="value" [class]="getStatusClass(discount.isActive)">
+                                          {{ getStatusText(discount.isActive) }}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    @if (discount.applicableProducts.length > 0 || discount.applicableCategories.length > 0) {
+                                      <div class="detail-row">
+                                        <div class="detail-item">
+                                          <span class="label">Áp dụng cho:</span>
+                                          <div class="applicable-items">
+                                            @if (discount.applicableProducts.length > 0) {
+                                              <span class="applicable-count">
+                                                {{ discount.applicableProducts.length }} sản phẩm
+                                              </span>
+                                            }
+                                            @if (discount.applicableCategories.length > 0) {
+                                              <span class="applicable-count">
+                                                {{ discount.applicableCategories.length }} danh mục
+                                              </span>
+                                            }
+                                          </div>
+                                        </div>
+                                      </div>
+                                    }
+                                    @if (discount.applicableProducts.length > 0) {
+                                      <div class="detail-row">
+                                        <div class="detail-item full-width">
+                                          <span class="label">Sản phẩm áp dụng:</span>
+                                          <div class="product-tags">
+                                            @for (productId of discount.applicableProducts; track productId) {
+                                              <span class="product-tag">
+                                                {{ getProductName(productId) }}
+                                              </span>
+                                            }
+                                          </div>
+                                        </div>
+                                      </div>
+                                    }
+                                    @if (discount.applicableCategories.length > 0) {
+                                      <div class="detail-row">
+                                        <div class="detail-item full-width">
+                                          <span class="label">Danh mục áp dụng:</span>
+                                          <div class="category-tags">
+                                            @for (categoryId of discount.applicableCategories; track categoryId) {
+                                              <span class="category-tag">
+                                                {{ getCategoryName(categoryId) }}
+                                              </span>
+                                            }
+                                          </div>
+                                        </div>
+                                      </div>
+                                    }
+                                  </div>
+                                </div>
+                              }
+                            </div>
+                          }
+
+                          <!-- Empty State -->
+                          @if (!loading && filteredDiscounts.length === 0) {
+                            <div class="empty-state">
+                              <div class="empty-icon">
+                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#b3b8c5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                  <circle cx="12" cy="12" r="10"></circle>
+                                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                </svg>
+                              </div>
+                              <h3>Không có mã giảm giá nào</h3>
+                              <p>Bạn chưa tạo mã giảm giá nào. Hãy tạo mã giảm giá mới để bắt đầu.</p>
+                              <button class="btn-add" (click)="showAddForm()" type="button">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                                Thêm mã giảm giá
+                              </button>
+                            </div>
+                          }
+                        </div>
+                      </main>
                     </div>
                   </div>
-                  
-                  <div class="detail-row" *ngIf="discount.applicableCategories.length > 0">
-                    <div class="detail-item full-width">
-                      <span class="label">Danh mục áp dụng:</span>
-                      <div class="category-tags">
-                        <span class="category-tag" *ngFor="let categoryId of discount.applicableCategories">
-                          {{ getCategoryName(categoryId) }}
-                        </span>
+
+                  <!-- SVG ICONS template -->
+                  <svg style="display: none;">
+                    <symbol id="menu-dashboard" viewBox="0 0 24 24">
+                      <rect x="3" y="3" width="7" height="7" rx="2" fill="#b3b8c5"/>
+                      <rect x="3" y="14" width="7" height="7" rx="2" fill="#b3b8c5"/>
+                      <rect x="14" y="3" width="7" height="7" rx="2" fill="#b3b8c5"/>
+                      <rect x="14" y="14" width="7" height="7" rx="2" fill="#b3b8c5"/>
+                    </symbol>
+                    <symbol id="menu-list" viewBox="0 0 24 24">
+                      <rect x="4" y="7" width="16" height="2" rx="1" fill="#b3b8c5"/>
+                      <rect x="4" y="11" width="16" height="2" rx="1" fill="#b3b8c5"/>
+                      <rect x="4" y="15" width="16" height="2" rx="1" fill="#b3b8c5"/>
+                    </symbol>
+                    <symbol id="menu-product" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="6" stroke="#b3b8c5" stroke-width="2" fill="none"/>
+                    </symbol>
+                    <symbol id="menu-customer" viewBox="0 0 24 24">
+                      <circle cx="12" cy="9" r="5" stroke="#b3b8c5" stroke-width="2" fill="none"/>
+                      <path d="M3 21c0-4.418 4.03-8 9-8s9 3.582 9 8" stroke="#b3b8c5" stroke-width="2" fill="none"/>
+                    </symbol>
+                    <symbol id="menu-order" viewBox="0 0 24 24">
+                      <rect x="6" y="6" width="12" height="12" rx="2" stroke="#b3b8c5" stroke-width="2" fill="none"/>
+                    </symbol>
+                    <symbol id="menu-comment" viewBox="0 0 24 24">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="#b3b8c5" stroke-width="2" fill="none"/>
+                    </symbol>
+                    <symbol id="logout-icon" viewBox="0 0 24 24">
+                      <path d="M16 17l5-5-5-5M21 12H9M13 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2" stroke="#b3b8c5" stroke-width="2" fill="none"/>
+                    </symbol>
+                    <symbol id="search-icon" viewBox="0 0 24 24">
+                      <circle cx="11" cy="11" r="8" stroke="#b3b8c5" stroke-width="2" fill="none"/>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="#b3b8c5" stroke-width="2"/>
+                    </symbol>
+                  </svg>
+
+                  <!-- Modal chọn sản phẩm -->
+                  <!-- Product Selection Modal -->
+                  @if (showProductModal) {
+                    <div class="modal-overlay" (click)="hideProductModal()">
+                      <div class="modal-container" (click)="$event.stopPropagation()">
+                        <div class="modal-header">
+                          <h3>Chọn sản phẩm áp dụng</h3>
+                          <button type="button" class="btn-close" (click)="hideProductModal()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <line x1="18" y1="6" x2="6" y2="18"></line>
+                              <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                          </button>
+                        </div>
+                        <div class="modal-search">
+                          <input
+                            type="text"
+                            placeholder="Tìm kiếm sản phẩm..."
+                            [(ngModel)]="productSearchQuery"
+                            (input)="searchProducts()"
+                            class="search-input">
+                          </div>
+                          <div class="modal-content">
+                            <div class="product-list">
+                              @for (product of filteredProducts; track product) {
+                                <div class="product-item" (click)="selectProduct(product)">
+                                  <div class="product-info">
+                                    <img [src]="product.thumbnail || '/images/default-product.png'" [alt]="product.name" class="product-thumbnail">
+                                    <div class="product-details">
+                                      <h4>{{ product.name }}</h4>
+                                      <p class="product-price">{{ formatCurrency(product.price) }}</p>
+                                    </div>
+                                  </div>
+                                  @if (isProductSelected(product._id)) {
+                                    <div class="product-check">
+                                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                      </svg>
+                                    </div>
+                                  }
+                                </div>
+                              }
+                            </div>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn-cancel" (click)="hideProductModal()">Đóng</button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </ng-container>
-          </div>
-        </ng-container>
+                    }
 
-        <!-- Empty State -->
-        <div class="empty-state" *ngIf="!loading && filteredDiscounts.length === 0">
-          <div class="empty-icon">
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#b3b8c5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="12"></line>
-              <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
-          </div>
-          <h3>Không có mã giảm giá nào</h3>
-          <p>Bạn chưa tạo mã giảm giá nào. Hãy tạo mã giảm giá mới để bắt đầu.</p>
-          <button class="btn-add" (click)="showAddForm()" type="button">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            Thêm mã giảm giá
-          </button>
-        </div>
-      </div>
-    </main>
-  </div>
-</div>
-
-<!-- SVG ICONS template -->
-<svg style="display: none;">
-  <symbol id="menu-dashboard" viewBox="0 0 24 24">
-    <rect x="3" y="3" width="7" height="7" rx="2" fill="#b3b8c5"/>
-    <rect x="3" y="14" width="7" height="7" rx="2" fill="#b3b8c5"/>
-    <rect x="14" y="3" width="7" height="7" rx="2" fill="#b3b8c5"/>
-    <rect x="14" y="14" width="7" height="7" rx="2" fill="#b3b8c5"/>
-  </symbol>
-  <symbol id="menu-list" viewBox="0 0 24 24">
-    <rect x="4" y="7" width="16" height="2" rx="1" fill="#b3b8c5"/>
-    <rect x="4" y="11" width="16" height="2" rx="1" fill="#b3b8c5"/>
-    <rect x="4" y="15" width="16" height="2" rx="1" fill="#b3b8c5"/>
-  </symbol>
-  <symbol id="menu-product" viewBox="0 0 24 24">
-    <circle cx="12" cy="12" r="6" stroke="#b3b8c5" stroke-width="2" fill="none"/>
-  </symbol>
-  <symbol id="menu-customer" viewBox="0 0 24 24">
-    <circle cx="12" cy="9" r="5" stroke="#b3b8c5" stroke-width="2" fill="none"/>
-    <path d="M3 21c0-4.418 4.03-8 9-8s9 3.582 9 8" stroke="#b3b8c5" stroke-width="2" fill="none"/>
-  </symbol>
-  <symbol id="menu-order" viewBox="0 0 24 24">
-    <rect x="6" y="6" width="12" height="12" rx="2" stroke="#b3b8c5" stroke-width="2" fill="none"/>
-  </symbol>
-  <symbol id="menu-comment" viewBox="0 0 24 24">
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="#b3b8c5" stroke-width="2" fill="none"/>
-  </symbol>
-  <symbol id="logout-icon" viewBox="0 0 24 24">
-    <path d="M16 17l5-5-5-5M21 12H9M13 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2" stroke="#b3b8c5" stroke-width="2" fill="none"/>
-  </symbol>
-  <symbol id="search-icon" viewBox="0 0 24 24">
-    <circle cx="11" cy="11" r="8" stroke="#b3b8c5" stroke-width="2" fill="none"/>
-    <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="#b3b8c5" stroke-width="2"/>
-  </symbol>
-</svg>
-
-<!-- Modal chọn sản phẩm -->
-<!-- Product Selection Modal -->
-<div class="modal-overlay" *ngIf="showProductModal" (click)="hideProductModal()">
-  <div class="modal-container" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h3>Chọn sản phẩm áp dụng</h3>
-      <button type="button" class="btn-close" (click)="hideProductModal()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
-    </div>
-    
-    <div class="modal-search">
-      <input 
-        type="text" 
-        placeholder="Tìm kiếm sản phẩm..." 
-        [(ngModel)]="productSearchQuery" 
-        (input)="searchProducts()"
-        class="search-input">
-    </div>
-    
-    <div class="modal-content">
-      <div class="product-list">
-        <div class="product-item" *ngFor="let product of filteredProducts" (click)="selectProduct(product)">
-          <div class="product-info">
-            <img [src]="product.thumbnail || '/images/default-product.png'" [alt]="product.name" class="product-thumbnail">
-            <div class="product-details">
-              <h4>{{ product.name }}</h4>
-              <p class="product-price">{{ formatCurrency(product.price) }}</p>
-            </div>
-          </div>
-          <div class="product-check" *ngIf="isProductSelected(product._id)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="modal-footer">
-      <button type="button" class="btn-cancel" (click)="hideProductModal()">Đóng</button>
-    </div>
-  </div>
-</div>
-
-<!-- Category Selection Modal -->
-<div class="modal-overlay" *ngIf="showCategoryModal" (click)="hideCategoryModal()">
-  <div class="modal-container" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h3>Chọn danh mục áp dụng</h3>
-      <button type="button" class="btn-close" (click)="hideCategoryModal()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
-    </div>
-    
-    <div class="modal-search">
-      <input 
-        type="text" 
-        placeholder="Tìm kiếm danh mục..." 
-        [(ngModel)]="categorySearchQuery" 
-        (input)="searchCategories()"
-        class="search-input">
-    </div>
-    
-    <div class="modal-content">
-      <div class="category-list">
-        <div class="category-item" *ngFor="let category of filteredCategories" (click)="selectCategory(category)">
-          <div class="category-info">
-            <img [src]="category.image || '/images/default-category.png'" [alt]="category.name" class="category-thumbnail">
-            <div class="category-details">
-              <h4>{{ category.name }}</h4>
-            </div>
-          </div>
-          <div class="category-check" *ngIf="isCategorySelected(category._id)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="modal-footer">
-      <button type="button" class="btn-cancel" (click)="hideCategoryModal()">Đóng</button>
-    </div>
-  </div>
-</div>
+                    <!-- Category Selection Modal -->
+                    @if (showCategoryModal) {
+                      <div class="modal-overlay" (click)="hideCategoryModal()">
+                        <div class="modal-container" (click)="$event.stopPropagation()">
+                          <div class="modal-header">
+                            <h3>Chọn danh mục áp dụng</h3>
+                            <button type="button" class="btn-close" (click)="hideCategoryModal()">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                              </svg>
+                            </button>
+                          </div>
+                          <div class="modal-search">
+                            <input
+                              type="text"
+                              placeholder="Tìm kiếm danh mục..."
+                              [(ngModel)]="categorySearchQuery"
+                              (input)="searchCategories()"
+                              class="search-input">
+                            </div>
+                            <div class="modal-content">
+                              <div class="category-list">
+                                @for (category of filteredCategories; track category) {
+                                  <div class="category-item" (click)="selectCategory(category)">
+                                    <div class="category-info">
+                                      <img [src]="category.image || '/images/default-category.png'" [alt]="category.name" class="category-thumbnail">
+                                      <div class="category-details">
+                                        <h4>{{ category.name }}</h4>
+                                      </div>
+                                    </div>
+                                    @if (isCategorySelected(category._id)) {
+                                      <div class="category-check">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                          <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                      </div>
+                                    }
+                                  </div>
+                                }
+                              </div>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn-cancel" (click)="hideCategoryModal()">Đóng</button>
+                            </div>
+                          </div>
+                        </div>
+                      }

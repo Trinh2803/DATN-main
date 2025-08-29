@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { Socket } from 'ngx-socket-io';
+import { Injectable, ApplicationRef } from '@angular/core';
+import { Socket, SocketIoConfig } from 'ngx-socket-io';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -8,11 +8,12 @@ import { Observable } from 'rxjs';
 export class ChatService {
   private socket: Socket;
 
-  constructor() {
-    this.socket = new Socket({
+  constructor(private appRef: ApplicationRef) {
+    const config: SocketIoConfig = {
       url: 'http://localhost:3000',
       options: { transports: ['websocket'] }
-    });
+    };
+    this.socket = new Socket(config, this.appRef);
   }
 
   // Kết nối với vai trò 'admin'
