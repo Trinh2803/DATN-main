@@ -21,12 +21,16 @@ interface CartItem {
   styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent implements OnInit {
+closeMobileMenu() {
+throw new Error('Method not implemented.');
+}
   searchQuery: string = '';
   cartItemCount: number = 0;
   wishlistCount: number = 0;
   isLoggedIn: boolean = false;
   user: any = null;
   showMenu: boolean = false;
+  isMenuOpen: boolean = false; // Đặt mặc định false để ẩn menu
 
   constructor(
     private router: Router,
@@ -44,7 +48,7 @@ export class HeaderComponent implements OnInit {
       this.user = user;
       this.isLoggedIn = !!user;
     });
-    
+
     // Subscribe to wishlist count
     this.wishlistService.getWishlistCount().subscribe((count) => {
       this.wishlistCount = count;
@@ -69,11 +73,18 @@ export class HeaderComponent implements OnInit {
     this.showMenu = !this.showMenu;
   }
 
+  toggleMobileMenu(): void {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
     if (!target.closest('.account-menu')) {
       this.showMenu = false;
+    }
+    if (!target.closest('.mobile-menu-toggle') && !target.closest('.mobile-menu')) {
+      this.isMenuOpen = false; // Đóng menu khi click ngoài
     }
   }
 
@@ -82,6 +93,7 @@ export class HeaderComponent implements OnInit {
     this.isLoggedIn = false;
     this.user = null;
     this.showMenu = false;
+    this.isMenuOpen = false; // Đóng menu khi logout
     this.router.navigate(['/dangnhap']);
   }
 }
