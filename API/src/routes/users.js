@@ -13,7 +13,10 @@ const {
   verifyResetPasswordOtp,
   resetPassword, 
   verifyRegistration,
-  sendOtp
+  sendOtp,
+  addToWishlist,
+  removeFromWishlist,
+  getWishlist
 } = require('../controllers/userController');
 const upload = require('../middlewares/uploadMiddleware');
 
@@ -38,5 +41,10 @@ router.post('/verify-registration', verifyRegistration);
 // User profile routes (require user token)
 router.put('/profile', verifyToken, upload('uploads').single('avatar'), updateUser);
 router.get('/:id', verifyToken, getUserById);
+
+// Wishlist routes (require user token)
+router.post('/wishlist', verifyToken, addToWishlist);
+router.delete('/wishlist/:productId', verifyToken, removeFromWishlist);
+router.get('/wishlist/mine', verifyToken, getWishlist);
 
 module.exports = router;

@@ -8,8 +8,8 @@
       <span class="new-tag" *ngIf="product?.createdAt && isNewProduct(product.createdAt)">NEW</span>
       <span class="hot-star blink-hot" *ngIf="title === 'Sản phẩm hot'">🔥 HOT</span>
       <span class="out-of-stock-tag" *ngIf="!isInStock(product)">Hết hàng</span>
-      <button class="favorite-btn" (click)="toggleFavorite(product)">
-        <i [class]="product && product._id && isFavorite(product) ? 'fas fa-heart' : 'far fa-heart'"></i>
+      <button class="favorite-btn" (click)="toggleWishlist(product, $event)">
+        <i [class]="isInWishlist(product) ? 'fas fa-heart' : 'far fa-heart'"></i>
       </button>
       <a [routerLink]="['/chitiet', product._id]">
         <img *ngIf="product && product._id" src="http://localhost:3000{{product.thumbnail}}" alt="{{product.name}}">

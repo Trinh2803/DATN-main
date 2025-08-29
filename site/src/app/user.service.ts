@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, catchError, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, tap, catchError, throwError, map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -213,6 +213,64 @@ export class UserService {
   verifyOtp(email: string, otp: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/verify-otp`, { email, otp }).pipe(
       catchError(this.handleError('Xác minh OTP'))
+    );
+  }
+
+  // Wishlist Methods
+  addToWishlist(productId: string): Observable<any> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+    
+    return this.http.post(
+      `${this.apiUrlT}/wishlist/add`, 
+      { productId },
+      { headers }
+    ).pipe(
+      map((response: any) => response?.data || response),
+      catchError(this.handleError('Thêm vào danh sách yêu thích'))
+    );
+  }
+
+  removeFromWishlist(productId: string): Observable<any> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    
+    return this.http.delete(
+      `${this.apiUrlT}/wishlist/remove/${productId}`, 
+      { headers }
+    ).pipe(
+      map((response: any) => response?.data || response),
+      catchError(this.handleError('Xóa khỏi danh sách yêu thích'))
+    );
+  }
+
+  getWishlist(): Observable<any> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    
+    return this.http.get(
+      `${this.apiUrlT}/wishlist/user`, 
+      { headers }
+    ).pipe(
+      map((response: any) => {
+        // Handle different response formats
+        if (Array.isArray(response)) {
+          return response;
+        } else if (response?.data) {
+          return Array.isArray(response.data) ? response.data : [];
+        } else if (response?.success && Array.isArray(response.wishlist)) {
+          return response.wishlist;
+        }
+        return [];
+      }),
+      catchError(this.handleError('Lấy danh sách yêu thích'))
     );
   }
 

@@ -36,8 +36,8 @@
           <div class="cart-item-details">
             <h3 class="product-title">{{ item.product.name }}</h3>
             <div class="product-price">
-              <span class="current-price">{{ getDiscountedItemPrice(item) | number:'1.0-0' }}đ</span>
-              <span class="original-price" *ngIf="hasDiscount(item)">({{ getItemOriginalPrice(item) | number:'1.0-0' }}đ)</span>
+              <span class="current-price">{{ getProductPrice(item) | number:'1.0-0' }}đ</span>
+              <span class="original-price" *ngIf="hasDiscount(item)">({{ getProductOriginalPrice(item) | number:'1.0-0' }}đ)</span>
               <!-- Hiển thị thông tin biến thể nếu có -->
               <div class="variant-info" *ngIf="getVariantInfo(item)">
                 <small class="variant-text">{{ getVariantInfo(item) }}</small>
@@ -64,7 +64,7 @@
             </div>
           </div>
           <div class="cart-item-total">
-            <span>{{ getDiscountedItemPrice(item) * item.quantity | number:'1.0-0' }}đ</span>
+            <span>{{ getProductPrice(item) * item.quantity | number:'1.0-0' }}đ</span>
           </div>
           <div class="cart-item-remove">
             <button class="remove-btn" (click)="removeFromCart(item.product._id, item.selectedVariant)">×</button>
