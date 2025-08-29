@@ -22,7 +22,7 @@ const productSchema = new Schema({
   categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'categories' },
   variants: [variantSchema], // Thêm trường variants
   discountId: { type: mongoose.Schema.Types.ObjectId, ref: 'discounts' }, // Thêm trường discountId
-  
+  isVisible: { type: Boolean, default: true } // Thêm trường isVisible
 }, { timestamps: true })
 
 module.exports = mongoose.model('Product', productSchema)
