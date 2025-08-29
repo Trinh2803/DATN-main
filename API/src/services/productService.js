@@ -5,13 +5,7 @@ const path = require('path');
 // Lấy tất cả sản phẩm
 const getAllProducts = async ({ categoryId, sortBy, order, name } = {}) => {
   try {
-    let query = {
-      isVisible: true,
-      $or: [
-        { quantity: { $gt: 0 } },
-        { quantity: { $exists: false } }
-      ]
-    };
+    let query = {};
     
     if (categoryId) {
       query.categoryId = categoryId;
@@ -35,7 +29,7 @@ const getAllProducts = async ({ categoryId, sortBy, order, name } = {}) => {
 const getNewProducts = async (limit) => {
   try {
     const products = await Product
-      .find({ isVisible: true })
+      .find({})
       .sort({ createdAt: -1 })
       .limit(limit)
       .lean();
@@ -48,21 +42,12 @@ const getNewProducts = async (limit) => {
 // Lấy sản phẩm giảm giá
 const getSaleProducts = async (limit) => {
   try {
-    const products = await Product.find({ isVisible: true })
-      .aggregate([
-        {
-          $match: {
-            $and: [
-              { salePrice: { $exists: true, $ne: 0 } },
-              {
-                $or: [
-                  { quantity: { $gt: 0 } },
-                  { quantity: { $exists: false } }
-                ]
-              }
-            ]
-          }
-        },
+    const products = await Product.aggregate([
+      {
+        $match: {
+          salePrice: { $exists: true, $ne: 0 }
+        }
+      },
         {
           $addFields: {
             discountPercentage: {
@@ -195,17 +180,9 @@ const updateSellCount = async (productId, quantity) => {
 // ✅ Lấy sản phẩm hot (bán chạy nhất)
 const getHotProducts = async (limit) => {
   try {
-    const query = { isVisible: true };
     const products = await Product.aggregate([
-      // Lọc sản phẩm còn hàng (quantity > 0 hoặc không có quantity)
-      {
-        $match: {
-          $or: [
-            { quantity: { $gt: 0 } },
-            { quantity: { $exists: false } }
-          ]
-        }
-      },
+      // Bỏ lọc isVisible và quantity
+      { $match: {} },
       // Sắp xếp sản phẩm theo `sellCount` giảm dần
       { $sort: { sellCount: -1 } },
 
