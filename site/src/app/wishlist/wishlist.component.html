@@ -25,27 +25,46 @@
 
   <div class="wishlist-grid" *ngIf="!loading && !error && wishlistItems.length > 0">
     <div class="wishlist-item" *ngFor="let item of wishlistItems">
-      <div class="product-image">
-        <img [src]="getImageUrl(item.productId.thumbnail)" (error)="handleImageError($event)" alt="{{ item.productId.name }}" />
-      </div>
-      <div class="product-info">
-        <h3 class="product-name" (click)="viewProduct(item.productId._id)">{{ item.productId.name }}</h3>
-        <div class="product-price">
-          <span class="original-price">{{ formatPrice(item.productId.price) }}</span>
-          <span class="current-price" *ngIf="item.productId.discountPercent && item.productId.discountPercent > 0">
-            {{ formatPrice(getDiscountedPrice(item.productId.price, item.productId.discountPercent)) }}
-          </span>
-          <span class="discount-badge" *ngIf="item.productId.discountPercent && item.productId.discountPercent > 0">
-            -{{ item.productId.discountPercent }}%
-          </span>
+      <ng-container *ngIf="item.productId as product">
+        <div class="product-image">
+          <img 
+            [src]="getImageUrl(product.thumbnail || '')" 
+            (error)="handleImageError($event)" 
+            [alt]="product.name || 'Product image'" />
         </div>
-        <div class="product-actions">
-          <button class="btn-view" (click)="viewProduct(item.productId._id)">Xem chi tiết</button>
-          <button class="btn-remove" (click)="removeFromWishlist(item.productId._id)">
-            <i class="fas fa-trash"></i> Xóa
-          </button>
+        <div class="product-info">
+          <h3 
+            class="product-name" 
+            (click)="product._id && viewProduct(product._id)">
+            {{ product.name || 'Sản phẩm không tồn tại' }}
+          </h3>
+          <div class="product-price" *ngIf="product.price !== undefined">
+            <span class="original-price">{{ formatPrice(product.price) }}</span>
+            <ng-container *ngIf="product.discountPercent && product.discountPercent > 0">
+              <span class="current-price">
+                {{ formatPrice(getDiscountedPrice(product.price, product.discountPercent)) }}
+              </span>
+              <span class="discount-badge">
+                -{{ product.discountPercent }}%
+              </span>
+            </ng-container>
+          </div>
+          <div class="product-actions">
+            <button 
+              class="btn-view" 
+              (click)="product._id && viewProduct(product._id)"
+              [disabled]="!product._id">
+              Xem chi tiết
+            </button>
+            <button 
+              class="btn-remove" 
+              (click)="item._id && removeFromWishlist(item._id)"
+              [disabled]="!item._id">
+              <i class="fas fa-trash"></i> Xóa
+            </button>
+          </div>
         </div>
-      </div>
+      </ng-container>
     </div>
   </div>
 </div>

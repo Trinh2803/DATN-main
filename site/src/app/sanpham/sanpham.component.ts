@@ -1,13 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductInterface, CategoryInterface } from '../product-interface';
 import { ProductService } from '../product.service';
+import { UserService } from '../user.service';
 import { ListcardComponent } from '../listcard/listcard.component';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'sanpham',
@@ -30,10 +32,16 @@ export class SanphamComponent implements OnInit {
   productsPerPage: number = 12;
   totalPages: number = 1;
 
+  wishlist: string[] = [];
+
   constructor(
     private productService: ProductService,
-    private route: ActivatedRoute
-  ) {}
+    private userService: UserService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {
+    this.loadWishlist();
+  }
 
   ngOnInit(): void {
     this.loadCategories();
@@ -252,5 +260,162 @@ onSortChange(order: 'asc' | 'desc' | ''): void {
       pages.push(i);
     }
     return pages;
+  }
+
+  loadWishlist(): void {
+    if (this.userService.isLoggedIn()) {
+      this.userService.getWishlist().subscribe({
+        next: (response: any) => {
+          if (response.success && Array.isArray(response.wishlist)) {
+            this.wishlist = response.wishlist;
+            this.updateProductsWishlistStatus();
+          }
+        },
+        error: (error) => {
+          console.error('Error loading wishlist:', error);
+        }
+      });
+    }
+  }
+
+  // Update isInWishlist status for all products
+  private updateProductsWishlistStatus(): void {
+    this.allProducts.forEach(product => {
+      product.isInWishlist = this.wishlist.includes(product._id);
+    });
+    // Update the filtered products with the new wishlist status
+    this.filteredProducts = [...this.filteredProducts];
+  }
+
+  // Handle wishlist toggle from listcard component
+  onWishlistToggled(product: ProductInterface): void {
+    if (!this.userService.isLoggedIn()) {
+      Swal.fire({
+        title: 'Thông báo',
+        text: 'Vui lòng đăng nhập để sử dụng tính năng yêu thích',
+        icon: 'info',
+        confirmButtonText: 'OK'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.router.navigate(['/dangnhap']);
+        }
+      });
+      return;
+    }
+
+    const wasInWishlist = product.isInWishlist;
+    
+    // Optimistic UI update
+    product.isInWishlist = !wasInWishlist;
+    
+    const wishlistAction = wasInWishlist 
+      ? this.userService.removeFromWishlist(product._id)
+      : this.userService.addToWishlist(product._id);
+    
+    wishlistAction.subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          // Update the wishlist array
+          if (wasInWishlist) {
+            this.wishlist = this.wishlist.filter(id => id !== product._id);
+          } else {
+            this.wishlist.push(product._id);
+          }
+          
+          Swal.fire({
+            title: 'Thành công',
+            text: wasInWishlist 
+              ? 'Đã xóa khỏi danh sách yêu thích' 
+              : 'Đã thêm vào danh sách yêu thích',
+            icon: 'success',
+            confirmButtonText: 'OK',
+            timer: 1500,
+            showConfirmButton: false
+          });
+        } else {
+          // Revert on error
+          product.isInWishlist = wasInWishlist;
+          Swal.fire({
+            title: 'Lỗi',
+            text: response.message || 'Có lỗi xảy ra',
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
+        }
+      },
+      error: (error) => {
+        // Revert on error
+        product.isInWishlist = wasInWishlist;
+        console.error('Error toggling wishlist:', error);
+        
+        let errorMessage = 'Có lỗi xảy ra khi cập nhật danh sách yêu thích';
+        if (error.status === 401) {
+          errorMessage = 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại';
+          // Clear user data and redirect to login
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          this.router.navigate(['/dangnhap']);
+        }
+        
+        Swal.fire({
+          title: 'Lỗi',
+          text: errorMessage,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+      }
+    });
+  }
+
+  toggleWishlist(product: ProductInterface): void {
+    if (!this.userService.isLoggedIn()) {
+      Swal.fire({
+        title: 'Yêu cầu đăng nhập',
+        text: 'Vui lòng đăng nhập để thêm sản phẩm vào danh sách yêu thích',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Đăng nhập',
+        cancelButtonText: 'Hủy'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.router.navigate(['/dangnhap']);
+        }
+      });
+      return;
+    }
+
+    const productId = product._id;
+    const wasInWishlist = product.isInWishlist;
+    
+    // Optimistic update
+    product.isInWishlist = !wasInWishlist;
+    
+    const wishlistAction = wasInWishlist 
+      ? this.userService.removeFromWishlist(productId)
+      : this.userService.addToWishlist(productId);
+    
+    wishlistAction.subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          if (wasInWishlist) {
+            this.wishlist = this.wishlist.filter(id => id !== productId);
+            Swal.fire('Đã xóa', 'Đã xóa khỏi danh sách yêu thích', 'success');
+          } else {
+            this.wishlist.push(productId);
+            Swal.fire('Đã thêm', 'Đã thêm vào danh sách yêu thích', 'success');
+          }
+        } else {
+          // Revert on error
+          product.isInWishlist = wasInWishlist;
+          Swal.fire('Lỗi', response.message || 'Có lỗi xảy ra', 'error');
+        }
+      },
+      error: (error) => {
+        // Revert on error
+        product.isInWishlist = wasInWishlist;
+        console.error('Error updating wishlist:', error);
+        Swal.fire('Lỗi', 'Không thể cập nhật danh sách yêu thích', 'error');
+      }
+    });
   }
 }

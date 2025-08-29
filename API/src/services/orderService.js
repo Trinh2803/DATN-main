@@ -242,8 +242,30 @@ const createOrder = async (orderData) => {
         discountAmount = Math.min(discount.discountValue, subtotal);
       }
       
+      // Lưu thông tin giảm giá vào đơn hàng
+      orderDataToSave.discountInfo = {
+        _id: discount._id,
+        code: discount.code,
+        name: discount.name,
+        discountType: discount.discountType,
+        discountValue: discount.discountValue,
+        maxDiscount: discount.maxDiscount
+      };
+      
       orderDataToSave.discountAmount = discountAmount;
       orderDataToSave.total = Math.max(0, subtotal - discountAmount);
+      
+      console.log(`[DISCOUNT] Applied discount ${discount.code}: ${discountAmount} VND`);
+      console.log(`[DISCOUNT] Subtotal: ${subtotal}, Discount: ${discountAmount}, Total: ${orderDataToSave.total}`);
+      
+      // Tăng số lần sử dụng mã giảm giá
+      try {
+        await Discount.incrementDiscountUsage(discount._id, orderData.userId);
+        console.log(`[DISCOUNT] Incremented usage count for discount ${discount.code}`);
+      } catch (discountError) {
+        console.error('[DISCOUNT] Error incrementing discount usage:', discountError);
+        // Tiếp tục xử lý đơn hàng ngay cả khi không thể tăng số lần sử dụng
+      }
     }
   }
 

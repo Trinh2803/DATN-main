@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+﻿import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { ProductInterface, Variant } from '../product-interface';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';

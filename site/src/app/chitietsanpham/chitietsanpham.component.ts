@@ -222,8 +222,20 @@ export class ChiTietSanPhamComponent implements OnInit {
       productToAdd.selectedVariant = this.selectedVariant;
     }
 
-    // Đưa appliedCoupon vào cart item nếu có
-    this.cartService.addToCartWithQuantity(productToAdd, this.quantity, this.appliedCoupon || undefined);
+    // Create a clean discount info object to pass to cart
+    const discountInfo = this.appliedCoupon ? {
+      _id: this.appliedCoupon._id,
+      code: this.appliedCoupon.code,
+      name: this.appliedCoupon.name,
+      discountType: this.appliedCoupon.discountType,
+      discountValue: this.appliedCoupon.discountValue,
+      maxDiscount: this.appliedCoupon.maxDiscount,
+      minOrderValue: this.appliedCoupon.minOrderValue
+    } : undefined;
+
+    // Pass the discount info to the cart service
+    this.cartService.addToCartWithQuantity(productToAdd, this.quantity, discountInfo);
+    
     Swal.fire({
       title: 'Thành công',
       text: `Đã thêm ${this.quantity} sản phẩm vào giỏ hàng`,
@@ -240,16 +252,26 @@ export class ChiTietSanPhamComponent implements OnInit {
       productToAdd.selectedVariant = this.selectedVariant;
     }
 
-    // Đưa appliedCoupon vào cart item nếu có
-    this.cartService.addToCartWithQuantity(productToAdd, this.quantity, this.appliedCoupon || undefined);
+    // Create a clean discount info object to pass to cart
+    const discountInfo = this.appliedCoupon ? {
+      _id: this.appliedCoupon._id,
+      code: this.appliedCoupon.code,
+      name: this.appliedCoupon.name,
+      discountType: this.appliedCoupon.discountType,
+      discountValue: this.appliedCoupon.discountValue,
+      maxDiscount: this.appliedCoupon.maxDiscount,
+      minOrderValue: this.appliedCoupon.minOrderValue
+    } : undefined;
+
+    // Pass the discount info to the cart service
+    this.cartService.addToCartWithQuantity(productToAdd, this.quantity, discountInfo);
     this.router.navigate(['/checkout']);
   }
 
   getCurrentPrice(): number {
     if (this.selectedVariant) {
       return this.selectedVariant.salePrice || this.selectedVariant.price;
-    }
-    if (this.product) {
+    } else if (this.product) {
       if (this.product.variants && this.product.variants.length > 0) {
         const minPrice = Math.min(...this.product.variants.map(v => v.salePrice || v.price));
         return minPrice;
@@ -709,24 +731,42 @@ export class ChiTietSanPhamComponent implements OnInit {
       return;
     }
 
-    // Apply the discount
-    this.appliedCoupon = { ...discount }; // Create a new object to trigger change detection
+    // Create a new reference to trigger change detection
+    const newDiscount = {
+      _id: discount._id,
+      code: discount.code,
+      name: discount.name,
+      discountType: discount.discountType,
+      discountValue: parseFloat(discount.discountValue),
+      maxDiscount: discount.maxDiscount ? parseFloat(discount.maxDiscount) : undefined,
+      minOrderValue: discount.minOrderValue ? parseFloat(discount.minOrderValue) : 0
+    };
+
+    // Update the applied coupon
+    this.appliedCoupon = { ...newDiscount };
     this.couponCode = '';
     this.couponError = '';
 
+    // Log for debugging
     console.log('Applied discount:', this.appliedCoupon);
-    console.log('Original price:', this.getCurrentPrice());
-    console.log('Discounted price:', this.getFinalPrice());
+    const originalPrice = this.getCurrentPrice();
+    const finalPrice = this.getFinalPrice();
+    const discountAmount = this.getDiscountAmount();
+    
+    console.log('Original price:', originalPrice);
+    console.log('Final price:', finalPrice);
+    console.log('Discount amount:', discountAmount);
 
-    // Force change detection
+    // Force change detection in the next tick
     setTimeout(() => {
       this.cdr.detectChanges();
-      console.log('Change detection triggered');
+      console.log('Change detection triggered after discount application');
     });
 
+    // Show success message
     Swal.fire({
       title: 'Thành công!',
-      text: `Đã áp dụng mã giảm giá ${discount.name} - Giảm ${discount.discountValue}${discount.discountType === 'percentage' ? '%' : 'đ'}`,
+      text: `Đã áp dụng mã giảm giá ${this.appliedCoupon.name} - Giảm ${this.appliedCoupon.discountValue}${this.appliedCoupon.discountType === 'percentage' ? '%' : 'đ'}`,
       icon: 'success',
       timer: 2000,
       showConfirmButton: false
@@ -763,47 +803,82 @@ export class ChiTietSanPhamComponent implements OnInit {
   }
 
   getDiscountAmount(): number {
-    if (!this.appliedCoupon || !this.selectedVariant) return 0;
+    if (!this.appliedCoupon) return 0;
 
-    const price = this.selectedVariant.salePrice || this.selectedVariant.price;
+    const price = this.getCurrentPrice();
     let discount = 0;
 
-    console.log('Calculating discount for price:', price, 'with coupon:', this.appliedCoupon);
+    console.log('Calculating discount - Price:', price, 'Coupon:', this.appliedCoupon);
 
     if (this.appliedCoupon.discountType === 'percentage') {
       // Calculate percentage discount
-      discount = price * (this.appliedCoupon.discountValue / 100);
+      const discountPercentage = parseFloat(this.appliedCoupon.discountValue) / 100;
+      discount = price * discountPercentage;
+      console.log('Percentage discount:', discount);
 
       // Apply maximum discount limit if set
-      if (this.appliedCoupon.maxDiscount !== undefined && discount > this.appliedCoupon.maxDiscount) {
-        console.log('Applying max discount limit:', this.appliedCoupon.maxDiscount);
-        discount = this.appliedCoupon.maxDiscount;
+      if (this.appliedCoupon.maxDiscount !== undefined) {
+        const maxDiscount = parseFloat(this.appliedCoupon.maxDiscount);
+        console.log('Max discount allowed:', maxDiscount);
+        if (discount > maxDiscount) {
+          console.log('Applying max discount limit');
+          discount = maxDiscount;
+        }
       }
-    } else {
+    } else if (this.appliedCoupon.discountType === 'fixed') {
       // Fixed amount discount
-      discount = this.appliedCoupon.discountValue;
+      discount = parseFloat(this.appliedCoupon.discountValue);
+      console.log('Fixed discount:', discount);
     }
 
-    // Ensure discount doesn't exceed the product price
-    const finalDiscount = Math.min(discount, price);
+    // Ensure discount doesn't exceed the product price and is not negative
+    const finalDiscount = Math.max(0, Math.min(discount, price));
     console.log('Final discount amount:', finalDiscount);
-
     return finalDiscount;
   }
 
   getFinalPrice(): number {
     const price = this.getCurrentPrice();
-    console.log('Calculating final price. Base price:', price);
-
+    
     if (!this.appliedCoupon) {
-      console.log('No discount applied, final price:', price);
       return price;
     }
 
-    const discount = this.getDiscountAmount();
-    const finalPrice = Math.max(0, price - discount);
-
-    console.log('Final price after discount:', finalPrice, '(Discount:', discount, ')');
+    console.log('Calculating final price - Original:', price);
+    
+    // Calculate discount amount
+    const discountAmount = this.getDiscountAmount();
+    console.log('Discount amount:', discountAmount);
+    
+    // Calculate final price, ensure it's not negative
+    let finalPrice = price - discountAmount;
+    console.log('Price after discount:', finalPrice);
+    
+    // Ensure price is not negative
+    finalPrice = Math.max(0, finalPrice);
+    
+    // Round to nearest integer to avoid floating point issues
+    finalPrice = Math.round(finalPrice * 100) / 100;
+    
+    console.log('Final price after rounding:', finalPrice);
     return finalPrice;
+  }
+
+  // Calculate discount percentage for display
+  getDiscountPercentage(): number {
+    if (!this.appliedCoupon) return 0;
+    
+    const price = this.getCurrentPrice();
+    if (price <= 0) return 0;
+    
+    if (this.appliedCoupon.discountType === 'percentage') {
+      return Math.round(parseFloat(this.appliedCoupon.discountValue));
+    } else if (this.appliedCoupon.discountType === 'fixed') {
+      const discountAmount = parseFloat(this.appliedCoupon.discountValue);
+      const percentage = (discountAmount / price) * 100;
+      return Math.min(100, Math.round(percentage)); // Cap at 100%
+    }
+    
+    return 0;
   }
 }

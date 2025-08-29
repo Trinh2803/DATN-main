@@ -29,10 +29,21 @@
       <h1 class="product-title">{{ product.name }}</h1>
 
       <div class="product-price">
-        <!-- Trường hợp đã áp dụng mã giảm giá -->
+        <!-- When discount is applied -->
         <ng-container *ngIf="appliedCoupon; else noCouponBlock">
-          <span class="current-price">{{ getFinalPrice() | currency:'VND':'symbol' }}</span>
-          <span class="old-price">{{ getCurrentPrice() | currency:'VND':'symbol' }}</span>
+          <div class="price-row">
+            <span class="current-price">{{ getFinalPrice() | currency:'VND':'symbol':'1.0-0' }}</span>
+            <span class="old-price">{{ getCurrentPrice() | currency:'VND':'symbol':'1.0-0' }}</span>
+            <span class="discount-badge" *ngIf="appliedCoupon">
+              -{{ getDiscountPercentage() }}%
+            </span>
+          </div>
+          <div class="price-savings" *ngIf="getDiscountAmount() > 0">
+            Tiết kiệm: {{ getDiscountAmount() | currency:'VND':'symbol':'1.0-0' }}
+            <button class="remove-coupon" (click)="removeCoupon()" title="Xóa mã giảm giá">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
         </ng-container>
 
         <!-- Trường hợp chưa áp dụng mã giảm giá -->
@@ -40,8 +51,8 @@
           <span class="discount-badge" *ngIf="isSaleProduct()">
             Giảm {{ calculateDiscountPercentage() }}%
           </span>
-          <span class="current-price">{{ getCurrentPrice() | currency:'VND':'symbol' }}</span>
-          <span class="old-price" *ngIf="isSaleProduct()">{{ getOriginalPrice() | currency:'VND':'symbol' }}</span>
+          <span class="current-price">{{ getCurrentPrice() | currency:'VND':'symbol':'1.0-0' }}</span>
+          <span class="old-price" *ngIf="isSaleProduct()">{{ getOriginalPrice() | currency:'VND':'symbol':'1.0-0' }}</span>
         </ng-template>
 
         <!-- Hiển thị thông tin giá khi có biến thể nhưng chưa chọn -->

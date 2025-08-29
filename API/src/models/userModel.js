@@ -19,7 +19,14 @@ const userSchema = new Schema({
   resetPasswordOtp: { type: String, default: null },
   resetPasswordOtpExpires: { type: Date, default: null },
   resetPasswordToken: { type: String, default: null },
-  resetPasswordExpires: { type: Date, default: null }
+  resetPasswordExpires: { type: Date, default: null },
+  
+  // Wishlist
+  wishlist: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product',
+    default: []
+  }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
