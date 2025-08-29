@@ -93,7 +93,10 @@
     <!-- Danh sách sản phẩm -->
     <section class="products-section">
       <div class="container">
-        <app-listcard [data]="displayedProducts"></app-listcard>
+        <app-listcard 
+          [data]="displayedProducts"
+          (wishlistToggled)="onWishlistToggled($event)">
+        </app-listcard>
       </div>
     </section>
 

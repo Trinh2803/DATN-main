@@ -26,6 +26,7 @@ export interface ProductInterface {
   variants?: Variant[];
   selectedVariant?: Variant;
   isHot?: boolean; // Cờ đánh dấu sản phẩm hot
+  isInWishlist?: boolean; // Trạng thái sản phẩm có trong wishlist không
 }
 
 export interface CategoryInterface {

@@ -210,6 +210,80 @@ const resetPassword = async (req, res) => {
   }
 };
 
+// Wishlist Controllers
+const addToWishlist = async (req, res) => {
+  try {
+    const { productId } = req.body;
+    const userId = req.user.id;
+    
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Người dùng không tồn tại' });
+    }
+
+    // Check if product is already in wishlist
+    if (user.wishlist.includes(productId)) {
+      return res.status(400).json({ success: false, message: 'Sản phẩm đã có trong danh sách yêu thích' });
+    }
+
+    user.wishlist.push(productId);
+    await user.save();
+
+    res.status(200).json({ 
+      success: true, 
+      message: 'Đã thêm vào danh sách yêu thích',
+      wishlist: user.wishlist
+    });
+  } catch (error) {
+    console.error('Error adding to wishlist:', error.message);
+    res.status(500).json({ success: false, message: 'Lỗi khi thêm vào danh sách yêu thích' });
+  }
+};
+
+const removeFromWishlist = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const userId = req.user.id;
+    
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Người dùng không tồn tại' });
+    }
+
+    // Remove product from wishlist
+    user.wishlist = user.wishlist.filter(id => id.toString() !== productId);
+    await user.save();
+
+    res.status(200).json({ 
+      success: true, 
+      message: 'Đã xóa khỏi danh sách yêu thích',
+      wishlist: user.wishlist
+    });
+  } catch (error) {
+    console.error('Error removing from wishlist:', error.message);
+    res.status(500).json({ success: false, message: 'Lỗi khi xóa khỏi danh sách yêu thích' });
+  }
+};
+
+const getWishlist = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    const user = await User.findById(userId).populate('wishlist');
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Người dùng không tồn tại' });
+    }
+
+    res.status(200).json({ 
+      success: true, 
+      wishlist: user.wishlist
+    });
+  } catch (error) {
+    console.error('Error getting wishlist:', error.message);
+    res.status(500).json({ success: false, message: 'Lỗi khi lấy danh sách yêu thích' });
+  }
+};
+
 const getToken = () => {
   return localStorage.getItem('adminToken');
 };
@@ -228,4 +302,7 @@ module.exports = {
   resetPassword,
   getToken,
   sendOtp,
+  addToWishlist,
+  removeFromWishlist,
+  getWishlist,
 };

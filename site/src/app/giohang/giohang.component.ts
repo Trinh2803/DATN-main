@@ -49,18 +49,33 @@ export class GiohangComponent implements OnInit {
   }
 
   calculateTotal(): void {
-    this.totalAmount = this.cartItems.reduce((total, item) => {
-      const price = this.getDiscountedItemPrice(item); // Sử dụng giá đã giảm nếu có
+    // Calculate subtotal without discount
+    const subtotal = this.cartItems.reduce((total, item) => {
+      const price = this.getProductPrice(item);
       return total + (price * item.quantity);
     }, 0);
+    
+    // Apply discount if available
+    if (this.discountInfo && this.discountApplied) {
+      if (this.discountInfo.discountType === 'percentage') {
+        const discountAmount = (subtotal * this.discountInfo.discountValue) / 100;
+        this.totalAmount = Math.max(0, subtotal - discountAmount);
+      } else if (this.discountInfo.discountType === 'fixed') {
+        this.totalAmount = Math.max(0, subtotal - this.discountInfo.discountValue);
+      } else {
+        this.totalAmount = subtotal;
+      }
+    } else {
+      this.totalAmount = subtotal;
+    }
     
     this.totalPrice = this.totalAmount;
   }
 
   getDiscountedTotal(): number {
     return this.cartItems.reduce((total, item) => {
-      const price = this.getDiscountedItemPrice(item);
-      return total + (price * item.quantity);
+      const itemPrice = this.getProductPrice(item);
+      return total + (itemPrice * item.quantity);
     }, 0);
   }
 
@@ -70,23 +85,9 @@ export class GiohangComponent implements OnInit {
   }
 
   getItemOriginalPrice(item: CartItem): number {
-    return this.getProductOriginalPrice(item);
+    return this.getProductPrice(item);
   }
 
-  getDiscountedItemPrice(item: CartItem): number {
-    let basePrice = item.selectedVariant ? 
-      (item.selectedVariant.salePrice || item.selectedVariant.price) : 
-      (item.product.salePrice || item.product.price);
-    
-    if (this.discountInfo) {
-      if (this.discountInfo.discountType === 'percentage') {
-        return Math.round(basePrice * (1 - this.discountInfo.discountValue / 100));
-      } else if (this.discountInfo.discountType === 'fixed') {
-        return Math.max(0, basePrice - this.discountInfo.discountValue);
-      }
-    }
-    return basePrice;
-  }
 
   getVariantInfo(item: CartItem): string | null {
     if (item.selectedVariant) {
@@ -124,23 +125,28 @@ export class GiohangComponent implements OnInit {
   applyDiscount() {
     if (!this.discountCode) return;
 
-    this.discountService.applyDiscount(this.discountCode).subscribe({
+    this.discountService.checkDiscount(this.discountCode).subscribe({
       next: (response: any) => {
-        if (response.success) {
+        if (response.success && response.discount) {
           this.discountInfo = response.discount;
           this.discountApplied = true;
           this.discountError = '';
           this.calculateTotal();
+          
+          // Lưu mã giảm giá vào localStorage để sử dụng khi thanh toán
+          localStorage.setItem('appliedDiscount', JSON.stringify(this.discountInfo));
         } else {
           this.discountError = response.error || 'Mã giảm giá không hợp lệ';
           this.discountApplied = false;
           this.discountInfo = null;
+          localStorage.removeItem('appliedDiscount');
         }
       },
       error: (error) => {
-        this.discountError = error.error?.error || 'Lỗi khi áp dụng mã giảm giá';
+        this.discountError = error.error?.error || 'Lỗi khi kiểm tra mã giảm giá';
         this.discountApplied = false;
         this.discountInfo = null;
+        localStorage.removeItem('appliedDiscount');
       }
     });
   }
@@ -216,10 +222,21 @@ export class GiohangComponent implements OnInit {
   }
 
   getProductPrice(item: CartItem): number {
-    if (item.selectedVariant) {
-      return item.selectedVariant.salePrice || item.selectedVariant.price;
+    let price = item.selectedVariant ? 
+      (item.selectedVariant.salePrice || item.selectedVariant.price) : 
+      (item.product.salePrice || item.product.price);
+    
+    // Apply coupon discount if exists
+    if (item.discountInfo) {
+      if (item.discountInfo.discountType === 'percentage') {
+        const discount = price * (item.discountInfo.discountValue / 100);
+        price = Math.max(0, price - discount);
+      } else if (item.discountInfo.discountType === 'fixed') {
+        price = Math.max(0, price - item.discountInfo.discountValue);
+      }
     }
-    return item.product.salePrice || item.product.price;
+    
+    return price;
   }
 
   getProductOriginalPrice(item: CartItem): number {
@@ -257,7 +274,6 @@ export class GiohangComponent implements OnInit {
     return 999; // Không giới hạn nếu không có biến thể
   }
 
-  // Discount code functionality removed.
 
   proceedToCheckout(): void {
     if (this.cartItems.length === 0) {
