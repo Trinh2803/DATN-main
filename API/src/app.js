@@ -33,7 +33,18 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(cors());
+// Cấu hình CORS
+const corsOptions = {
+  origin: '*', // Cho phép tất cả các domain truy cập
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
+
+// Xử lý preflight requests
+app.options('*', cors(corsOptions));
 
 // Phục vụ file tĩnh từ thư mục public/images
 app.use("/images", express.static(path.join(__dirname, "public/images")));

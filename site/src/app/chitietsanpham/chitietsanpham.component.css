@@ -212,10 +212,6 @@ a {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.variant-option.selected {
-  border-color: #ff6b6b;
-  background-color: #fff5f5;
-}
 
 .variant-option.out-of-stock {
   opacity: 0.5;
