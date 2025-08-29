@@ -85,7 +85,7 @@
               <button class="action-btn view-details" (click)="viewOrderDetails(order._id)">
                 Xem chi tiết
               </button>
-              <button class="action-btn comment-btn" (click)="goToProductComment(order.items[0].productId?._id || order.items[0].productId)" [disabled]="order.status !== 'Đã giao'">
+              <button class="action-btn comment-btn" (click)="goToProductComment(order.items[0].productId?._id || order.items[0].productId)" [disabled]="order.status !== 'Đã hoàn thành'">
                 Bình luận
               </button>
             </td>

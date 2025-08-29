@@ -34,7 +34,7 @@ export class lichsudonhangComponent implements OnInit {
       this.router.navigate(['/dangnhap']);
       return;
     }
-
+  
     console.log('Loading orders with token:', token);
     this.userService.getOrders().subscribe(
       (response) => {
@@ -44,21 +44,25 @@ export class lichsudonhangComponent implements OnInit {
           alert('Không thể tải lịch sử đơn hàng: ' + (response.message || 'Lỗi không xác định'));
           return;
         }
-
+  
         this.orders = response.data || [];
-        this.orders = this.orders.map((order) => {
-          console.log('Processing order:', order);
-          return {
-            ...order,
-            orderDate: new Date(order.createdAt).toLocaleDateString('vi-VN'),
-            product: order.items && order.items.length > 0 ? {
-              productName: order.items[0].productName,
-              quantity: order.items[0].quantity,
-              image: order.items[0].thumbnail || order.items[0].productId?.thumbnail || ''
-            } : {},
-          };
-        });
-        console.log('Processed orders:', this.orders);
+        this.orders = this.orders
+          .map((order) => {
+            console.log('Processing order:', order);
+            return {
+              ...order,
+              orderDate: new Date(order.createdAt).toLocaleDateString('vi-VN'),
+              product: order.items && order.items.length > 0 ? {
+                productName: order.items[0].productName,
+                quantity: order.items[0].quantity,
+                image: order.items[0].thumbnail || order.items[0].productId?.thumbnail || ''
+              } : {},
+            };
+          })
+          // Sắp xếp đơn hàng theo createdAt giảm dần (mới nhất lên đầu)
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  
+        console.log('Processed and sorted orders:', this.orders);
       },
       (error) => {
         console.error('Error loading orders:', error);
