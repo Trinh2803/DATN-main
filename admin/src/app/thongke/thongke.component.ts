@@ -72,7 +72,7 @@ export class ThongkeComponent implements OnInit, AfterViewInit, OnDestroy {
           beginAtZero: true,
           grid: {
             color: 'rgba(0, 0, 0, 0.05)',
-            drawBorder: false
+            drawOnChartArea: false
           },
           ticks: {
             color: '#64748b',
@@ -93,7 +93,7 @@ export class ThongkeComponent implements OnInit, AfterViewInit, OnDestroy {
         x: {
           grid: {
             display: false,
-            drawBorder: false
+            drawOnChartArea: false
           },
           ticks: {
             color: '#64748b',
